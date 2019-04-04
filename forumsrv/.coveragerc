@@ -1,0 +1,3 @@
+[run]
+source = forumsrv
+omit = forumsrv/test*

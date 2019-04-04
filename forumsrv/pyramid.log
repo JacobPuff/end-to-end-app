@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/usr/local/bin/pserve", line 11, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python2.7/dist-packages/pyramid/scripts/pserve.py", line 60, in main
+    return command.run()
+  File "/usr/local/lib/python2.7/dist-packages/pyramid/scripts/pserve.py", line 368, in run
+    relative_to=base, global_conf=vars)
+  File "/usr/local/lib/python2.7/dist-packages/pyramid/scripts/pserve.py", line 410, in loadserver
+    server_spec, name=name, relative_to=relative_to, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 255, in loadserver
+    return loadobj(SERVER, uri, name=name, **kw)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 271, in loadobj
+    global_conf=global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 296, in loadcontext
+    global_conf=global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 320, in _loadconfig
+    return loader.get_context(object_type, name, global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 454, in get_context
+    section)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 476, in _context_from_use
+    object_type, name=use, global_conf=global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 406, in get_context
+    global_conf=global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 296, in loadcontext
+    global_conf=global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 328, in _loadegg
+    return loader.get_context(object_type, name, global_conf)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 620, in get_context
+    object_type, name=name)
+  File "/usr/local/lib/python2.7/dist-packages/paste/deploy/loadwsgi.py", line 640, in find_egg_entry_point
+    pkg_resources.require(self.spec)
+  File "/usr/local/lib/python2.7/dist-packages/pkg_resources/__init__.py", line 943, in require
+    needed = self.resolve(parse_requirements(requirements))
+  File "/usr/local/lib/python2.7/dist-packages/pkg_resources/__init__.py", line 829, in resolve
+    raise DistributionNotFound(req, requirers)
+pkg_resources.DistributionNotFound: The 'waitress' distribution was not found and is required by the application
+Removing PID file pyramid.pid
