@@ -1,0 +1,10 @@
+<div class="input">
+    <input ng-model="child.noun"><p>Place</p></input>
+</div>
+<div class="input">
+    <input ng-model="child.verb"><p>Item</p></input>
+</div>
+<button ng-click='child.showSwitch();'>RUN</button>
+<h3 ng-show="child.showStr" style="border-bottom: solid 1px lightgreen">In {{child.tempnoun}} you can find a very rare item called a {{child.tempverb}}. I will be getting a {{child.tempverb}}.</h3>
+<h3 ng-show="child.showError" style="border-bottom: solid 1px lightgreen">You cannot have a blank field</h3>
+<button ng-click='child.getRandom();'>Try a different one!</button>

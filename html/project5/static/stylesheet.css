@@ -1,0 +1,57 @@
+body {
+    background-color: grey;
+}
+
+p {
+    margin: 0;
+}
+.container {
+    position: relative;
+    margin: auto;
+    width: 1300px;
+    height: 700px;
+    border: 3px solid darkgrey;
+    border-radius: 3px;
+}
+
+.msgInput {
+    outline-width: 0;
+    background-color:grey;
+    position: absolute;
+    margin-left: 1px;
+    bottom: 0;
+    width: 1197px;
+    height:17px;
+    border: 3px solid darkgrey;
+    border-radius: 3px;
+}
+
+.users {
+    background-color:grey;
+    margin-left: 1px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 90px;
+    height:697px;
+    border: 3px solid darkgrey;
+    border-radius: 3px;
+}
+
+.userInput {
+    outline-width: 0;
+    display: block;
+    left:50%;
+    margin: auto;
+    background-color:grey;
+    border: 3px solid darkgrey;
+    border-radius: 3px;
+}
+
+.userPrompt {
+    text-align: center;
+}
+
+* {
+    color: lightgrey;
+}

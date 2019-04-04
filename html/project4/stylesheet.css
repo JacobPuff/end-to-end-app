@@ -1,0 +1,18 @@
+body {
+    background: #1a1a1a;
+    color: lightgreen;
+}
+.container {
+    margin:auto;
+    display:table;
+    word-wrap: break-word;
+}
+.input {
+    margin: 5px;
+    display: inline-block;
+    border-bottom: solid 1px lightgreen;
+}
+h3 {
+    max-width: 600px;
+    text-overflow: wrap;
+}

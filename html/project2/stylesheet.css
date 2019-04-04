@@ -1,0 +1,38 @@
+ .Subject {
+     margin: 6px;
+     border: 1px solid black;
+     background: linear-gradient(indianred, red);
+ }
+ 
+ .Body {
+     margin: 6px;
+     border: 1px solid black;
+     background: linear-gradient(lightskyblue, blueviolet)
+ }
+ 
+ .Outline {
+     margin: 6px;
+     margin-left: 40px;
+     border: 1px solid black;
+     background: linear-gradient(grey,darkgrey)
+ }
+ 
+ .Flopple {
+     margin: 6px;
+     border: 1px solid black;
+     background: linear-gradient(limegreen,green);
+ }
+ 
+ .Show {
+     margin: 6px;
+     border: 1px solid black;
+     background: linear-gradient(mediumpurple,purple);
+     display:inline;
+ }
+ 
+ p {
+     margin-left: 6px;
+     margin-right: 6px;
+     margin-top: 10px;
+     margin-bottom: 10px;
+ }

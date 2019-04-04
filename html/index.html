@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.6/angular.min.js"></script>
+<script src="mainData.js"></script>
+<script src="mainApp.js"></script>
+<html ng-app="mainApp">
+<head>
+<title>Welcome to nginx on Ubuntu!</title>
+<link type="image/x-icon" href="/Metroid.ico"/>
+<link type="text/css" rel="stylesheet" href="stylesheet.css"/>
+<script>
+      console.log('begin');
+     for (i = 0; i <= 200; i++){
+            if(i % 4 == 0 && i % 7 == 0){
+            console.log('foobar');
+            }else if(i % 4 == 0){
+                  console.log('foo');
+            }else if(i % 7 == 0){
+                  console.log('bar')
+            }else{
+                  console.log(i);
+            };
+      };
+      console.log('end');
+</script>
+</head>
+<body ng-controller="mainCtrl as ctrl">
+        <a href="info"><img src="/Metroid.jpg" class="icon"></a>
+<h1 class="outline">Welcome to Jacobs website.</h1>
+
+<div class="outline">
+      <h1> ACTUAL STUFF MADE BY ME </h1>
+      <div class="button" ng-repeat="post in ctrl.projectPosts">
+            <a href="{{post.url}}">{{post.name}}<span><span class="popUpText">{{post.description}}</span></span></a>
+      </div>
+      <h3> I do stuff here to learn HTML, CSS, Python, Pyramid, Django, Javascript, Reactjs, and AngularJS </h3>
+</div>
+</body>
+</html>
