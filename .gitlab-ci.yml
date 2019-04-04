@@ -1,2 +1,5 @@
 before_script:
   - apt-get update
+
+restart:
+  - systemctl restart nginx
