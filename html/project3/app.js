@@ -545,6 +545,7 @@ var renderChests = function(){
 }
 var FPS = 30;  // lowest requirement 30 do not change except to go to 60
 dostuff = function() {
+    setTimeout(function(){
     window.requestAnimationFrame(dostuff);
     if(player.death == false){
             ctx.clearRect(0,0,1024,640);
@@ -555,6 +556,7 @@ dostuff = function() {
             ctx.fillText(player.gold,45,50);
     }
     player.draw();
+    }, 1000/FPS);
 };
 
 
