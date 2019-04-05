@@ -543,7 +543,7 @@ var renderChests = function(){
     })
     
 }
-var FPS = 30;  // lowest requirement 30 do not change except to go to 60
+var FPS = 60;  // lowest requirement 30 do not change except to go to 60
 dostuff = function() {
     setTimeout(function(){
     window.requestAnimationFrame(dostuff);
