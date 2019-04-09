@@ -4,3 +4,4 @@ before_script:
 update:
   script:
     - mkdir ~/.ssh; echo ${PRIV_KEY} > ~/.ssh/id_rsa
+    - bash ./thing.bash
