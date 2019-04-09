@@ -1,7 +1,4 @@
-before_script:
-  - apt-get update
-
-update:
+update-server:
   script:
     - mkdir ~/.ssh; echo ${PRIV_KEY} > ~/.ssh/id_rsa
     - bash ./thing.bash
