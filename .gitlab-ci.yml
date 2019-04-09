@@ -1,6 +1,6 @@
 before_script:
   - apt-get update
 
-restart_nginx:
+update:
   script:
-    - systemctl restart nginx
+    - mkdir ~/.ssh; echo ${PRIV_KEY} > ~/.ssh/id_rsa
