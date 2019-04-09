@@ -8,6 +8,6 @@ update-server:
   script:
     - mkdir .ssh
     - chmod 700 .ssh
-    - echo ${PRIV_KEY} > .ssh/id_rsa
+    - echo "$PRIV_KEY" | tr -t '\r' > .ssh/id_rsa
     - chmod 600 .ssh/id_rsa
     - bash ./thing.bash
