@@ -6,5 +6,7 @@ before_script:
 
 update-server:
   script:
-    - mkdir ~/.ssh; echo ${PRIV_KEY} > ~/.ssh/id_rsa
+    - mkdir ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo ${PRIV_KEY} > ~/.ssh/id_rsa
     - bash ./thing.bash
