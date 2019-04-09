@@ -2,6 +2,7 @@ before_script:
   - apk update
   - apk upgrade
   - apk add bash
+  - apk add openssh-client
 
 update-server:
   script:
