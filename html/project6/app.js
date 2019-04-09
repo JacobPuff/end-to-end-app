@@ -21,6 +21,8 @@ function boidClass(index){
     me.x = Math.floor(Math.random() * 700);
     me.y = Math.floor(Math.random() * 700);
     me.turn = 0;
+    me.color = 0;
+    me.stoppedEscaping = true;
     me.rotation = Math.floor(Math.random() * 360);
     me.toRotate = null;
     me.destinationX = null;
@@ -49,7 +51,8 @@ function boidClass(index){
             me.destinationY += me.local[i].y;
         }
         me.local.forEach(function(boid){
-            if(inLocal(boid.x, boid.y, me.x, me.y, crowdedRadius)){
+            if(inLocal(boid.x, boid.y, me.x, me.y, crowdedRadius) && me.stoppedEscaping == true){
+                me.stoppedEscaping = false;
                 //This is the steering bit that has to do with the local group.
                 /*
                     TODO
@@ -61,31 +64,38 @@ function boidClass(index){
 
                     5. Determine how to set "power".
                 */
-                console.log("0")
+                if(colorDevMode){
+                    me.color = 1;
+                }
                 if(me.rotation < me.average){
                     me.rotation -= 5;
                 }
                 if(me.rotation > me.average){
                     me.rotation += 5;
                 }
-            } else {
-                console.log("1")
-                console.log(me.average)
-                if(me.rotation < me.average){
-                    me.rotation += 3;
+            } else if(!inLocal(boid.x, boid.y, me.x, me.y, crowdedRadius)){
+                if(me.stoppedEscaping == false){
+                    me.stoppedEscaping = true;
+                    if(window.colorDevMode){
+                        me.color = 0;
+                    }
                 }
-                if(me.rotation > me.average){
-                    me.rotation -= 3;
+                //console.log(me.average)
+                if(me.rotation < me.average - 10){
+                    me.rotation += 1;
+                }
+                if(me.rotation > me.average + 10){
+                    me.rotation -= 1;
                 }
             }
         })
         //For random turning.
         //me.rotation += Math.floor(Math.random() * 2) - 1;
         if(me.rotation > 360) {
-            me.rotation = 1;
+            me.rotation = 1 + me.rotation - 360;
         }
         if(me.rotation < 0) {
-            me.rotation = 360;
+            me.rotation = 360 + me.rotation;
         }
         me.x += Math.cos(me.rotation * toRadians)// * me.speed; what are these for?
         me.y += Math.sin(me.rotation * toRadians)// * me.speed;
@@ -98,7 +108,10 @@ function boidClass(index){
         } else if(me.y < -32) {
             me.y = 732;
         }
-        drawBoid(me.x, me.y, me.size, me.rotation);
+        if(!window.colorDevMode){
+            me.color = 0;
+        }
+        drawBoid(me.x, me.y, me.size, me.rotation, me.color);
         if(window.devMode) {
             me.colorCircle(me.x, me.y, localRadius, 'white');
             me.colorCircle(me.x, me.y, crowdedRadius, 'red');
@@ -108,11 +121,15 @@ function boidClass(index){
     }
 }
 
-function drawBoid (x, y, size, rotation){
+function drawBoid (x, y, size, rotation, color){
     canvasContext.save();
     canvasContext.translate(x, y);
     canvasContext.rotate(rotation * toRadians + 90 * toRadians);
-    canvasContext.drawImage(currentSpriteSheet, 0, 0, size, size, -size/2, -size/2, size, size);
+    if(color == 0){
+        canvasContext.drawImage(currentSpriteSheet, 0, 0, size, size, -size/2, -size/2, size, size);
+    } else {
+        canvasContext.drawImage(currentSpriteSheet, 0, size, size, size, -size/2, -size/2, size, size);
+    }
     canvasContext.restore();
 }
 function inLocal (boidX, boidY, mainX, mainY, radius){
@@ -130,12 +147,16 @@ window.onload = function(){
     }
     window.stop = false;
     window.devMode = false;
+    window.colorDevMode = false;
     document.addEventListener('keydown', keyPressed);
     setInterval(drawAll,1000/60);
 }
 function keyPressed(e) {
     if(e.keyCode == 68) {
         window.devMode = !window.devMode;
+    }
+    if(e.keyCode == 67) {
+        window.colorDevMode = !window.colorDevMode;
     }
     if(e.keyCode == 32) {
         window.stop = !window.stop;
