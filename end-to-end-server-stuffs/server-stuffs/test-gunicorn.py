@@ -1,4 +1,4 @@
-def app(environ, start_response):
+def gunicornstuffs(environ, start_response):
     """Simplest possible application object"""
     data = 'Hello, World!\n'
     status = '200 OK'
