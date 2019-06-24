@@ -7,4 +7,4 @@ def gunicornstuffs(environ, start_response):
         ('Content-Length', str(len(data)))
     ]
     start_response(status, response_headers)
-    return inter([data])
+    return iter([data])
