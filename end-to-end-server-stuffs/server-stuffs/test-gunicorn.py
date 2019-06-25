@@ -1,6 +1,6 @@
 def gunicornstuffs(environ, start_response):
     """Simplest possible application object"""
-    data = b'Hello, World!\n'
+    data = bytes(environ)
     status = '200 OK'
     response_headers = [
         ('Content-type', 'text/plain'),
