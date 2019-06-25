@@ -1,8 +1,6 @@
 def gunicornstuffs(environ, start_response):
     """Simplest possible application object"""
-    data = b'get!\n'
-    if(environ['REQUEST_METHOD'] == 'POST'):
-        data = b'post!\n'
+    data = bytes("request method is: " + environ['REQUEST_METHOD'] + "!")
     status = '200 OK'
     response_headers = [
         ('Content-type', 'text/plain'),
