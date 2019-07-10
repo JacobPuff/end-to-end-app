@@ -23,10 +23,15 @@ def test_view(request):
             content_type='text/plain',
             body='Thats a GET request!'
         )
+    elif request.method == 'POST':
+        return Response(
+            content_type='text/plain',
+            body='Thats... a POST!'
+        )
     else:
         return Response(
             content_type='text/plain',
-            body='Thats... not a GET request dude.'
+            body='Thats not a GET or a POST request dude.'
         )
 
 
