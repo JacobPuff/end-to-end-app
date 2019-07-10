@@ -31,7 +31,7 @@ def test_view(request):
     else:
         return Response(
             content_type='text/plain',
-            body='Thats not a GET or a POST request dude.'
+            body='Thats not a GET or a POST request dude. Thats a %s' % request.method
         )
 
 
