@@ -16,6 +16,20 @@ def my_view(request):
     return {'one': one, 'project': 'server-stuffs'}
 
 
+@view_config(route_name='foobar')
+def test_view(request):
+    if request.method == 'GET':
+        return Response(
+            content_type='text/plain',
+            body='Thats a GET request!'
+        )
+    else:
+        return Response(
+            content_type='text/plain',
+            body='Thats... not a GET request dude.'
+        )
+
+
 db_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem
 might be caused by one of the following things:
