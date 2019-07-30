@@ -4,7 +4,13 @@ before_script:
   - apk add bash
   - apk add openssh-client
 
+run-test:
+  script:
+    - pytest server_stuffs\tests
+
 update-server:
+  only:
+    - master@gitlab.squizzlezig.com/JacobPuff/dev-server
   script:
     - mkdir .ssh
     - chmod 700 .ssh
