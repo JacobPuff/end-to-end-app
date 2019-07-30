@@ -144,27 +144,41 @@ class TaskTests(PyramidTestBase):
         self.assertEqual(checkEmptyList, [])
 
     def test_get_tasks_with_tasklist_id(self):
+        list_ids = []
+        task_ids = []
         self.request.method = 'POST'
-        # Create task list to pin tasks to
-        self.request.body = '{"user_id": 1, "list_name": "list"}'
+        # Create task lists to pin tasks to
+        self.request.body = '{"user_id": 1, "list_name": "list1"}'
         post_response = tasklists.tasklists(self.request)
-        list_id = json.loads(post_response.body)["d"]["list_id"]
+        list_ids.append(json.loads(post_response.body)["d"]["list_id"])
+
+        self.request.body = '{"user_id": 1, "list_name": "list2"}'
+        post_response = tasklists.tasklists(self.request)
+        list_ids.append(json.loads(post_response.body)["d"]["list_id"])
 
         # Create tasks to pin
-        task_ids = []
-        self.request.body = '{"list_id": ' + str(list_id) + ', "user_id": 1, "task_name": "task1"}'
+        self.request.body = '{"list_id": ' + str(list_ids[0]) + ', "user_id": 1, "task_name": "task1 for list_ids[0]"}'
         post_response = tasks.tasks(self.request)
         task_ids.append(json.loads(post_response.body)["d"]["task_id"])
 
-        self.request.body = '{"list_id": ' + str(list_id) + ', "user_id": 1, "task_name": "task2"}'
+        self.request.body = '{"list_id": ' + str(list_ids[0]) + ', "user_id": 1, "task_name": "task2 for list_ids[0]"}'
+        post_response = tasks.tasks(self.request)
+        task_ids.append(json.loads(post_response.body)["d"]["task_id"])
+
+        self.request.body = '{"list_id": ' + str(list_ids[1]) + ', "user_id": 1, "task_name": "task3 for list_ids[1]"}'
         post_response = tasks.tasks(self.request)
         task_ids.append(json.loads(post_response.body)["d"]["task_id"])
 
         # Get tasks by list id
         self.request.method = 'GET'
-        self.request.params["tasklist_id"] = list_id
+        self.request.params["tasklist_id"] = str(list_ids[0])
         response = tasks.tasks(self.request)
         self.assertEqual(response.body, b'{"d": [{"task_id": ' + bytes(str(task_ids[0]), 'utf-8') + b', "list_id": ' +
-                         bytes(str(list_id), 'utf-8') + b', "user_id": 1, "task_name": "task1"}, ' +
+                         bytes(str(list_ids[0]), 'utf-8') + b', "user_id": 1, "task_name": "task1 for list_ids[0]"}, ' +
                          b'{"task_id": ' + bytes(str(task_ids[1]), 'utf-8') + b', "list_id": ' +
-                         bytes(str(list_id), 'utf-8') + b', "user_id": 1, "task_name": "task2"}]}')
+                         bytes(str(list_ids[0]), 'utf-8') + b', "user_id": 1, "task_name": "task2 for list_ids[0]"}]}')
+
+        self.request.params["tasklist_id"] = str(list_ids[1])
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.body, b'{"d": [{"task_id": ' + bytes(str(task_ids[2]), 'utf-8') + b', "list_id": ' +
+                         bytes(str(list_ids[1]), 'utf-8') + b', "user_id": 1, "task_name": "task3 for list_ids[1]"}]}')
