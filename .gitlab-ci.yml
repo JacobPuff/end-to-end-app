@@ -3,6 +3,7 @@ before_script:
   - apk upgrade
   - apk add bash
   - apk add openssh-client
+  - apk add pytest
 
 run-test:
   script:
