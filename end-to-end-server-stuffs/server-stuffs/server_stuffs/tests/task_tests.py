@@ -153,7 +153,7 @@ class TaskTests(PyramidTestBase):
         # Create tasks to pin
         task_ids = []
         self.request.body = '{"list_id": ' + str(list_id) + ', "user_id": 1, "task_name": "task1"}'
-        post_response = tasks.tasks(self.requuest)
+        post_response = tasks.tasks(self.request)
         task_ids.append(json.loads(post_response.body)["d"]["task_id"])
 
         self.request.body = '{"list_id": ' + str(list_id) + ', "user_id": 1, "task_name": "task2"}'
@@ -164,7 +164,7 @@ class TaskTests(PyramidTestBase):
         self.request.method = 'GET'
         self.request.params["tasklist_id"] = list_id
         response = tasks.tasks(self.request)
-        self.assertEqual(response.body, b'{"d": [{"task_id": ' + bytes(str(task_ids[0]), 'utf-8') + b'"list_id": ' +
+        self.assertEqual(response.body, b'{"d": [{"task_id": ' + bytes(str(task_ids[0]), 'utf-8') + b', "list_id": ' +
                          bytes(str(list_id), 'utf-8') + b', "user_id": 1, "task_name": "task1"}, ' +
-                         b'{"task_id": ' + bytes(str(task_ids[1]), 'utf-8') + b'"list_id": ' +
+                         b'{"task_id": ' + bytes(str(task_ids[1]), 'utf-8') + b', "list_id": ' +
                          bytes(str(list_id), 'utf-8') + b', "user_id": 1, "task_name": "task2"}]}')
