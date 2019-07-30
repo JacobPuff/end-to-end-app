@@ -17,6 +17,7 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'gunicorn'
     ]
 
 tests_require = [
@@ -46,10 +47,12 @@ setup(name='server-stuffs',
           'testing': tests_require,
       },
       install_requires=requires,
-      entry_points="""\
-      [paste.app_factory]
-      main = server_stuffs:main
-      [console_scripts]
-      initialize_server-stuffs_db = server_stuffs.scripts.initializedb:main
-      """,
-      )
+      entry_points={
+          'paste.app_factory': [
+              'main = server_stuffs:main'
+            ],
+          'console_scripts': [
+              'initialize_server-stuffs_db = server_stuffs.scripts.initializedb:main',
+            ],
+      },
+)

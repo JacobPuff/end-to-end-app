@@ -3,17 +3,18 @@ from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-from ..models import MyModel
+from ..models import TaskListModel
 
 
 @view_config(route_name='api', renderer='../templates/mytemplate.jinja2')
 def my_view(request):
     try:
-        query = request.dbsession.query(MyModel)
-        one = query.filter(MyModel.name == 'one').first()
+        query = request.dbsession.query(TaskListModel)
+        list_id = query.filter(TaskListModel.list_id == 1).first()
+        print(hasattr(request, 'dbsession'))
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
-    return {'one': one, 'project': 'server-stuffs'}
+    return {'list_id': list_id, 'project': 'server-stuffs'}
 
 
 @view_config(route_name='foobar')
@@ -21,7 +22,7 @@ def test_view(request):
     if request.method == 'GET':
         return Response(
             content_type='text/plain',
-            body='Thats a GET request!'
+            body=request.params.get('foobar', 'Thats a GET request!')
         )
     elif request.method == 'POST':
         return Response(
