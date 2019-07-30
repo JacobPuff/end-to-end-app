@@ -144,4 +144,27 @@ class TaskTests(PyramidTestBase):
         self.assertEqual(checkEmptyList, [])
 
     def test_get_tasks_with_tasklist_id(self):
-        return True
+        self.request.method = 'POST'
+        # Create task list to pin tasks to
+        self.request.body = '{"user_id": 1, "list_name": "list"}'
+        post_response = tasklists.tasklists(self.request)
+        list_id = json.loads(post_response.body)["d"]["list_id"]
+
+        # Create tasks to pin
+        task_ids = []
+        self.request.body = '{"list_id": ' + str(list_id) + ', "user_id": 1, "task_name": "task1"}'
+        post_response = tasks.tasks(self.requuest)
+        task_ids.append(json.loads(post_response.body)["d"]["task_id"])
+
+        self.request.body = '{"list_id": ' + str(list_id) + ', "user_id": 1, "task_name": "task2"}'
+        post_response = tasks.tasks(self.request)
+        task_ids.append(json.loads(post_response.body)["d"]["task_id"])
+
+        # Get tasks by list id
+        self.request.method = 'GET'
+        self.request.params["tasklist_id"] = list_id
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.body, b'{"d": [{"task_id": ' + bytes(str(task_ids[0]), 'utf-8') + b'"list_id": ' +
+                         bytes(str(list_id), 'utf-8') + b', "user_id": 1, "task_name": "task1"}, ' +
+                         b'{"task_id": ' + bytes(str(task_ids[1]), 'utf-8') + b'"list_id": ' +
+                         bytes(str(list_id), 'utf-8') + b', "user_id": 1, "task_name": "task2"}]}')
