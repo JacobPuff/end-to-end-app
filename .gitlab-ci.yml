@@ -1,3 +1,7 @@
+stages:
+  - test
+  - deploy
+
 before_script:
   - apk update
   - apk upgrade
@@ -6,10 +10,12 @@ before_script:
   - apk add pytest
 
 run-test:
+  stage: test
   script:
-    - pytest end-to-end-server-stuffs/server-stuffs/server_stuffs/tests
+    - pytest /end-to-end-server-stuffs/server-stuffs/server_stuffs/tests
 
 update-server:
+  stage: deploy
   only:
     - master@gitlab.squizzlezig.com/JacobPuff/dev-server
   script:
