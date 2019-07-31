@@ -6,6 +6,8 @@ before_script:
 
 update-server:
   stage: deploy
+  only:
+    - master
   script:
     - mkdir .ssh
     - chmod 700 .ssh
