@@ -1,18 +1,8 @@
-stages:
-  - test
-  - deploy
-
 before_script:
   - apk update
   - apk upgrade
   - apk add bash
   - apk add openssh-client
-  - apk add pytest
-
-run-test:
-  stage: test
-  script:
-    - pytest /end-to-end-server-stuffs/server-stuffs/server_stuffs/tests
 
 update-server:
   stage: deploy
