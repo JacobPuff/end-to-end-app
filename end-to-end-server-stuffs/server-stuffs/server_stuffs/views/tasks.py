@@ -16,7 +16,7 @@ def tasks(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
     elif request.method == 'GET' and 'tasklist_id' in request.params and request.params['tasklist_id'].isdigit():
         query = request.dbsession.query(TaskModel)
@@ -25,19 +25,21 @@ def tasks(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
     elif request.method == 'POST':
-        body = json.loads(request.body)
+        body = request.json_body
         task = sqlobj_from_dict(TaskModel(), body)
         request.dbsession.add(task)
         # We use flush here so that task has a task_id because we need it for testing
+        # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the task_id
         request.dbsession.flush()
+        request.dbsession.refresh(task)
         result = dict_from_row(task)
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
 
 
@@ -52,17 +54,17 @@ def tasks_by_id(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
     elif request.method == 'PUT':
-        body = json.loads(request.body)
+        body = request.json_body
         query = request.dbsession.query(TaskModel)
         query.filter(TaskModel.task_id == task_id).\
             update({TaskModel.task_name: body['task_name']})
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body="task " + str(task_id) + " updated"
+            body=json.dumps({"d": "task " + str(task_id) + " updated"})
         )
     elif request.method == 'DELETE':
         query = request.dbsession.query(TaskModel)
@@ -70,5 +72,5 @@ def tasks_by_id(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body="task " + str(task_id) + " deleted"
+            body=json.dumps({"d": "task " + str(task_id) + " deleted"})
         )

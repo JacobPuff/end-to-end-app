@@ -16,19 +16,20 @@ def tasklists(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
     elif request.method == 'POST':
-        body = json.loads(request.body)
-        tasklist = sqlobj_from_dict(TaskListModel(), body)
+        tasklist = sqlobj_from_dict(TaskListModel(), request.json_body)
         request.dbsession.add(tasklist)
         # We use flush here so that tasklist has a list_id because we need it for testing
+        # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the list_id
         request.dbsession.flush()
+        request.dbsession.refresh(tasklist)
         result = dict_from_row(tasklist)
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
 
 
@@ -43,17 +44,17 @@ def tasklists_by_id(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body=json.dumps({'d': result})
+            body=json.dumps({"d": result})
         )
     elif request.method == 'PUT':
-        body = json.loads(request.body)
+        list_name = request.json_body.get('list_name')
         query = request.dbsession.query(TaskListModel)
         query.filter(TaskListModel.list_id == list_id).\
-            update({TaskListModel.list_name: body['list_name']})
+            update({TaskListModel.list_name: list_name})
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body="task list " + str(list_id) + " updated"
+            body=json.dumps({"d": "task list " + str(list_id) + " updated"})
         )
     elif request.method == 'DELETE':
         query = request.dbsession.query(TaskListModel)
@@ -61,5 +62,5 @@ def tasklists_by_id(request):
         return Response(
             content_type='application/json',
             charset='UTF-8',
-            body="task list " + str(list_id) + " deleted"
+            body=json.dumps({"d": "task list " + str(list_id) + " deleted"})
         )

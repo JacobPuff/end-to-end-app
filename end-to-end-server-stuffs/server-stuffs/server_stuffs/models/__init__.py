@@ -7,6 +7,8 @@ import zope.sqlalchemy
 # Base.metadata prior to any initialization routines
 from .tasklistmodel import TaskListModel  # noqa
 from .taskmodel import TaskModel
+from .usermodel import UserModel
+from .sessionmodel import SessionModel
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup
