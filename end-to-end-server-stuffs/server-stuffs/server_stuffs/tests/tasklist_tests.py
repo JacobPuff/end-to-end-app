@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from server_stuffs.scripts.test_reuse import PyramidTestBase
 from server_stuffs.views import tasklists, users
-import json
+from server_stuffs import user
 
 def make_user(self):
     self.request.method = 'POST'
     self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
     response = users.users(self.request)
-    user = response.json_body["d"]
-    return user
+    return response.json_body["d"]
 
 
 class TaskListTests(PyramidTestBase):
@@ -22,15 +21,17 @@ class TaskListTests(PyramidTestBase):
     def test_get_all_task_lists(self):
         list_ids = []
         # make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         # Create all the task lists
         self.request.method = 'POST'
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
         post_response = tasklists.tasklists(self.request)
         list_ids.append(post_response.json_body["d"]["list_id"])
 
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "bar2"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "bar2"}
         post_response = tasklists.tasklists(self.request)
         list_ids.append(post_response.json_body["d"]["list_id"])
 
@@ -38,26 +39,30 @@ class TaskListTests(PyramidTestBase):
         self.request.method = 'GET'
         self.request.json_body = None
         response = tasklists.tasklists(self.request)
-        self.assertEqual(response.json_body, {"d": [{"list_id": list_ids[0], "user_id": user["user_id"], "list_name": "foo1"},
-                                               {"list_id": list_ids[1],"user_id": user["user_id"], "list_name": "bar2"}]})
+        self.assertEqual(response.json_body, {"d": [{"list_id": list_ids[0], "user_id": user_response["user_id"], "list_name": "foo1"},
+                                               {"list_id": list_ids[1],"user_id": user_response["user_id"], "list_name": "bar2"}]})
 
     def test_post_task_list(self):
         # make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
         response = tasklists.tasklists(self.request)
         list_id = response.json_body["d"]["list_id"]
-        self.assertEqual(response.json_body, {"d": {"list_id": list_id, "user_id": user["user_id"], "list_name": "foo1"}})
+        self.assertEqual(response.json_body, {"d": {"list_id": list_id, "user_id": user_response["user_id"], "list_name": "foo1"}})
 
     def test_get_tasklist_by_id(self):
         # make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         # Create one list
         self.request.method = 'POST'
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 
@@ -65,29 +70,33 @@ class TaskListTests(PyramidTestBase):
         self.request.method = 'GET'
         self.request.matchdict = {"list_id": list_id}
         get_response = tasklists.tasklists_by_id(self.request)
-        self.assertEqual(get_response.json_body, {"d": {"list_id": list_id, "user_id": user["user_id"], "list_name": "foo1"}})
+        self.assertEqual(get_response.json_body, {"d": {"list_id": list_id, "user_id": user_response["user_id"], "list_name": "foo1"}})
 
     def test_put_tasklist_by_id(self):
         # make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 
         self.request.method = 'PUT'
         self.request.matchdict = {"list_id": list_id}
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "put foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "put foo1"}
         response = tasklists.tasklists_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "task list " + str(list_id) + " updated"})
 
     def test_delete_tasklist_by_id(self):
         # make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 

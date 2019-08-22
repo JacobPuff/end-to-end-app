@@ -2,7 +2,7 @@
 from server_stuffs.scripts.test_reuse import PyramidTestBase
 from server_stuffs.views import tasklists, tasks, users
 from server_stuffs.models.taskmodel import TaskModel
-import json
+from server_stuffs import user
 
 
 def make_user(self):
@@ -24,15 +24,17 @@ class TaskTests(PyramidTestBase):
         tasklist_ids = []
         task_ids = []
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         # Creates all the task lists
         self.request.method = 'POST'
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "foo1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
         post_response = tasklists.tasklists(self.request)
         tasklist_ids.append(post_response.json_body["d"]["list_id"])
 
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "bar2"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "bar2"}
         post_response = tasklists.tasklists(self.request)
         tasklist_ids.append(post_response.json_body["d"]["list_id"])
 
@@ -58,11 +60,13 @@ class TaskTests(PyramidTestBase):
 
     def test_post_task(self):
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
         response = tasklists.tasklists(self.request)
         list_id = response.json_body["d"]["list_id"]
 
@@ -74,11 +78,13 @@ class TaskTests(PyramidTestBase):
 
     def test_get_task_by_id(self):
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 
@@ -95,11 +101,13 @@ class TaskTests(PyramidTestBase):
 
     def test_put_task_by_id(self):
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 
@@ -117,11 +125,13 @@ class TaskTests(PyramidTestBase):
 
     def test_delete_task_by_id(self):
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 
@@ -138,11 +148,13 @@ class TaskTests(PyramidTestBase):
 
     def test_delete_tasklist_with_tasks(self):
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
         # Create task list to pin tasks to
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
         post_response = tasklists.tasklists(self.request)
         list_id = post_response.json_body["d"]["list_id"]
 
@@ -169,15 +181,17 @@ class TaskTests(PyramidTestBase):
         list_ids = []
         task_ids = []
         # Make user
-        user = make_user(self)
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         self.request.method = 'POST'
         # Create task lists to pin tasks to
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list1"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list1"}
         post_response = tasklists.tasklists(self.request)
         list_ids.append(post_response.json_body["d"]["list_id"])
 
-        self.request.json_body = {"user_id": user["user_id"], "list_name": "list2"}
+        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list2"}
         post_response = tasklists.tasklists(self.request)
         list_ids.append(post_response.json_body["d"]["list_id"])
 

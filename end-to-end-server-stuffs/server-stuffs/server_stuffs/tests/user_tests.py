@@ -1,7 +1,14 @@
 from server_stuffs.scripts.test_reuse import PyramidTestBase
 from server_stuffs.models import tasklistmodel, taskmodel, usermodel
 from server_stuffs.views import tasklists, tasks, users
-import json
+
+
+def make_user(self):
+    self.request.method = 'POST'
+    self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+    response = users.users(self.request)
+    return response.json_body["d"]
+
 
 class UserTests(PyramidTestBase):
 
@@ -10,7 +17,6 @@ class UserTests(PyramidTestBase):
 
     def tearDown(self):
         PyramidTestBase.tearDown(self)
-
 
     def test_post_user(self):
         self.request.method = 'POST'
@@ -26,5 +32,5 @@ class UserTests(PyramidTestBase):
         # Like if you just had a session with the user_id and the token or something
         # I dunno, its preparing for the future
         self.request.method = 'GET'
-        self.request.json_body = {""}
+        self.request.json_body = {"token"}
         return

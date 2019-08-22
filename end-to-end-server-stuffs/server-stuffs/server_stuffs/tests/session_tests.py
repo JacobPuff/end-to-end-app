@@ -3,7 +3,13 @@ from server_stuffs.models import SessionModel, UserModel,  TaskListModel, TaskMo
 from server_stuffs.views import sessions, users, tasklists, tasks
 from server_stuffs import user
 from datetime import datetime, timedelta
-import json
+
+
+def make_user(self):
+    self.request.method = 'POST'
+    self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+    response = users.users(self.request)
+    return response.json_body["d"]
 
 
 class SessionTests(PyramidTestBase):
@@ -16,10 +22,8 @@ class SessionTests(PyramidTestBase):
 
     def test_login_without_token_or_email(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
-        session1 = response.json_body["d"]["session"]["session_id"]
+        user_response = make_user(self)
+        session1 = user_response["session"]["session_id"]
 
         # Make user None so it actually logs in instead of using the token
         self.request.json_body = {}
@@ -37,10 +41,8 @@ class SessionTests(PyramidTestBase):
 
     def test_login_without_token_or_username(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
-        sessionid1 = response.json_body["d"]["session"]["session_id"]
+        user_response = make_user(self)
+        sessionid1 = user_response["session"]["session_id"]
 
         # Make user None so it actually logs in instead of using the token
         self.request.json_body = {}
@@ -58,9 +60,7 @@ class SessionTests(PyramidTestBase):
 
     def test_login_without_token_or_password(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
+        make_user(self)
 
         # Make user None so it actually logs in instead of using the token
         self.request.json_body = {}
@@ -74,9 +74,7 @@ class SessionTests(PyramidTestBase):
 
     def test_login_with_nothing_provided(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
+        make_user(self)
 
         # Make json_body an empty dict so nothing is provided, and user is None
         self.request.json_body = {}
@@ -89,10 +87,8 @@ class SessionTests(PyramidTestBase):
 
     def test_login_with_token(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
-        self.request.json_body = {"token": response.json_body["d"]["session"]["token"]}
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
         self.request.user = user(self.request)
 
         # Login with good token
@@ -104,10 +100,8 @@ class SessionTests(PyramidTestBase):
 
     def test_login_with_bad_token(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
-        session = response.json_body["d"]["session"]
+        user_response = make_user(self)
+        session = user_response["session"]
 
         # make token invalid
         session["last_active"] = datetime.utcnow() - timedelta(weeks=1, days=1)
@@ -123,13 +117,11 @@ class SessionTests(PyramidTestBase):
 
     def test_check_token_valid_put(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
-        self.request.user = response.json_body["d"]
+        user_response = make_user(self)
+        self.request.json_body = {"token":  user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
         # check valid
-        self.request.json_body = {"token":  self.request.user["session"]["token"]}
         response = sessions.sessions(self.request)
         session = response.json_body["d"]
         self.assertEqual(response.json_body, {"d": {"session_id": session["session_id"],
@@ -138,13 +130,10 @@ class SessionTests(PyramidTestBase):
 
     def test_session_delete(self):
         # Make user
-        self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        response = users.users(self.request)
-        self.request.user = response.json_body["d"]
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
 
-        session = self.request.user["session"]
         self.request.method = 'DELETE'
-        self.request.json_body = {"token": session["token"]}
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": "deleted session"})
