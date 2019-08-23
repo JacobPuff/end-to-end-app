@@ -36,11 +36,28 @@ class UserTests(PyramidTestBase):
 
         # Get user
         user_id = user_response["user_id"]
-        self.request.matchdict = {"user_id": str(user_id)}
+        self.request.matchdict = {"user_id": user_id}
         self.request.method = 'GET'
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
                                                     "user_email": "test@squizzlezig.com"}})
+
+    def test_put_user_by_id(self):
+        # Make user
+        user_response = make_user(self)
+        token = user_response["session"]["token"]
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
+
+        # Update user
+        user_id = user_response["user_id"]
+        self.request.matchdict = {"user_id": user_id}
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+                                  "user_pass": "passwordForTest", "token": token}
+        self.request.method = 'PUT'
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "userfortesting",
+                                                    "user_email": "testerino@squizzlezig.com"}})
 
     def test_delete_user_by_id(self):
         # Make user

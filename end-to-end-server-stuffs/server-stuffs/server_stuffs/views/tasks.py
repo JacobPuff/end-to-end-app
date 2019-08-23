@@ -30,8 +30,7 @@ def tasks(request):
             body=json.dumps({"d": result})
         )
     elif request.method == 'POST':
-        body = request.json_body
-        task = sqlobj_from_dict(TaskModel(), body)
+        task = sqlobj_from_dict(TaskModel(), request.json_body)
         request.dbsession.add(task)
         # We use flush here so that task has a task_id because we need it for testing
         # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the task_id

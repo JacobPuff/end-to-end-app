@@ -68,7 +68,7 @@ class TaskListTests(PyramidTestBase):
 
         # Get one list
         self.request.method = 'GET'
-        self.request.matchdict = {"list_id": str(list_id)}
+        self.request.matchdict = {"list_id": list_id}
         get_response = tasklists.tasklists_by_id(self.request)
         self.assertEqual(get_response.json_body, {"d": {"list_id": list_id, "user_id": user_response["user_id"], "list_name": "foo1"}})
 
@@ -84,7 +84,7 @@ class TaskListTests(PyramidTestBase):
         list_id = post_response.json_body["d"]["list_id"]
 
         self.request.method = 'PUT'
-        self.request.matchdict = {"list_id": str(list_id)}
+        self.request.matchdict = {"list_id": list_id}
         self.request.json_body = {"user_id": user_response["user_id"], "list_name": "put foo1"}
         response = tasklists.tasklists_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "task list " + str(list_id) + " updated"})
@@ -101,6 +101,6 @@ class TaskListTests(PyramidTestBase):
         list_id = post_response.json_body["d"]["list_id"]
 
         self.request.method = 'DELETE'
-        self.request.matchdict = {"list_id": str(list_id)}
+        self.request.matchdict = {"list_id": list_id}
         response = tasklists.tasklists_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "task list " + str(list_id) + " deleted"})

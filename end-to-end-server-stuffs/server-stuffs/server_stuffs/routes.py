@@ -6,6 +6,6 @@ def includeme(config):
     config.add_route('tasks', '/api/tasks')
     config.add_route('tasks_by_id', '/api/tasks/{task_id:.*}')
     config.add_route('users', '/api/users')
-    config.add_route('users_by_id', '/api/tasks/{user_id:.*')
+    config.add_route('users_by_id', '/api/users/{user_id:.*}')
     config.add_route('sessions', '/api/sessions')
     config.add_route('foobar', '/api/foobar')

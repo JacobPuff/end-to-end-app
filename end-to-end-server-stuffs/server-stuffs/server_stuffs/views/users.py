@@ -68,7 +68,7 @@ def users(request):
         return "password reset request. The update should happen on the users/id url"
 
 
-# This handles requests without a user_id
+# This handles requests with a user_id
 @view_config(route_name='users_by_id')
 def users_by_id(request):
     user_id = request.matchdict.get('user_id')
@@ -83,6 +83,38 @@ def users_by_id(request):
             else:
                 status_code = 200
                 result = dict_from_row(request.user, removals)
+
+        return Response(
+            content_type='application/json',
+            charset='UTF-8',
+            status_code=status_code,
+            body=json.dumps({"d": result}, default=datetime_serializer)
+        )
+
+    if request.method == 'PUT':
+        body = request.json_body
+        if request.user is None:
+            status_code = 400
+            result = error_dict("api_error", "not authenticated for this request")
+        else:
+            if user_id is None or int(user_id) != request.user.user_id:
+                status_code = 400
+                result = error_dict("api_error", "not authenticated for this request")
+            elif body.get("user_name") is None and body.get("user_email") is None and body.get("user_pass") is None:
+                status_code = 400
+                result = error_dict("api_error", "no values provided to update")
+            else:
+                if body.get("user_name"):
+                    request.user.user_name = body.get("user_name").lower()
+                if body.get("user_email"):
+                    request.user.user_email = body.get("user_email").lower()
+                if body.get("user_pass"):
+                    request.user.user_pass = pwd_context.hash(body.get("user_pass"))
+
+                request.dbsession.flush()
+                request.dbsession.refresh(request.user)
+                status_code = 200
+                result = dict_from_row(request.user, remove_fields=removals)
 
         return Response(
             content_type='application/json',

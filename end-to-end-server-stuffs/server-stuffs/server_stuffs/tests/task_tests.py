@@ -170,7 +170,7 @@ class TaskTests(PyramidTestBase):
 
         # Delete task list
         self.request.method = 'DELETE'
-        self.request.matchdict = {"list_id": str(list_id)}
+        self.request.matchdict = {"list_id": list_id}
         response = tasklists.tasklists_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "task list " + str(list_id) + " deleted"})
         query = self.dbsession.query(TaskModel)
