@@ -138,7 +138,7 @@ def users_by_id(request):
                 status_code = 200
                 userquery = request.dbsession.query(UserModel)
                 userquery.filter(UserModel.user_id == user_id).delete()
-                result = "deleted user " + user_id
+                result = "deleted user " + str(user_id)
 
         return Response(
             content_type='application/json',
