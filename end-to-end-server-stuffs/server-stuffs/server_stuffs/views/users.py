@@ -25,13 +25,16 @@ def username_in_use(user_name, dbsession):
 @view_config(route_name='users')
 def users(request):
     if request.method == 'POST':
-        status_code = 200
         body = request.json_body
 
-        if username_in_use(body["user_name"], request.dbsession):
+        if "user_name" not in body or "user_email" not in body or "user_pass" not in body:
             status_code = 400
-            result = error_dict("api_error", "Username already in use")
+            result = error_dict("api_error", "username, email, and password, are required")
+        elif username_in_use(body.get('user_name'), request.dbsession):
+            status_code = 400
+            result = error_dict("api_error", "username already in use")
         else:
+            status_code = 200
             user = UserModel()
             user.user_name = body["user_name"].lower()
             user.user_email = body["user_email"].lower()
@@ -53,6 +56,7 @@ def users(request):
 
             result = dict_from_row(user, remove_fields=removals)
             result['session'] = dict_from_row(s, remove_fields=removals)
+
         return Response(
             content_type='application/json',
             charset='UTF-8',
@@ -67,18 +71,43 @@ def users(request):
 # This handles requests without a user_id
 @view_config(route_name='users_by_id')
 def users_by_id(request):
-    user_id = request.match['user_id']
+    user_id = request.matchdict.get('user_id')
     if request.method == 'GET':
-        result = {}
-        status_code = 200
-        body = request.json_body
-
         if request.user is None:
             status_code = 400
-            result = error_dict("api_errors", "not authenticated for this request")
+            result = error_dict("api_error", "not authenticated for this request")
         else:
-            return
-        return
+            if user_id is None or int(user_id) != request.user.user_id:
+                status_code = 400
+                result = error_dict("api_error", "not authenticated for this request")
+            else:
+                status_code = 200
+                result = dict_from_row(request.user, removals)
+
+        return Response(
+            content_type='application/json',
+            charset='UTF-8',
+            status_code=status_code,
+            body=json.dumps({"d": result}, default=datetime_serializer)
+        )
 
     if request.method == 'DELETE':
-        return "Delete user"
+        if request.user is None:
+            status_code = 400
+            result = error_dict("api_error", "not authenticated for this request")
+        else:
+            if user_id is None or int(user_id) != request.user.user_id:
+                status_code = 400
+                result = error_dict("api_error", "not authenticated")
+            else:
+                status_code = 200
+                userquery = request.dbsession.query(UserModel)
+                userquery.filter(UserModel.user_id == user_id).delete()
+                result = "deleted user " + user_id
+
+        return Response(
+            content_type='application/json',
+            charset='UTF-8',
+            status_code=status_code,
+            body=json.dumps({"d": result}, default=datetime_serializer)
+        )

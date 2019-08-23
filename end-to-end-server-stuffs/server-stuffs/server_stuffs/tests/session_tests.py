@@ -70,7 +70,7 @@ class SessionTests(PyramidTestBase):
         self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com"}
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["Username or email, and password needed"]}})
+                                                    "errors": ["username or email, and password are required"]}})
 
     def test_login_with_nothing_provided(self):
         # Make user
@@ -83,7 +83,7 @@ class SessionTests(PyramidTestBase):
         # Login with nothing provided
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["Username or email, and password needed"]}})
+                                                    "errors": ["username or email, and password are required"]}})
 
     def test_login_with_token(self):
         # Make user
@@ -113,7 +113,7 @@ class SessionTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["Username or email, and password needed"]}})
+                                                    "errors": ["username or email, and password are required"]}})
 
     def test_check_token_valid_put(self):
         # Make user

@@ -1,6 +1,7 @@
 from server_stuffs.scripts.test_reuse import PyramidTestBase
 from server_stuffs.models import tasklistmodel, taskmodel, usermodel
 from server_stuffs.views import tasklists, tasks, users
+from server_stuffs import user
 
 
 def make_user(self):
@@ -28,9 +29,28 @@ class UserTests(PyramidTestBase):
                                                     "user_email": "test@squizzlezig.com", "session": session}})
 
     def test_get_user_by_id(self):
-        # YO DAWG THIS IS WHAT YOU WERE WORKING ON! YOU JUST WANT TO RETURN THE USER!
-        # Like if you just had a session with the user_id and the token or something
-        # I dunno, its preparing for the future
+        # Make user
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
+
+        # Get user
+        user_id = user_response["user_id"]
+        self.request.matchdict = {"user_id": str(user_id)}
         self.request.method = 'GET'
-        self.request.json_body = {"token"}
-        return
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
+                                                    "user_email": "test@squizzlezig.com"}})
+
+    def test_delete_user_by_id(self):
+        # Make user
+        user_response = make_user(self)
+        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
+
+        # Get user
+        user_id = user_response["user_id"]
+        self.request.matchdict = {"user_id": str(user_id)}
+        self.request.method = 'DELETE'
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": "deleted user " + str(user_id)})

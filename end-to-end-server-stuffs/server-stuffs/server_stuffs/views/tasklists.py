@@ -26,6 +26,7 @@ def tasklists(request):
         request.dbsession.flush()
         request.dbsession.refresh(tasklist)
         result = dict_from_row(tasklist)
+
         return Response(
             content_type='application/json',
             charset='UTF-8',
@@ -36,7 +37,7 @@ def tasklists(request):
 # This handles requests dealing with a list id
 @view_config(route_name='tasklists_by_id')
 def tasklists_by_id(request):
-    list_id = request.matchdict['list_id']
+    list_id = request.matchdict.get("list_id")
     if request.method == 'GET':
         query = request.dbsession.query(TaskListModel)
         tasklist = query.filter(TaskListModel.list_id == list_id).first()
@@ -51,6 +52,7 @@ def tasklists_by_id(request):
         query = request.dbsession.query(TaskListModel)
         query.filter(TaskListModel.list_id == list_id).\
             update({TaskListModel.list_name: list_name})
+
         return Response(
             content_type='application/json',
             charset='UTF-8',
@@ -59,6 +61,7 @@ def tasklists_by_id(request):
     elif request.method == 'DELETE':
         query = request.dbsession.query(TaskListModel)
         query.filter(TaskListModel.list_id == list_id).delete()
+
         return Response(
             content_type='application/json',
             charset='UTF-8',
