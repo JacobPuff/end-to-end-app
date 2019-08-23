@@ -29,10 +29,13 @@ def users(request):
 
         if "user_name" not in body or "user_email" not in body or "user_pass" not in body:
             status_code = 400
-            result = error_dict("api_error", "username, email, and password, are required")
+            result = error_dict("api_error", "username, email, and password are required")
         elif username_in_use(body.get('user_name'), request.dbsession):
             status_code = 400
             result = error_dict("api_error", "username already in use")
+        elif len(body.get("user_pass")) < 8:
+            status_code = 400
+            result = error_dict("api_error", "password must be at least 8 characters")
         else:
             status_code = 200
             user = UserModel()

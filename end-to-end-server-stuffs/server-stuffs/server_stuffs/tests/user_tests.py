@@ -25,8 +25,45 @@ class UserTests(PyramidTestBase):
         response = users.users(self.request)
         user_id = response.json_body["d"]["user_id"]
         session = response.json_body["d"]["session"]
-        self.assertEqual(response.json_body, {"d": {"user_id":  user_id, "user_name": "testuser",
+        self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
                                                     "user_email": "test@squizzlezig.com", "session": session}})
+
+    def test_post_user_no_password(self):
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com"}
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["username, email, and password are required"]}})
+
+    def test_post_user_no_username_or_email(self):
+        self.request.method = 'POST'
+        self.request.json_body = {"user_pass": "TestPass"}
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["username, email, and password are required"]}})
+
+    def test_post_user_nothing_provided(self):
+        self.request.method = 'POST'
+        self.request.json_body = {}
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["username, email, and password are required"]}})
+
+    def test_post_user_with_duplicate_username(self):
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+        users.users(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["username already in use"]}})
+
+    def test_post_user_with_short_pass(self):
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "pass"}
+        users.users(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["password must be at least 8 characters"]}})
 
     def test_get_user_by_id(self):
         # Make user
