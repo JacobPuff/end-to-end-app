@@ -133,7 +133,7 @@ def users_by_id(request):
         else:
             if user_id is None or int(user_id) != request.user.user_id:
                 status_code = 400
-                result = error_dict("api_error", "not authenticated")
+                result = error_dict("api_error", "not authenticated for this request")
             else:
                 status_code = 200
                 userquery = request.dbsession.query(UserModel)

@@ -210,7 +210,7 @@ class UserTests(PyramidTestBase):
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "deleted user " + str(user_id)})
 
-    def test_delete_user_by_id_no_user(self):
+    def test_delete_user_by_id_no_token(self):
         # Make user
         post_response = make_user(self)
         user_id = post_response["user_id"]
@@ -218,6 +218,28 @@ class UserTests(PyramidTestBase):
         # Delete user
         self.request.method = 'DELETE'
         self.request.matchdict = {"user_id": user_id}
+        self.request.user = user(self.request)
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
+    def test_delete_user_by_id_different_user(self):
+        # Make user one
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+        post_response = users.users(self.request).json_body["d"]
+        user_id = post_response["user_id"]
+
+        # Make user two
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "DifferentUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+        post_response = users.users(self.request).json_body["d"]
+        token = post_response["session"]["token"]
+
+        # Update user
+        self.request.method = 'DELETE'
+        self.request.matchdict = {"user_id": user_id}
+        self.request.json_body = {"token": token}
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
