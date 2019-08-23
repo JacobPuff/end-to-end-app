@@ -68,16 +68,41 @@ class UserTests(PyramidTestBase):
     def test_get_user_by_id(self):
         # Make user
         user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
+        self.request.method = 'GET'
+        self.request.GET = {"token": user_response["session"]["token"]}
         self.request.user = user(self.request)
 
         # Get user
         user_id = user_response["user_id"]
         self.request.matchdict = {"user_id": user_id}
-        self.request.method = 'GET'
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
                                                     "user_email": "test@squizzlezig.com"}})
+
+    def test_get_user_by_id_no_token(self):
+        # Make user
+        user_response = make_user(self)
+        self.request.method = 'GET'
+        self.request.user = user(self.request)
+
+        # Get user
+        user_id = user_response["user_id"]
+        self.request.matchdict = {"user_id": user_id}
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
+    def test_get_user_by_id_no_user_id(self):
+        # Make user
+        user_response = make_user(self)
+        self.request.method = 'GET'
+        self.request.GET = {"token": user_response["session"]["token"]}
+        self.request.user = user(self.request)
+
+        # Get user
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
 
     def test_put_user_by_id(self):
         # Make user
