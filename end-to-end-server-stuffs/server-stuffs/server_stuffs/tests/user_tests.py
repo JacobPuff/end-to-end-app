@@ -48,7 +48,7 @@ class UserTests(PyramidTestBase):
         self.request.json_body = {"token": user_response["session"]["token"]}
         self.request.user = user(self.request)
 
-        # Get user
+        # Delete user
         user_id = user_response["user_id"]
         self.request.matchdict = {"user_id": str(user_id)}
         self.request.method = 'DELETE'
