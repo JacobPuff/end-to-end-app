@@ -6,7 +6,6 @@ SQLAlchemy
 transaction
 zope.sqlalchemy
 waitress
-gunicorn
 
 [testing]
 WebTest>=1.3.1
