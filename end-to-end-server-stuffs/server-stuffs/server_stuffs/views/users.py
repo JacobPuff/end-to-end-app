@@ -68,7 +68,9 @@ def users(request):
         )
 
     if request.method == 'PUT':
-        return "password reset request. The update should happen on the users/id url"
+        # password reset request. The update should happen on the users/id url
+        # A delay happened, so I'm going to work on something else while I wait.
+        return Response(body="Not implemented yet")
 
 
 # This handles requests with a user_id
