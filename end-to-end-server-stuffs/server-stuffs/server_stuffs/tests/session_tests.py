@@ -88,10 +88,11 @@ class SessionTests(PyramidTestBase):
     def test_login_with_token(self):
         # Make user
         user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        token = user_response["session"]["token"]
 
         # Login with good token
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         session = response.json_body["d"]
         self.assertEqual(response.json_body, {"d": {"session_id": session["session_id"],
@@ -118,15 +119,71 @@ class SessionTests(PyramidTestBase):
     def test_check_token_valid_put(self):
         # Make user
         user_response = make_user(self)
-        self.request.json_body = {"token":  user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        token = user_response["session"]["token"]
 
         # check valid
+        self.request.method = 'PUT'
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         session = response.json_body["d"]
         self.assertEqual(response.json_body, {"d": {"session_id": session["session_id"],
                                                     "user_id": session["user_id"], "started": session["started"],
                                                     "last_active": session["last_active"], "token": session["token"]}})
+
+    def test_check_token_valid_put_no_token(self):
+        # Make user
+        user_response = make_user(self)
+        token1 = user_response["session"]["token"]
+        self.request.user = user(self.request)
+
+        # check valid
+        self.request.method = 'PUT'
+        self.request.user = user(self.request)
+        response = sessions.sessions(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
+    def test_check_token_valid_put_deletes_all_invalid_tokens(self):
+        # Make user
+        user_response = make_user(self)
+        session1 = user_response["session"]
+
+        # Log in again
+        self.request.method = 'POST'
+        self.request.body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+        self.request.user = user(self.request)
+        post_response = sessions.sessions(self.request)
+        session2token = post_response.json_body["d"]["token"]
+
+        # Make first token invalid
+        session1["last_active"] = datetime.utcnow() - timedelta(weeks=1, days=1)
+        self.request.dbsession.query(SessionModel).filter(SessionModel.token == session1["token"]) \
+            .update({SessionModel.last_active: session1["last_active"]})
+
+        # check first token invalid
+        self.request.method = 'PUT'
+        self.request.json_body = {"token": session1["token"]}
+        self.request.user = user(self.request)
+        response = sessions.sessions(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
+        # check second token valid
+        self.request.method = 'PUT'
+        self.request.json_body = {"token": session2token}
+        self.request.user = user(self.request)
+        response = sessions.sessions(self.request)
+        session2 = response.json_body["d"]
+        self.assertEqual(response.json_body, {"d": {"session_id": session2["session_id"],
+                                                    "user_id": session2["user_id"], "started": session2["started"],
+                                                    "last_active": session2["last_active"], "token": session2["token"]}})
+
+        # check invalid token deleted
+        session1Exists = self.request.dbsession.query(SessionModel)\
+            .filter(SessionModel.token == session1["token"]).one_or_none()
+
+        self.assertEqual(session1Exists, None)
 
     def test_session_delete(self):
         # Make user
@@ -137,3 +194,13 @@ class SessionTests(PyramidTestBase):
         self.request.method = 'DELETE'
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": "deleted session"})
+
+    def test_session_delete_no_token(self):
+        # Make user
+        make_user(self)
+
+        self.request.method = 'DELETE'
+        self.request.user = user(self.request)
+        response = sessions.sessions(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})

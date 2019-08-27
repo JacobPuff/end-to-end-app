@@ -59,22 +59,15 @@ def sessions(request):
             status_code = 400
             result = error_dict("api_error", "not authenticated for this request")
         else:
+            sessionquery = request.dbsession.query(SessionModel)
+            sessionquery.filter(SessionModel.last_active < (datetime.now() - timedelta(weeks=1))).delete()
+
             token = request.json_body.get('token')
-            session = request.dbsession.query(SessionModel).filter(SessionModel.token == token,
-                                                                   SessionModel.user_id == request.user.user_id).one_or_none()
-            if session is None:
-                status_code = 400
-                result = error_dict("api_error", "no valid token provided")
-            else:
-                expiration_value = timedelta(weeks=1)
-                if(datetime.utcnow() - expiration_value) > session.last_active:
-                    status_code = 400
-                    result = error_dict("api_error", "no valid token provided")
-                else:
-                    status_code = 200
-                    session.last_active = datetime.utcnow()
-                    request.dbsession.flush()
-                    result = dict_from_row(session)
+            session = sessionquery.filter(SessionModel.token == token).one_or_none()
+            session.last_active = datetime.utcnow()
+            request.dbsession.flush()
+            status_code = 200
+            result = dict_from_row(session)
 
         return Response(
             content_type='application/json',
@@ -89,19 +82,10 @@ def sessions(request):
             result = error_dict("api_error", "not authenticated for this request")
         else:
             token = request.json_body.get('token')
-            if token is None:
-                status_code = 400
-                result = error_dict("api_error", "no valid token provided")
-            else:
-                sessionquery = request.dbsession.query(SessionModel)
-                session = sessionquery.filter(SessionModel.token == token).one_or_none()
-                if session is None:
-                    status_code = 400
-                    result = error_dict("api_error", "no valid token provided")
-                else:
-                    status_code = 200
-                    sessionquery.filter(SessionModel.session_id == session.session_id).delete()
-                    result = "deleted session"
+            request.dbsession.query(SessionModel).filter(SessionModel.token == token)\
+                .filter(SessionModel.user_id == request.user.user_id).delete()
+            status_code = 200
+            result = "deleted session"
 
         return Response(
             content_type='application/json',
