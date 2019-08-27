@@ -1,10 +1,15 @@
 import transaction
 
 from unittest import TestCase
-from pyramid import testing, request
+from pyramid import testing
 from sqlalchemy import create_engine
+from server_stuffs.scripts.converters import dict_from_row
 from server_stuffs.models.meta import Base
 from server_stuffs.models import (
+    UserModel,
+    SessionModel,
+    TaskListModel,
+    TaskModel,
     get_session_factory,
     get_tm_session
 )
@@ -40,6 +45,61 @@ class TestBase(TestCase):
 
     def tearDown(self):
         self.dbsession.rollback()
+
+    def make_user(self, username="TestUser", email="test@jacob.squizzlezig.com", password="TestPass",
+                  token="TestToken"):
+        # Make user
+        new_user = UserModel()
+        new_user.user_name = username
+        new_user.user_email = email
+        new_user.user_pass = password
+
+        # Put on user_id
+        self.request.dbsession.add(new_user)
+        self.request.dbsession.flush()
+        self.request.dbsession.refresh(new_user)
+
+        # Make session for the user
+        new_session = SessionModel()
+        new_session.user_id = new_user.user_id
+        new_session.token = token
+
+        # Put on session_id
+        self.request.dbsession.add(new_session)
+        self.request.dbsession.flush()
+        self.request.dbsession.refresh(new_session)
+
+        returndict = dict_from_row(new_user)
+        returndict["session"] = dict_from_row(new_session)
+        return returndict
+
+    def make_list(self, list_name, user_id):
+        # Make list
+        new_list = TaskListModel()
+        new_list.list_name = list_name
+        new_list.user_id = user_id
+
+        # Put on list_id
+        self.request.dbsession.add(new_list)
+        self.request.dbsession.flush()
+        self.request.dbsession.refresh(new_list)
+
+        returndict = dict_from_row(new_list)
+        return returndict
+
+    def make_task(self, list_id, task_name):
+        # Make task
+        new_task = TaskModel()
+        new_task.list_id = list_id
+        new_task.task_name = task_name
+
+        # Put on task_id
+        self.request.dbsession.add(new_task)
+        self.request.dbsession.flush()
+        self.request.dbsession.refresh(new_task)
+
+        returndict = dict_from_row(new_task)
+        return returndict
 
 
 class PyramidTestBase(TestBase):
