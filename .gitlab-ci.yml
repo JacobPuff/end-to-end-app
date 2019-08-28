@@ -4,7 +4,7 @@ before_script:
   - apk add bash
   - apk add openssh-client
   - apk add pytest
-  - apk add python
+  - apk add python3
 
 run-test:
   script:
