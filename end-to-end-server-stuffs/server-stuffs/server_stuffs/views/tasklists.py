@@ -11,9 +11,7 @@ from ..scripts.converters import array_of_dicts_from_array_of_models, dict_from_
 @view_config(route_name='tasklists')
 def tasklists(request):
     if request.method == 'GET':
-        print("halp")
         if request.user is None:
-            print("meh")
             status_code = 400
             result = error_dict("api_error", "not authenticated for this request")
         else:
@@ -68,17 +66,17 @@ def tasklists_by_id(request):
             status_code = 400
             result = error_dict("api_error", "list_id is required")
         else:
-            query = request.dbsession.query(TaskListModel)
-            tasklist = query.filter(TaskListModel.list_id == list_id).one_or_none()
-            if tasklist is None:
+            resultlist = request.dbsession.query(TaskListModel)\
+                .filter(TaskListModel.list_id == list_id).one_or_none()
+            if resultlist is None:
                 status_code = 400
                 result = error_dict("api_error", "list doesnt exist")
-            elif tasklist.user_id != request.user.user_id:
+            elif resultlist.user_id != request.user.user_id:
                 status_code = 400
                 result = error_dict("api_error", "not authenticated for this request")
             else:
                 status_code = 200
-                result = dict_from_row(tasklist)
+                result = dict_from_row(resultlist)
 
         return Response(
             content_type='application/json',
@@ -135,6 +133,7 @@ def tasklists_by_id(request):
                 result = error_dict("api_error", "not authenticated for this request")
             else:
                 request.dbsession.delete(tasklist)
+                request.dbsession.flush()
                 status_code = 200
                 result = "task list " + str(list_id) + " deleted"
 

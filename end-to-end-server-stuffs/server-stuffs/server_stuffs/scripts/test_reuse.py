@@ -3,6 +3,7 @@ import transaction
 from unittest import TestCase
 from pyramid import testing
 from sqlalchemy import create_engine
+from uuid import uuid4
 from server_stuffs.scripts.converters import dict_from_row
 from server_stuffs.models.meta import Base
 from server_stuffs.models import (
@@ -62,7 +63,7 @@ class TestBase(TestCase):
         # Make session for the user
         new_session = SessionModel()
         new_session.user_id = new_user.user_id
-        new_session.token = token
+        new_session.token = str(uuid4())
 
         # Put on session_id
         self.request.dbsession.add(new_session)
