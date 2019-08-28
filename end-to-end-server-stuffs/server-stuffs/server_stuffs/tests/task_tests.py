@@ -35,16 +35,16 @@ class TaskTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = tasks.tasks(self.request)
         self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[0], "list_id": list_ids[0],
-                                                     "task_name": "task1 for list_ids[0]"},
+                                                     "task_name": "task1 for list_ids[0]", "task_done": False},
                                                     {"task_id": task_ids[1], "list_id": list_ids[0],
-                                                     "task_name": "task2 for list_ids[0]"}]})
+                                                     "task_name": "task2 for list_ids[0]", "task_done": False}]})
 
         # Get tasks for list 1
         self.request.GET = {"list_id": list_ids[1], "token": token}
         self.request.user = user(self.request)
         response = tasks.tasks(self.request)
         self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[2], "list_id": list_ids[1],
-                                                     "task_name": "task3 for list_ids[1]"}]})
+                                                     "task_name": "task3 for list_ids[1]", "task_done": False}]})
 
     def test_get_tasks_for_list_no_token(self):
         # Get tasks for list
@@ -118,7 +118,10 @@ class TaskTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = tasks.tasks(self.request)
         task_id = response.json_body["d"]["task_id"]
-        self.assertEqual(response.json_body, {"d": {"task_id": task_id, "list_id": list_id, "task_name": "task"}})
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task",
+                                                    "task_done": False}})
 
     def test_post_task_no_token(self):
         # Create one task
@@ -214,7 +217,10 @@ class TaskTests(PyramidTestBase):
         self.request.GET = {"token": token}
         self.request.user = user(self.request)
         response = tasks.tasks_by_id(self.request)
-        self.assertEqual(response.json_body, {"d": {"task_id": task_id, "list_id": list_id, "task_name": "task"}})
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task",
+                                                    "task_done": False}})
 
     def test_get_task_by_id_no_token(self):
         # Get task by id
@@ -273,10 +279,35 @@ class TaskTests(PyramidTestBase):
         # Update the task
         self.request.method = 'PUT'
         self.request.matchdict = {"task_id": task_id}
-        self.request.json_body = {"list_id": list_id, "task_name": "task updated", "token": token}
+        self.request.json_body = {"list_id": list_id, "task_name": "task updated", "task_done": True, "token": token}
         self.request.user = user(self.request)
         response = tasks.tasks_by_id(self.request)
-        self.assertEqual(response.json_body, {"d": {"task_id": task_id, "list_id": list_id, "task_name": "task updated"}})
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task updated",
+                                                    "task_done": True}})
+
+    def test_put_task_by_id_task_done_non_bool(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one task
+        task_id = self.make_task(list_id, "task")["task_id"]
+
+        # Update the task
+        self.request.method = 'PUT'
+        self.request.matchdict = {"task_id": task_id}
+        self.request.json_body = {"list_id": list_id, "task_name": "task updated",
+                                  "task_done": "Not a boolean", "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task_done must be a boolean"]}})
 
     def test_delete_task_by_id(self):
         # Make user

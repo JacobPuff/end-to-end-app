@@ -114,9 +114,12 @@ def tasks_by_id(request):
         if request.user is None:
             status_code = 400
             result = error_dict("api_error", "not authenticated for this request")
-        elif task_id is None or (body.get("task_name") is None and body.get("list_id") is None):
+        elif task_id is None or (body.get("task_name") is None and body.get("list_id") is None and body.get("task_done") is None):
             status_code = 400
-            result = error_dict("api_error", "task_name or list_id, and task_id is required")
+            result = error_dict("api_error", "task_name, list_id, or task_done, and task_id is required")
+        elif body.get("task_done") and isinstance(body.get("task_done"), bool) is not True:
+                status_code = 400
+                result = error_dict("api_error", "task_done must be a boolean")
         else:
             task = request.dbsession.query(TaskModel)\
                 .filter(TaskModel.task_id == task_id).one_or_none()
@@ -134,6 +137,8 @@ def tasks_by_id(request):
                         task.task_name = request.json_body.get("task_name")
                     if body.get("list_id"):
                         task.list_id = request.json_body.get("list_id")
+                    if body.get("task_done"):
+                        task.task_done = request.json_body.get("task_done")
                     request.dbsession.flush()
                     request.dbsession.refresh(task)
                     status_code = 200
