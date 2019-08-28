@@ -92,7 +92,7 @@ class TaskTests(PyramidTestBase):
         # Create task list to pin task to
         list_id = self.make_list("list", user_id)["list_id"]
 
-        user_data = self.make_user("differentUser", "test@jacob.squizzlezig.com", "TestPass", "differentToken")
+        user_data = self.make_user("differentUser")
         token = user_data["session"]["token"]
 
         # Get all tasks
@@ -185,7 +185,7 @@ class TaskTests(PyramidTestBase):
         # Create task list to pin task to
         list_id = self.make_list("list", user_id)["list_id"]
 
-        user_data = self.make_user("differentUser", "test@jacob.squizzlezig.com", "TestPass", "differentToken")
+        user_data = self.make_user("differentUser")
         token = user_data["session"]["token"]
 
         # Create one task
