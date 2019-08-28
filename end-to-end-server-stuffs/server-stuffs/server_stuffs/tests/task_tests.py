@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from server_stuffs.scripts.test_reuse import PyramidTestBase
 from server_stuffs.views import tasklists, tasks
-from server_stuffs.models import TaskModel, UserModel, SessionModel
+from server_stuffs.models import TaskModel
 from server_stuffs import user
 
 class TaskTests(PyramidTestBase):

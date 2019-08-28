@@ -6,7 +6,7 @@ import json
 
 from ..models import UserModel, SessionModel
 from ..scripts.password_hashing import pwd_context
-from ..scripts.converters import array_of_dicts_from_array_of_models, dict_from_row, sqlobj_from_dict
+from ..scripts.converters import dict_from_row
 from ..scripts.utilities import error_dict, datetime_serializer
 
 @view_config(route_name='sessions')

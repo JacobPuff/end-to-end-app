@@ -1,6 +1,5 @@
 from server_stuffs.scripts.test_reuse import PyramidTestBase
-from server_stuffs.models import tasklistmodel, taskmodel, usermodel
-from server_stuffs.views import tasklists, tasks, users
+from server_stuffs.views import users
 from server_stuffs import user
 
 

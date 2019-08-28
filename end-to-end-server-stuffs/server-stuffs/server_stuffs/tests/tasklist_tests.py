@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from server_stuffs.scripts.test_reuse import PyramidTestBase
-from server_stuffs.views import tasklists, users
+from server_stuffs.views import tasklists
 from server_stuffs import user
 
 class TaskListTests(PyramidTestBase):

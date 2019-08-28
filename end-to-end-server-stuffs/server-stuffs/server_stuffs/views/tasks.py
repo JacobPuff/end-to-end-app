@@ -3,7 +3,7 @@ from pyramid.view import view_config
 import json
 
 from ..models import TaskListModel, TaskModel
-from ..scripts.converters import array_of_dicts_from_array_of_models, dict_from_row, sqlobj_from_dict
+from ..scripts.converters import array_of_dicts_from_array_of_models, dict_from_row
 from ..scripts.utilities import error_dict
 
 

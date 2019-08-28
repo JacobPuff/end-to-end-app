@@ -1,6 +1,6 @@
 from server_stuffs.scripts.test_reuse import PyramidTestBase
-from server_stuffs.models import SessionModel, UserModel,  TaskListModel, TaskModel
-from server_stuffs.views import sessions, users, tasklists, tasks
+from server_stuffs.models import SessionModel
+from server_stuffs.views import sessions
 from server_stuffs import user
 from datetime import datetime, timedelta
 
