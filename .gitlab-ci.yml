@@ -3,12 +3,6 @@ before_script:
   - apk upgrade
   - apk add bash
   - apk add openssh-client
-  - apk add pytest
-  - apk add python3
-
-run-test:
-  script:
-    - bash ./testing.bash
 
 update-server:
   only:
