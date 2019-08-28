@@ -84,6 +84,7 @@ def sessions(request):
             token = request.json_body.get('token')
             request.dbsession.query(SessionModel).filter(SessionModel.token == token)\
                 .filter(SessionModel.user_id == request.user.user_id).delete()
+            request.dbsession.flush()
             status_code = 200
             result = "deleted session"
 

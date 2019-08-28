@@ -5,6 +5,7 @@ from pyramid import testing
 from sqlalchemy import create_engine
 from uuid import uuid4
 from server_stuffs.scripts.converters import dict_from_row
+from server_stuffs.scripts.password_hashing import pwd_context
 from server_stuffs.models.meta import Base
 from server_stuffs.models import (
     UserModel,
@@ -47,13 +48,12 @@ class TestBase(TestCase):
     def tearDown(self):
         self.dbsession.rollback()
 
-    def make_user(self, username="TestUser", email="test@jacob.squizzlezig.com", password="TestPass",
-                  token="TestToken"):
+    def make_user(self, username="TestUser", email="test@jacob.squizzlezig.com", password="TestPass"):
         # Make user
         new_user = UserModel()
-        new_user.user_name = username
-        new_user.user_email = email
-        new_user.user_pass = password
+        new_user.user_name = username.lower()
+        new_user.user_email = email.lower()
+        new_user.user_pass = pwd_context.hash(password)
 
         # Put on user_id
         self.request.dbsession.add(new_user)
@@ -61,8 +61,15 @@ class TestBase(TestCase):
         self.request.dbsession.refresh(new_user)
 
         # Make session for the user
+        new_session = self.make_session(new_user.user_id)
+
+        returndict = dict_from_row(new_user)
+        returndict["session"] = new_session
+        return returndict
+
+    def make_session(self, user_id):
         new_session = SessionModel()
-        new_session.user_id = new_user.user_id
+        new_session.user_id = user_id
         new_session.token = str(uuid4())
 
         # Put on session_id
@@ -70,8 +77,7 @@ class TestBase(TestCase):
         self.request.dbsession.flush()
         self.request.dbsession.refresh(new_session)
 
-        returndict = dict_from_row(new_user)
-        returndict["session"] = dict_from_row(new_session)
+        returndict = dict_from_row(new_session)
         return returndict
 
     def make_list(self, list_name, user_id):

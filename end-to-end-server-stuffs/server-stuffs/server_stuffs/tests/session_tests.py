@@ -5,12 +5,6 @@ from server_stuffs import user
 from datetime import datetime, timedelta
 
 
-def make_user(self):
-    self.request.method = 'POST'
-    self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-    response = users.users(self.request)
-    return response.json_body["d"]
-
 
 class SessionTests(PyramidTestBase):
 
@@ -22,87 +16,100 @@ class SessionTests(PyramidTestBase):
 
     def test_login_without_token_or_email(self):
         # Make user
-        user_response = make_user(self)
-        session1 = user_response["session"]["session_id"]
-
-        # Make user None so it actually logs in instead of using the token
-        self.request.json_body = {}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        sessionid1 = user_data["session"]["session_id"]
 
         # Login without token or email
+        self.request.method = 'POST'
         self.request.json_body = {"user_name": "TestUser", "user_pass": "TestPass"}
+        self.request.user = user(self.request)
         response = sessions.sessions(self.request)
-        session2 = response.json_body["d"]["session_id"]
         session = response.json_body["d"]
-        self.assertEqual(response.json_body, {"d": {"session_id": session["session_id"],
-                                                    "user_id": session["user_id"], "started": session["started"],
-                                                    "last_active": session["last_active"], "token": session["token"]}})
-        self.assertFalse(session1 == session2)
+        self.assertEqual(response.json_body, {"d": {"session_id": session.get("session_id"),
+                                                    "user_id": session.get("user_id"),
+                                                    "started": session.get("started"),
+                                                    "last_active": session.get("last_active"),
+                                                    "token": session.get("token")}})
+        sessionid2 = session["session_id"]
+        self.assertFalse(sessionid1 == sessionid2)
 
     def test_login_without_token_or_username(self):
         # Make user
-        user_response = make_user(self)
-        sessionid1 = user_response["session"]["session_id"]
-
-        # Make user None so it actually logs in instead of using the token
-        self.request.json_body = {}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        sessionid1 = user_data["session"]["session_id"]
 
         # Login without token or username
-        self.request.json_body = {"user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
+        self.request.method = 'POST'
+        self.request.json_body = {"user_email": "test@jacob.squizzlezig.com", "user_pass": "TestPass"}
+        self.request.user = user(self.request)
         response = sessions.sessions(self.request)
-        sessionid2 = response.json_body["d"]["session_id"]
         session = response.json_body["d"]
-        self.assertEqual(response.json_body, {"d": {"session_id": session["session_id"],
-                                                    "user_id": session["user_id"], "started": session["started"],
-                                                    "last_active": session["last_active"], "token": session["token"]}})
+        self.assertEqual(response.json_body, {"d": {"session_id": session.get("session_id"),
+                                                    "user_id": session.get("user_id"),
+                                                    "started": session.get("started"),
+                                                    "last_active": session.get("last_active"),
+                                                    "token": session.get("token")}})
+        sessionid2 = session["session_id"]
         self.assertFalse(sessionid1 == sessionid2)
 
     def test_login_without_token_or_password(self):
         # Make user
-        make_user(self)
+        self.make_user()
 
-        # Make user None so it actually logs in instead of using the token
-        self.request.json_body = {}
+        # Login without token or password
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com"}
         self.request.user = user(self.request)
-
-        # Login without token or username
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com"}
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["username or email, and password are required"]}})
 
+    def test_login_with_wrong_password(self):
+        # Make user
+        self.make_user()
+
+        # Login with wrong password
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_pass": "WrongPass"}
+        self.request.user = user(self.request)
+        response = sessions.sessions(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["user doesn't exist"]}})
+
     def test_login_with_nothing_provided(self):
         # Make user
-        make_user(self)
-
-        # Make json_body an empty dict so nothing is provided, and user is None
-        self.request.json_body = {}
-        self.request.user = user(self.request)
+        self.make_user()
 
         # Login with nothing provided
+        self.request.method = 'POST'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
+        self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["username or email, and password are required"]}})
 
     def test_login_with_token(self):
         # Make user
-        user_response = make_user(self)
-        token = user_response["session"]["token"]
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
 
         # Login with good token
+        self.request.method = 'POST'
         self.request.json_body = {"token": token}
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         session = response.json_body["d"]
-        self.assertEqual(response.json_body, {"d": {"session_id": session["session_id"],
-                                                    "user_id": session["user_id"], "started": session["started"],
-                                                    "last_active": session["last_active"], "token": session["token"]}})
+        self.assertEqual(response.json_body, {"d": {"session_id": session.get("session_id"),
+                                                    "user_id": session.get("user_id"),
+                                                    "started": session.get("started"),
+                                                    "last_active": session.get("last_active"),
+                                                    "token": session.get("token")}})
 
     def test_login_with_bad_token(self):
         # Make user
-        user_response = make_user(self)
-        session = user_response["session"]
+        user_data = self.make_user()
+        session = user_data["session"]
 
         # make token invalid
         session["last_active"] = datetime.utcnow() - timedelta(weeks=1, days=1)
@@ -110,6 +117,7 @@ class SessionTests(PyramidTestBase):
             .update({SessionModel.last_active: session["last_active"]})
 
         # check invalid
+        self.request.method = 'POST'
         self.request.json_body = {"token": session["token"]}
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
@@ -118,8 +126,8 @@ class SessionTests(PyramidTestBase):
 
     def test_check_token_valid_put(self):
         # Make user
-        user_response = make_user(self)
-        token = user_response["session"]["token"]
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
 
         # check valid
         self.request.method = 'PUT'
@@ -133,12 +141,12 @@ class SessionTests(PyramidTestBase):
 
     def test_check_token_valid_put_no_token(self):
         # Make user
-        user_response = make_user(self)
-        token1 = user_response["session"]["token"]
-        self.request.user = user(self.request)
+        self.make_user()
 
         # check valid
         self.request.method = 'PUT'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
@@ -146,15 +154,12 @@ class SessionTests(PyramidTestBase):
 
     def test_check_token_valid_put_deletes_all_invalid_tokens(self):
         # Make user
-        user_response = make_user(self)
-        session1 = user_response["session"]
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        session1 = user_data["session"]
 
-        # Log in again
-        self.request.method = 'POST'
-        self.request.body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-        self.request.user = user(self.request)
-        post_response = sessions.sessions(self.request)
-        session2token = post_response.json_body["d"]["token"]
+        # Create second session
+        session2token = self.make_session(user_id)["token"]
 
         # Make first token invalid
         session1["last_active"] = datetime.utcnow() - timedelta(weeks=1, days=1)
@@ -175,9 +180,11 @@ class SessionTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         session2 = response.json_body["d"]
-        self.assertEqual(response.json_body, {"d": {"session_id": session2["session_id"],
-                                                    "user_id": session2["user_id"], "started": session2["started"],
-                                                    "last_active": session2["last_active"], "token": session2["token"]}})
+        self.assertEqual(response.json_body, {"d": {"session_id": session2.get("session_id"),
+                                                    "user_id": session2.get("user_id"),
+                                                    "started": session2.get("started"),
+                                                    "last_active": session2.get("last_active"),
+                                                    "token": session2.get("token")}})
 
         # check invalid token deleted
         session1Exists = self.request.dbsession.query(SessionModel)\
@@ -187,19 +194,22 @@ class SessionTests(PyramidTestBase):
 
     def test_session_delete(self):
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
 
         self.request.method = 'DELETE'
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": "deleted session"})
 
     def test_session_delete_no_token(self):
         # Make user
-        make_user(self)
+        self.make_user()
 
         self.request.method = 'DELETE'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
