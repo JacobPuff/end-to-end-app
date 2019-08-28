@@ -5,11 +5,17 @@ before_script:
   - apk add openssh-client
   - apk add pytest
 
+stages:
+  - test
+  - deploy
+
 run-test:
+  stage: test
   script:
     - pytest end-to-end/server-stuffs/server_stuffs/tests
 
 update-server:
+  stage: deploy
   only:
     - master@gitlab.squizzlezig.com/JacobPuff/dev-server
   script:
