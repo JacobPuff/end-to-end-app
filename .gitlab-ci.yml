@@ -7,7 +7,7 @@ before_script:
 
 run-test:
   script:
-    - pytest /end-to-end/server-stuffs/server_stuffs/tests
+    - pytest /builds/JacobPuff/dev-server/end-to-end/server-stuffs/server_stuffs/tests
 
 update-server:
   only:
