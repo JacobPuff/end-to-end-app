@@ -96,4 +96,5 @@ def sessions(request):
             body=json.dumps({"d": result}, default=datetime_serializer)
         )
 
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('POST', 'PUT', 'DELETE'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)

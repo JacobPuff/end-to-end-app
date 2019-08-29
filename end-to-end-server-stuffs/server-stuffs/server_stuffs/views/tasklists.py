@@ -54,7 +54,8 @@ def tasklists(request):
             body=json.dumps({"d": result})
         )
 
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('GET', 'POST'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
 
 
 # This handles requests dealing with a list id
@@ -147,4 +148,5 @@ def tasklists_by_id(request):
             body=json.dumps({"d": result})
         )
 
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('GET', 'PUT', 'DELETE'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)

@@ -32,7 +32,7 @@ def users(request):
             status_code = httpexceptions.HTTPBadRequest.status_code
             result = error_dict("api_error", "username, email, and password are required")
         elif username_in_use(body.get('user_name'), request.dbsession):
-            status_code = httpexceptions.HTTPBadRequest.status_code
+            status_code = httpexceptions.HTTPConflict.status_code
             result = error_dict("api_error", "username already in use")
         elif len(body.get("user_pass")) < 8:
             status_code = httpexceptions.HTTPBadRequest.status_code
@@ -73,7 +73,8 @@ def users(request):
         # A delay happened, so I'm going to work on something else while I wait.
         return Response(body="Not implemented yet")
 
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('POST', 'PUT'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
 
 
 # This handles requests with a user_id
@@ -152,5 +153,5 @@ def users_by_id(request):
             status_code=status_code,
             body=json.dumps({"d": result}, default=datetime_serializer)
         )
-
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('GET', 'PUT', 'DELETE'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)

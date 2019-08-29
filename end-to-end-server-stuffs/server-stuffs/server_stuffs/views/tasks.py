@@ -76,7 +76,8 @@ def tasks(request):
             body=json.dumps({"d": result})
         )
 
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('GET', 'POST'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
 
 
 # This handles requests dealing with a task id
@@ -119,7 +120,7 @@ def tasks_by_id(request):
             result = error_dict("api_error", "not authenticated for this request")
         elif task_id is None or (body.get("task_name") is None and body.get("list_id") is None and body.get("task_done") is None):
             status_code = httpexceptions.HTTPBadRequest.status_code
-            result = error_dict("api_error", "task_name, list_id, or task_done, and task_id is required")
+            result = error_dict("api_error", "task_name, list_id, or task_done, and task_id are required")
         elif body.get("task_done") and isinstance(body.get("task_done"), bool) is not True:
                 status_code = httpexceptions.HTTPBadRequest.status_code
                 result = error_dict("api_error", "task_done must be a boolean")
@@ -127,7 +128,7 @@ def tasks_by_id(request):
             task = request.dbsession.query(TaskModel)\
                 .filter(TaskModel.task_id == task_id).one_or_none()
             if task is None:
-                status_code = 404
+                status_code = httpexceptions.HTTPNotFound.status_code
                 result = error_dict("api_error", "task doesnt exist")
             else:
                 tasklist = request.dbsession.query(TaskListModel)\
@@ -185,4 +186,5 @@ def tasks_by_id(request):
             body=json.dumps({"d": result})
         )
 
-    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+    if request.method not in ('GET', 'PUT', 'DELETE'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
