@@ -18,11 +18,11 @@ def sessions(request):
         sessionquery = request.dbsession.query(SessionModel)
 
         if request.user is not None:
-            status_code = httpexceptions.HTTPOk.status_code
+            status_code = httpexceptions.HTTPOk.code
             result = dict_from_row(sessionquery.filter(SessionModel.token == request.json_body.get('token')).one())
         else:
             if not ("user_name" in body or "user_email" in body) or "user_pass" not in body:
-                status_code = httpexceptions.HTTPBadRequest.status_code
+                status_code = httpexceptions.HTTPBadRequest.code
                 result = error_dict("api_error", "username or email, and password are required")
             else:
                 if body.get('user_name') is not None:
@@ -31,11 +31,11 @@ def sessions(request):
                     user = userquery.filter(UserModel.user_email == body["user_email"].lower()).one_or_none()
 
                 if user is None or not pwd_context.verify(body["user_pass"], user.user_pass):
-                    status_code = httpexceptions.HTTPNotFound.status_code
+                    status_code = httpexceptions.HTTPNotFound.code
                     result = error_dict("api_error", "user doesn't exist")
 
                 else:
-                    status_code = httpexceptions.HTTPOk.status_code
+                    status_code = httpexceptions.HTTPOk.code
                     new_token = str(uuid4())
 
                     new_session = SessionModel()
@@ -57,7 +57,7 @@ def sessions(request):
 
     if request.method == 'PUT':
         if request.user is None:
-            status_code = httpexceptions.HTTPUnauthorized.status_code
+            status_code = httpexceptions.HTTPUnauthorized.code
             result = error_dict("api_error", "not authenticated for this request")
         else:
             sessionquery = request.dbsession.query(SessionModel)
@@ -67,7 +67,7 @@ def sessions(request):
             session = sessionquery.filter(SessionModel.token == token).one_or_none()
             session.last_active = datetime.utcnow()
             request.dbsession.flush()
-            status_code = httpexceptions.HTTPOk.status_code
+            status_code = httpexceptions.HTTPOk.code
             result = dict_from_row(session)
 
         return Response(
@@ -79,14 +79,14 @@ def sessions(request):
 
     if request.method == 'DELETE':
         if request.user is None:
-            status_code = httpexceptions.HTTPUnauthorized.status_code
+            status_code = httpexceptions.HTTPUnauthorized.code
             result = error_dict("api_error", "not authenticated for this request")
         else:
             token = request.json_body.get('token')
             request.dbsession.query(SessionModel).filter(SessionModel.token == token)\
                 .filter(SessionModel.user_id == request.user.user_id).delete()
             request.dbsession.flush()
-            status_code = httpexceptions.HTTPOk.status_code
+            status_code = httpexceptions.HTTPOk.code
             result = "deleted session"
 
         return Response(
