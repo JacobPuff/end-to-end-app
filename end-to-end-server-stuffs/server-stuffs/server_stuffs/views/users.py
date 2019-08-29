@@ -1,5 +1,6 @@
 from pyramid.response import Response
 from pyramid.view import view_config
+from pyramid import httpexceptions
 from uuid import uuid4
 import json
 
@@ -28,16 +29,16 @@ def users(request):
         body = request.json_body
 
         if "user_name" not in body or "user_email" not in body or "user_pass" not in body:
-            status_code = 400
+            status_code = httpexceptions.HTTPBadRequest.status_code
             result = error_dict("api_error", "username, email, and password are required")
         elif username_in_use(body.get('user_name'), request.dbsession):
-            status_code = 400
+            status_code = httpexceptions.HTTPBadRequest.status_code
             result = error_dict("api_error", "username already in use")
         elif len(body.get("user_pass")) < 8:
-            status_code = 400
+            status_code = httpexceptions.HTTPBadRequest.status_code
             result = error_dict("api_error", "password must be at least 8 characters")
         else:
-            status_code = 200
+            status_code = httpexceptions.HTTPOk.status_code
             user = UserModel()
             user.user_name = body["user_name"].lower()
             user.user_email = body["user_email"].lower()
@@ -72,6 +73,8 @@ def users(request):
         # A delay happened, so I'm going to work on something else while I wait.
         return Response(body="Not implemented yet")
 
+    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+
 
 # This handles requests with a user_id
 @view_config(route_name='users_by_id')
@@ -79,14 +82,14 @@ def users_by_id(request):
     user_id = request.matchdict.get('user_id')
     if request.method == 'GET':
         if request.user is None:
-            status_code = 400
+            status_code = httpexceptions.HTTPUnauthorized.status_code
             result = error_dict("api_error", "not authenticated for this request")
         else:
             if user_id is None or int(user_id) != request.user.user_id:
-                status_code = 400
+                status_code = httpexceptions.HTTPUnauthorized.status_code
                 result = error_dict("api_error", "not authenticated for this request")
             else:
-                status_code = 200
+                status_code = httpexceptions.HTTPOk.status_code
                 result = dict_from_row(request.user, removals)
 
         return Response(
@@ -99,14 +102,14 @@ def users_by_id(request):
     if request.method == 'PUT':
         body = request.json_body
         if request.user is None:
-            status_code = 400
+            status_code = httpexceptions.HTTPUnauthorized.status_code
             result = error_dict("api_error", "not authenticated for this request")
         else:
             if user_id is None or int(user_id) != request.user.user_id:
-                status_code = 400
+                status_code = httpexceptions.HTTPUnauthorized.status_code
                 result = error_dict("api_error", "not authenticated for this request")
             elif body.get("user_name") is None and body.get("user_email") is None and body.get("user_pass") is None:
-                status_code = 400
+                status_code = httpexceptions.HTTPBadRequest.status_code
                 result = error_dict("api_error", "no values provided to update")
             else:
                 if body.get("user_name"):
@@ -118,7 +121,7 @@ def users_by_id(request):
 
                 request.dbsession.flush()
                 request.dbsession.refresh(request.user)
-                status_code = 200
+                status_code = httpexceptions.HTTPOk.status_code
                 result = dict_from_row(request.user, remove_fields=removals)
 
         return Response(
@@ -130,14 +133,14 @@ def users_by_id(request):
 
     if request.method == 'DELETE':
         if request.user is None:
-            status_code = 400
+            status_code = httpexceptions.HTTPUnauthorized.status_code
             result = error_dict("api_error", "not authenticated for this request")
         else:
             if user_id is None or int(user_id) != request.user.user_id:
-                status_code = 400
+                status_code = httpexceptions.HTTPUnauthorized.status_code
                 result = error_dict("api_error", "not authenticated for this request")
             else:
-                status_code = 200
+                status_code = httpexceptions.HTTPOk.status_code
                 userquery = request.dbsession.query(UserModel)
                 userquery.filter(UserModel.user_id == user_id).delete()
                 request.dbsession.flush()
@@ -149,3 +152,5 @@ def users_by_id(request):
             status_code=status_code,
             body=json.dumps({"d": result}, default=datetime_serializer)
         )
+
+    return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
