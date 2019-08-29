@@ -309,6 +309,19 @@ class TaskTests(PyramidTestBase):
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["task_done must be a boolean"]}})
 
+    def test_put_task_by_id_no_task_id(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+
+        # Update the task
+        self.request.method = 'PUT'
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task_name, list_id, or task_done, and task_id are required"]}})
+
     def test_delete_task_by_id(self):
         # Make user
         user_data = self.make_user()
