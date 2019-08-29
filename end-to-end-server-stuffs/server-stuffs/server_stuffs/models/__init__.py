@@ -9,6 +9,7 @@ from .tasklistmodel import TaskListModel  # noqa
 from .taskmodel import TaskModel
 from .usermodel import UserModel
 from .sessionmodel import SessionModel
+from .resettokenmodel import ResetTokenModel
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup

@@ -12,6 +12,7 @@ from server_stuffs.models import (
     SessionModel,
     TaskListModel,
     TaskModel,
+    ResetTokenModel,
     get_session_factory,
     get_tm_session
 )
@@ -106,6 +107,20 @@ class TestBase(TestCase):
         self.request.dbsession.refresh(new_task)
 
         returndict = dict_from_row(new_task)
+        return returndict
+
+    def make_resettoken(self, user_id):
+        # Make resettoken
+        new_resettoken = ResetTokenModel()
+        new_resettoken.user_id = user_id
+        new_resettoken.token = str(uuid4())
+
+        # Put on task_id
+        self.request.dbsession.add(new_resettoken)
+        self.request.dbsession.flush()
+        self.request.dbsession.refresh(new_resettoken)
+
+        returndict = dict_from_row(new_resettoken)
         return returndict
 
 
