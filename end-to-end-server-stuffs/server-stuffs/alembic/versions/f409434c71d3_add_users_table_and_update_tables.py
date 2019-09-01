@@ -25,7 +25,7 @@ def upgrade():
         sa.Column('user_pass', sa.Text, nullable=False)
     )
     op.drop_column('tasks', 'user_id')
-    op.create_foreign_key(None, 'tasklists', 'users', ['user_id'], ['user_id'], ondelete="CASCADE")
+    op.create_foreign_key(None, 'tasklists', 'users', ['user_id'], ['user_id'], ondelete='CASCADE')
 
 
 def downgrade():

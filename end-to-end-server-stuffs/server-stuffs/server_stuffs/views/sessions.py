@@ -1,12 +1,13 @@
 from pyramid.response import Response
 from pyramid.view import view_config
+from pyramid import httpexceptions
 from datetime import datetime, timedelta
 from uuid import uuid4
 import json
 
 from ..models import UserModel, SessionModel
 from ..scripts.password_hashing import pwd_context
-from ..scripts.converters import array_of_dicts_from_array_of_models, dict_from_row, sqlobj_from_dict
+from ..scripts.converters import dict_from_row
 from ..scripts.utilities import error_dict, datetime_serializer
 
 @view_config(route_name='sessions')
@@ -17,11 +18,11 @@ def sessions(request):
         sessionquery = request.dbsession.query(SessionModel)
 
         if request.user is not None:
-            status_code = 200
+            status_code = httpexceptions.HTTPOk.code
             result = dict_from_row(sessionquery.filter(SessionModel.token == request.json_body.get('token')).one())
         else:
             if not ("user_name" in body or "user_email" in body) or "user_pass" not in body:
-                status_code = 400
+                status_code = httpexceptions.HTTPBadRequest.code
                 result = error_dict("api_error", "username or email, and password are required")
             else:
                 if body.get('user_name') is not None:
@@ -30,11 +31,11 @@ def sessions(request):
                     user = userquery.filter(UserModel.user_email == body["user_email"].lower()).one_or_none()
 
                 if user is None or not pwd_context.verify(body["user_pass"], user.user_pass):
-                    status_code = 400
+                    status_code = httpexceptions.HTTPNotFound.code
                     result = error_dict("api_error", "user doesn't exist")
 
                 else:
-                    status_code = 200
+                    status_code = httpexceptions.HTTPOk.code
                     new_token = str(uuid4())
 
                     new_session = SessionModel()
@@ -56,25 +57,18 @@ def sessions(request):
 
     if request.method == 'PUT':
         if request.user is None:
-            status_code = 400
+            status_code = httpexceptions.HTTPUnauthorized.code
             result = error_dict("api_error", "not authenticated for this request")
         else:
+            sessionquery = request.dbsession.query(SessionModel)
+            sessionquery.filter(SessionModel.last_active < (datetime.now() - timedelta(weeks=1))).delete()
+
             token = request.json_body.get('token')
-            session = request.dbsession.query(SessionModel).filter(SessionModel.token == token,
-                                                                   SessionModel.user_id == request.user.user_id).one_or_none()
-            if session is None:
-                status_code = 400
-                result = error_dict("api_error", "no valid token provided")
-            else:
-                expiration_value = timedelta(weeks=1)
-                if(datetime.utcnow() - expiration_value) > session.last_active:
-                    status_code = 400
-                    result = error_dict("api_error", "no valid token provided")
-                else:
-                    status_code = 200
-                    session.last_active = datetime.utcnow()
-                    request.dbsession.flush()
-                    result = dict_from_row(session)
+            session = sessionquery.filter(SessionModel.token == token).one_or_none()
+            session.last_active = datetime.utcnow()
+            request.dbsession.flush()
+            status_code = httpexceptions.HTTPOk.code
+            result = dict_from_row(session)
 
         return Response(
             content_type='application/json',
@@ -85,23 +79,15 @@ def sessions(request):
 
     if request.method == 'DELETE':
         if request.user is None:
-            status_code = 400
+            status_code = httpexceptions.HTTPUnauthorized.code
             result = error_dict("api_error", "not authenticated for this request")
         else:
             token = request.json_body.get('token')
-            if token is None:
-                status_code = 400
-                result = error_dict("api_error", "no valid token provided")
-            else:
-                sessionquery = request.dbsession.query(SessionModel)
-                session = sessionquery.filter(SessionModel.token == token).one_or_none()
-                if session is None:
-                    status_code = 400
-                    result = error_dict("api_error", "no valid token provided")
-                else:
-                    status_code = 200
-                    sessionquery.filter(SessionModel.session_id == session.session_id).delete()
-                    result = "deleted session"
+            request.dbsession.query(SessionModel).filter(SessionModel.token == token)\
+                .filter(SessionModel.user_id == request.user.user_id).delete()
+            request.dbsession.flush()
+            status_code = httpexceptions.HTTPOk.code
+            result = "deleted session"
 
         return Response(
             content_type='application/json',
@@ -109,3 +95,6 @@ def sessions(request):
             status_code=status_code,
             body=json.dumps({"d": result}, default=datetime_serializer)
         )
+
+    if request.method not in ('POST', 'PUT', 'DELETE'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)

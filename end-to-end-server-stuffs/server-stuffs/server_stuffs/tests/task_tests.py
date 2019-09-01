@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
 from server_stuffs.scripts.test_reuse import PyramidTestBase
-from server_stuffs.views import tasklists, tasks, users
-from server_stuffs.models.taskmodel import TaskModel
+from server_stuffs.views import tasklists, tasks
+from server_stuffs.models import TaskModel
 from server_stuffs import user
-
-
-def make_user(self):
-    self.request.method = 'POST'
-    self.request.json_body = {"user_name": "TestUser", "user_email": "test@squizzlezig.com", "user_pass": "TestPass"}
-    response = users.users(self.request)
-    return response.json_body["d"]
-
 
 class TaskTests(PyramidTestBase):
 
@@ -20,204 +12,366 @@ class TaskTests(PyramidTestBase):
     def tearDown(self):
         PyramidTestBase.tearDown(self)
 
-    def test_get_all_tasks(self):
-        tasklist_ids = []
+    def test_get_tasks_for_list(self):
+        list_ids = []
         task_ids = []
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task lists to pin tasks to
+        list_ids.append(self.make_list("list1", user_id)["list_id"])
+        list_ids.append(self.make_list("list2", user_id)["list_id"])
+
+        # Create tasks to pin
+        task_ids.append(self.make_task(list_ids[0], "task1 for list_ids[0]")["task_id"])
+        task_ids.append(self.make_task(list_ids[0], "task2 for list_ids[0]")["task_id"])
+        task_ids.append(self.make_task(list_ids[1], "task3 for list_ids[1]")["task_id"])
+
+        # Get tasks for list 0
+        self.request.method = 'GET'
+        self.request.GET = {"list_id": list_ids[0], "token": token}
         self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[0], "list_id": list_ids[0],
+                                                     "task_name": "task1 for list_ids[0]", "task_done": False},
+                                                    {"task_id": task_ids[1], "list_id": list_ids[0],
+                                                     "task_name": "task2 for list_ids[0]", "task_done": False}]})
 
-        # Creates all the task lists
-        self.request.method = 'POST'
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "foo1"}
-        post_response = tasklists.tasklists(self.request)
-        tasklist_ids.append(post_response.json_body["d"]["list_id"])
+        # Get tasks for list 1
+        self.request.GET = {"list_id": list_ids[1], "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[2], "list_id": list_ids[1],
+                                                     "task_name": "task3 for list_ids[1]", "task_done": False}]})
 
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "bar2"}
-        post_response = tasklists.tasklists(self.request)
-        tasklist_ids.append(post_response.json_body["d"]["list_id"])
+    def test_get_tasks_for_list_no_token(self):
+        # Get tasks for list
+        self.request.method = 'GET'
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
 
+    def test_get_tasks_for_list_no_list_id(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
 
-        # Creates all the tasks
-        self.request.json_body = {"list_id": tasklist_ids[0], "task_name": "task foo1"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
+        # Get tasks for list
+        self.request.method = 'GET'
+        self.request.GET = {"token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["list_id is required"]}})
 
-        self.request.json_body = {"list_id": tasklist_ids[1], "task_name": "task bar2"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
+    def test_get_all_tasks_for_list_nonexistent_list(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
 
+        # Create task lists to get latest list_id
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Get tasks for list
+        self.request.method = 'GET'
+        self.request.GET = {"list_id": list_id + 1, "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["list doesnt exist"]}})
+
+    def test_get_all_tasks_for_list_different_user(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        user_data = self.make_user("differentUser")
+        token = user_data["session"]["token"]
 
         # Get all tasks
         self.request.method = 'GET'
+        self.request.GET = {"token": token, "list_id": list_id}
+        self.request.user = user(self.request)
         response = tasks.tasks(self.request)
-
-        # Task 1 should correlate to list 1, and task 2 should correlate to list 2
-        self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[0], "list_id": tasklist_ids[0],
-                                                "task_name": "task foo1"}, {"task_id": task_ids[1],
-                                                "list_id": tasklist_ids[1], "task_name": "task bar2"}]})
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
 
     def test_post_task(self):
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
 
-        self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
-        response = tasklists.tasklists(self.request)
-        list_id = response.json_body["d"]["list_id"]
+        list_id = self.make_list("list", user_id)["list_id"]
 
         # Create one task
-        self.request.json_body = {"list_id": list_id, "task_name": "task"}
+        self.request.method = 'POST'
+        self.request.json_body = {"list_id": list_id, "task_name": "task", "token": token}
+        self.request.user = user(self.request)
         response = tasks.tasks(self.request)
         task_id = response.json_body["d"]["task_id"]
-        self.assertEqual(response.json_body, {"d": {"task_id": task_id, "list_id": list_id, "task_name": "task"}})
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task",
+                                                    "task_done": False}})
+
+    def test_post_task_no_token(self):
+        # Create one task
+        self.request.method = 'POST'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
+    def test_post_task_no_list_id(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+
+        # Create one task
+        self.request.method = 'POST'
+        self.request.json_body = {"task_name": "task", "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["list_id and task_name are required"]}})
+
+    def test_post_task_no_task_name(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one task
+        self.request.method = 'POST'
+        self.request.json_body = {"list_id": list_id, "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["list_id and task_name are required"]}})
+
+    def test_post_task_no_list_id_or_task_name(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin task to
+        self.make_list("list", user_id)
+
+        # Create one task
+        self.request.method = 'POST'
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["list_id and task_name are required"]}})
+
+    def test_post_task_different_user_list(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        user_data = self.make_user("differentUser")
+        token = user_data["session"]["token"]
+
+        # Create one task
+        self.request.method = 'POST'
+        self.request.json_body = {"list_id": list_id, "task_name": "task", "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
 
     def test_get_task_by_id(self):
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
 
-        self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
-        post_response = tasklists.tasklists(self.request)
-        list_id = post_response.json_body["d"]["list_id"]
+        list_id = self.make_list("list", user_id)["list_id"]
 
         # Create one task
-        self.request.json_body = {"list_id": list_id, "task_name": "task"}
-        post_response = tasks.tasks(self.request)
-        task_id = post_response.json_body["d"]["task_id"]
+        task_id = self.make_task(list_id, "task")["task_id"]
 
         # Get task by id
         self.request.method = 'GET'
-        self.request.matchdict = {"task_id": str(task_id)}
+        self.request.matchdict = {"task_id": task_id}
+        self.request.GET = {"token": token}
+        self.request.user = user(self.request)
         response = tasks.tasks_by_id(self.request)
-        self.assertEqual(response.json_body, {"d": {"task_id": task_id, "list_id": list_id, "task_name": "task"}})
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task",
+                                                    "task_done": False}})
+
+    def test_get_task_by_id_no_token(self):
+        # Get task by id
+        self.request.method = 'GET'
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
+    def test_get_task_by_id_no_task_id(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+
+        # Get task by id
+        self.request.method = 'GET'
+        self.request.GET = {"token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task_id is required"]}})
+
+    def test_get_task_by_id_nonexistent_task(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one list to get the latest list_id
+        task_id = self.make_task(list_id, "task")["task_id"]
+
+        # Get task by id
+        self.request.method = 'GET'
+        self.request.matchdict = {"task_id": task_id + 1}
+        self.request.GET = {"token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task doesnt exist"]}})
 
     def test_put_task_by_id(self):
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
 
-        self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
-        post_response = tasklists.tasklists(self.request)
-        list_id = post_response.json_body["d"]["list_id"]
+        list_id = self.make_list("list", user_id)["list_id"]
 
         # Create one task
-        self.request.json_body = {"list_id": list_id, "task_name": "task"}
-        post_response = tasks.tasks(self.request)
-        task_id = post_response.json_body["d"]["task_id"]
+        task_id = self.make_task(list_id, "task")["task_id"]
 
         # Update the task
         self.request.method = 'PUT'
-        self.request.json_body = {"list_id": list_id, "task_name": "task updated"}
-        self.request.matchdict = {"task_id": str(task_id)}
+        self.request.matchdict = {"task_id": task_id}
+        self.request.json_body = {"list_id": list_id, "task_name": "task updated", "task_done": True, "token": token}
+        self.request.user = user(self.request)
         response = tasks.tasks_by_id(self.request)
-        self.assertEqual(response.json_body, {"d": "task " + str(task_id) + " updated"})
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task updated",
+                                                    "task_done": True}})
+
+    def test_put_task_by_id_task_done_non_bool(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one task
+        task_id = self.make_task(list_id, "task")["task_id"]
+
+        # Update the task
+        self.request.method = 'PUT'
+        self.request.matchdict = {"task_id": task_id}
+        self.request.json_body = {"list_id": list_id, "task_name": "task updated",
+                                  "task_done": "Not a boolean", "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task_done must be a boolean"]}})
+
+    def test_put_task_by_id_no_task_id(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+
+        # Update the task
+        self.request.method = 'PUT'
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task_name, list_id, or task_done, and task_id are required"]}})
 
     def test_delete_task_by_id(self):
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
 
-        self.request.method = 'POST'
         # Create task list to pin task to
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
-        post_response = tasklists.tasklists(self.request)
-        list_id = post_response.json_body["d"]["list_id"]
+        list_id = self.make_list("list", user_id)["list_id"]
 
         # Create one task
-        self.request.json_body = {"list_id": list_id, "task_name": "task"}
-        post_response = tasks.tasks(self.request)
-        task_id = post_response.json_body["d"]["list_id"]
+        task_id = self.make_task(list_id, "task")["task_id"]
 
         # Delete the task
         self.request.method = 'DELETE'
-        self.request.matchdict = {"task_id": str(task_id)}
+        self.request.matchdict = {"task_id": task_id}
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
         response = tasks.tasks_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "task " + str(task_id) + " deleted"})
 
+    def test_delete_task_by_id_no_token(self):
+        # Delete the task
+        self.request.method = 'DELETE'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
     def test_delete_tasklist_with_tasks(self):
         # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
 
-        self.request.method = 'POST'
-        # Create task list to pin tasks to
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list"}
-        post_response = tasklists.tasklists(self.request)
-        list_id = post_response.json_body["d"]["list_id"]
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
 
-        # Create tasks to pin
-        task_ids = []
-        self.request.json_body = {"list_id": list_id, "task_name": "task1"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
-
-        self.request.json_body = {"list_id": list_id, "task_name": "task2"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
+        # Create tasks
+        self.make_task(list_id, "task1")
+        self.make_task(list_id, "task2")
 
         # Delete task list
         self.request.method = 'DELETE'
         self.request.matchdict = {"list_id": list_id}
+        self.request.json_body = {"token": token}
+        self.request.user = user(self.request)
         response = tasklists.tasklists_by_id(self.request)
         self.assertEqual(response.json_body, {"d": "task list " + str(list_id) + " deleted"})
         query = self.dbsession.query(TaskModel)
         checkEmptyList = query.filter(TaskModel.list_id == list_id).all()
         self.assertEqual(checkEmptyList, [])
-
-    def test_get_tasks_with_tasklist_id(self):
-        list_ids = []
-        task_ids = []
-        # Make user
-        user_response = make_user(self)
-        self.request.json_body = {"token": user_response["session"]["token"]}
-        self.request.user = user(self.request)
-
-        self.request.method = 'POST'
-        # Create task lists to pin tasks to
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list1"}
-        post_response = tasklists.tasklists(self.request)
-        list_ids.append(post_response.json_body["d"]["list_id"])
-
-        self.request.json_body = {"user_id": user_response["user_id"], "list_name": "list2"}
-        post_response = tasklists.tasklists(self.request)
-        list_ids.append(post_response.json_body["d"]["list_id"])
-
-        # Create tasks to pin
-        self.request.json_body = {"list_id": list_ids[0], "task_name": "task1 for list_ids[0]"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
-
-        self.request.json_body = {"list_id": list_ids[0], "task_name": "task2 for list_ids[0]"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
-
-        self.request.json_body = {"list_id": list_ids[1], "task_name": "task3 for list_ids[1]"}
-        post_response = tasks.tasks(self.request)
-        task_ids.append(post_response.json_body["d"]["task_id"])
-
-        # Get tasks by list id
-        self.request.method = 'GET'
-        self.request.params["tasklist_id"] = str(list_ids[0])
-        response = tasks.tasks(self.request)
-        self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[0], "list_id": list_ids[0],
-                                                     "task_name": "task1 for list_ids[0]"},
-                                                    {"task_id": task_ids[1], "list_id": list_ids[0],
-                                                     "task_name": "task2 for list_ids[0]"}]})
-
-        self.request.params["tasklist_id"] = str(list_ids[1])
-        response = tasks.tasks(self.request)
-        self.assertEqual(response.json_body, {"d": [{"task_id": task_ids[2], "list_id": list_ids[1],
-                                                     "task_name": "task3 for list_ids[1]"}]})
