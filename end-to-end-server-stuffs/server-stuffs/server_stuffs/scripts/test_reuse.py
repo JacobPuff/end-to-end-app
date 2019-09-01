@@ -57,9 +57,9 @@ class TestBase(TestCase):
         new_user.user_pass = pwd_context.hash(password)
 
         # Put on user_id
-        self.request.dbsession.add(new_user)
-        self.request.dbsession.flush()
-        self.request.dbsession.refresh(new_user)
+        self.dbsession.add(new_user)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_user)
 
         # Make session for the user
         new_session = self.make_session(new_user.user_id)
@@ -74,9 +74,9 @@ class TestBase(TestCase):
         new_session.token = str(uuid4())
 
         # Put on session_id
-        self.request.dbsession.add(new_session)
-        self.request.dbsession.flush()
-        self.request.dbsession.refresh(new_session)
+        self.dbsession.add(new_session)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_session)
 
         returndict = dict_from_row(new_session)
         return returndict
@@ -88,9 +88,9 @@ class TestBase(TestCase):
         new_list.user_id = user_id
 
         # Put on list_id
-        self.request.dbsession.add(new_list)
-        self.request.dbsession.flush()
-        self.request.dbsession.refresh(new_list)
+        self.dbsession.add(new_list)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_list)
 
         returndict = dict_from_row(new_list)
         return returndict
@@ -102,9 +102,9 @@ class TestBase(TestCase):
         new_task.task_name = task_name
 
         # Put on task_id
-        self.request.dbsession.add(new_task)
-        self.request.dbsession.flush()
-        self.request.dbsession.refresh(new_task)
+        self.dbsession.add(new_task)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_task)
 
         returndict = dict_from_row(new_task)
         return returndict
@@ -116,9 +116,9 @@ class TestBase(TestCase):
         new_resettoken.token = str(uuid4())
 
         # Put on task_id
-        self.request.dbsession.add(new_resettoken)
-        self.request.dbsession.flush()
-        self.request.dbsession.refresh(new_resettoken)
+        self.dbsession.add(new_resettoken)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_resettoken)
 
         returndict = dict_from_row(new_resettoken)
         return returndict

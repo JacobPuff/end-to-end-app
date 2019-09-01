@@ -55,7 +55,7 @@ def tasklists(request):
         )
 
     if request.method not in ('GET', 'POST'):
-        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)
 
 
 # This handles requests dealing with a list id
@@ -149,4 +149,4 @@ def tasklists_by_id(request):
         )
 
     if request.method not in ('GET', 'PUT', 'DELETE'):
-        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)

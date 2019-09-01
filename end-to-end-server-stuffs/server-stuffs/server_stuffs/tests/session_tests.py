@@ -113,7 +113,7 @@ class SessionTests(PyramidTestBase):
 
         # make token invalid
         session["last_active"] = datetime.utcnow() - timedelta(weeks=1, days=1)
-        self.request.dbsession.query(SessionModel).filter(SessionModel.token == session["token"])\
+        self.dbsession.query(SessionModel).filter(SessionModel.token == session["token"])\
             .update({SessionModel.last_active: session["last_active"]})
 
         # check invalid
@@ -163,7 +163,7 @@ class SessionTests(PyramidTestBase):
 
         # Make first token invalid
         session1["last_active"] = datetime.utcnow() - timedelta(weeks=1, days=1)
-        self.request.dbsession.query(SessionModel).filter(SessionModel.token == session1["token"]) \
+        self.dbsession.query(SessionModel).filter(SessionModel.token == session1["token"]) \
             .update({SessionModel.last_active: session1["last_active"]})
 
         # check first token invalid
@@ -187,7 +187,7 @@ class SessionTests(PyramidTestBase):
                                                     "token": session2.get("token")}})
 
         # check invalid token deleted
-        session1Exists = self.request.dbsession.query(SessionModel)\
+        session1Exists = self.dbsession.query(SessionModel)\
             .filter(SessionModel.token == session1["token"]).one_or_none()
 
         self.assertEqual(session1Exists, None)

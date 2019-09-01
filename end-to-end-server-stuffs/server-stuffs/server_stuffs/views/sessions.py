@@ -97,4 +97,4 @@ def sessions(request):
         )
 
     if request.method not in ('POST', 'PUT', 'DELETE'):
-        return Response(status_code=httpexceptions.HTTPMethodNotAllowed)
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)
