@@ -8,4 +8,5 @@ def includeme(config):
     config.add_route('users', '/api/users')
     config.add_route('users_by_id', '/api/users/{user_id:.*}')
     config.add_route('sessions', '/api/sessions')
-    config.add_route('foobar', '/api/foobar')
+    config.add_route('resettokens', '/api/resettokens')
+    config.add_route('verifytokens', '/api/verifytokens')

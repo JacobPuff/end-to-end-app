@@ -35,18 +35,22 @@ def sessions(request):
                     result = error_dict("api_error", "user doesn't exist")
 
                 else:
-                    status_code = httpexceptions.HTTPOk.code
-                    new_token = str(uuid4())
+                    if user.verified is False:
+                        status_code = httpexceptions.HTTPBadRequest.code
+                        result = error_dict("api_error", "user not verified")
+                    else:
+                        status_code = httpexceptions.HTTPOk.code
+                        new_token = str(uuid4())
 
-                    new_session = SessionModel()
-                    new_session.user_id = user.user_id
-                    new_session.token = new_token
-                    request.dbsession.add(new_session)
-                    # We use flush here so that new_session has a session_id because we need it for testing
-                    # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the session_id
-                    request.dbsession.flush()
-                    request.dbsession.refresh(new_session)
-                    result = dict_from_row(new_session)
+                        new_session = SessionModel()
+                        new_session.user_id = user.user_id
+                        new_session.token = new_token
+                        request.dbsession.add(new_session)
+                        # We use flush here so that new_session has a session_id because we need it for testing
+                        # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the session_id
+                        request.dbsession.flush()
+                        request.dbsession.refresh(new_session)
+                        result = dict_from_row(new_session)
 
         return Response(
             content_type='application/json',
