@@ -3,6 +3,8 @@ This file contains utility functions for use in the Pyramid view handling
 """
 
 import datetime
+import boto3
+from botocore.exceptions import ClientError
 
 
 def datetime_serializer(obj):
@@ -30,4 +32,43 @@ def error_dict(error_type='generic_errors', errors=''):
     error = {'error_type': error_type,
              'errors': errors
              }
+    return error
+
+
+def send_email(email, subject, body_text, body_html):
+    error = None
+    sender = "no-reply@jacob.squizzlezig.com"
+    charset = "UTF-8"
+    aws_region = "us-west-2"
+    client = boto3.client('ses', region_name=aws_region)
+    try:
+        # Provide the contents of the email.
+        response = client.send_email(
+            Destination={'ToAddresses': [email]},
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': charset,
+                        'Data': body_html,
+                    },
+                    'Text': {
+                        'Charset': charset,
+                        'Data': body_text,
+                    },
+                },
+                'Subject': {
+                    'Charset': charset,
+                    'Data': subject,
+                },
+            },
+            Source=sender
+        )
+    # Return and display an error if something goes wrong.
+    except ClientError as e:
+        error = error_dict("api_error", e.response["Error"]["Message"])
+        print(e.response["Error"]["Message"])
+    else:
+        print("Email sent! Message ID:"),
+        print(response['MessageId'])
+
     return error

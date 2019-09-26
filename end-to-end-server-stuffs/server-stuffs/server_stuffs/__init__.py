@@ -21,6 +21,7 @@ def user(request):
     user = request.dbsession.query(UserModel)\
         .filter(SessionModel.token == request_token)\
         .filter(SessionModel.last_active >= (datetime.datetime.utcnow() - datetime.timedelta(weeks=1)))\
+        .filter(UserModel.verified == "t")\
         .join(SessionModel, SessionModel.user_id == UserModel.user_id)\
         .one_or_none()
 

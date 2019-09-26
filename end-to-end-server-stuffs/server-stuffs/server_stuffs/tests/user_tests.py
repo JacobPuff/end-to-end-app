@@ -1,5 +1,5 @@
 from server_stuffs.scripts.test_reuse import PyramidTestBase
-from server_stuffs.models import ResetTokenModel
+from server_stuffs.models import ResetTokenModel, VerifyTokenModel
 from server_stuffs.views import users
 from server_stuffs import user
 from datetime import datetime, timedelta
@@ -15,12 +15,13 @@ class UserTests(PyramidTestBase):
 
     def test_post_user(self):
         self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com", "user_pass": "TestPass"}
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com", "user_pass": "TestPass"}
         response = users.users(self.request)
         user_id = response.json_body["d"]["user_id"]
         session = response.json_body["d"]["session"]
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
-                                                    "user_email": "test@jacob.squizzlezig.com", "session": session}})
+                                                    "user_email": "success@simulator.amazonses.com", "session": session,
+                                                    "verified": False}})
 
     def test_post_user_no_password(self):
         self.request.method = 'POST'
@@ -59,12 +60,60 @@ class UserTests(PyramidTestBase):
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["password must be at least 8 characters"]}})
 
+    def test_put_verify_user_email(self):
+        # Make user
+        user_data = self.make_user(email="success@simulator.amazonses.com", verified=False)
+        user_id = user_data["user_id"]
+        verify_token_data = self.make_verifytoken(user_id)
+
+        # Verify user
+        self.request.method = 'PUT'
+        self.request.json_body = {"verifytoken": verify_token_data["token"]}
+
+        self.request.user = user(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": "user verified"})
+
+    def test_put_nonexistent_verify(self):
+        # Make user
+        user_data = self.make_user(verified=False)
+
+        # Verify user
+        self.request.method = 'PUT'
+        self.request.json_body = {"verifytoken": "nonexistentToken"}
+
+        self.request.user = user(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["verify token doesnt exist"]}})
+
+    def test_put_verify_delete_old_tokens(self):
+        # Make user
+        user_data = self.make_user(email="success@simulator.amazonses.com", verified=False)
+        user_id = user_data["user_id"]
+        verify_token_data = self.make_verifytoken(user_id)
+
+        # Make the first token invalid
+        self.dbsession.query(VerifyTokenModel).filter(VerifyTokenModel.token == verify_token_data["token"])\
+            .update({VerifyTokenModel.started: datetime.utcnow() - timedelta(weeks=1)})
+
+        verify_token_data = self.make_verifytoken(user_id)
+
+        self.request.method = 'PUT'
+        self.request.json_body = {"verifytoken": verify_token_data["token"]}
+
+        self.request.user = user(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": "user verified"})
+
+        verifytokens = self.dbsession.query(VerifyTokenModel).all()
+        self.assertEqual(verifytokens, [])
+
     def test_put_send_password_reset(self):
         # Make user
         self.make_user(email="success@simulator.amazonses.com")
 
         self.request.method = 'PUT'
-        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
         self.request.json_body = {"user_email": "success@simulator.amazonses.com"}
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": "email sent"})
@@ -93,8 +142,8 @@ class UserTests(PyramidTestBase):
         reset_token = self.make_resettoken(user_id)
 
         # Make reset token invalid
-        reset_token["started"] = datetime.utcnow() - timedelta(days=2)
-        self.dbsession.query(ResetTokenModel).filter(ResetTokenModel.token == reset_token["token"]) \
+        reset_token["started"] = datetime.utcnow() - timedelta(days=1)
+        self.dbsession.query(ResetTokenModel).filter(ResetTokenModel.token == reset_token["token"])\
             .update({ResetTokenModel.started: reset_token["started"]})
 
         self.request.method = 'PUT'
@@ -160,7 +209,7 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
-                                                    "user_email": "test@jacob.squizzlezig.com"}})
+                                                    "user_email": "test@jacob.squizzlezig.com", "verified": True}})
 
     def test_get_user_by_id_no_token(self):
         # Make user
@@ -220,7 +269,7 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "userfortesting",
-                                                    "user_email": "testerino@squizzlezig.com"}})
+                                                    "user_email": "testerino@squizzlezig.com", "verified": True}})
 
     def test_put_user_by_id_no_token(self):
         # Make user

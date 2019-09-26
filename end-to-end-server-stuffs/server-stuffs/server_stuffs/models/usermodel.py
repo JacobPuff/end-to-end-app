@@ -3,7 +3,7 @@ from sqlalchemy import (
     Integer,
     Text,
     String,
-    ForeignKey
+    Boolean
 )
 
 from .meta import Base
@@ -15,3 +15,4 @@ class UserModel(Base):
     user_name = Column(Text, nullable=False, unique=True)
     user_email = Column(String(254), nullable=False)
     user_pass = Column(Text, nullable=False)
+    verified = Column(Boolean, default=False, sever_default="f", nullable=False)

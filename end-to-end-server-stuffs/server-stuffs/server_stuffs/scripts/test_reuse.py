@@ -13,6 +13,7 @@ from server_stuffs.models import (
     TaskListModel,
     TaskModel,
     ResetTokenModel,
+    VerifyTokenModel,
     get_session_factory,
     get_tm_session
 )
@@ -49,12 +50,13 @@ class TestBase(TestCase):
     def tearDown(self):
         self.dbsession.rollback()
 
-    def make_user(self, username="TestUser", email="test@jacob.squizzlezig.com", password="TestPass"):
+    def make_user(self, username="TestUser", email="test@jacob.squizzlezig.com", password="TestPass", verified=True):
         # Make user
         new_user = UserModel()
         new_user.user_name = username.lower()
         new_user.user_email = email.lower()
         new_user.user_pass = pwd_context.hash(password)
+        new_user.verified = verified
 
         # Put on user_id
         self.dbsession.add(new_user)
@@ -115,12 +117,26 @@ class TestBase(TestCase):
         new_resettoken.user_id = user_id
         new_resettoken.token = str(uuid4())
 
-        # Put on task_id
+        # Put on ressettoken_id
         self.dbsession.add(new_resettoken)
         self.dbsession.flush()
         self.dbsession.refresh(new_resettoken)
 
         returndict = dict_from_row(new_resettoken)
+        return returndict
+
+    def make_verifytoken(self, user_id):
+        # Make verifytoken
+        new_verifytoken = VerifyTokenModel()
+        new_verifytoken.user_id = user_id
+        new_verifytoken.token = str(uuid4())
+
+        # Put on verifytoken_id
+        self.dbsession.add(new_verifytoken)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_verifytoken)
+
+        returndict = dict_from_row(new_verifytoken)
         return returndict
 
 
