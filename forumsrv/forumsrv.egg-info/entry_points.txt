@@ -1,5 +1,0 @@
-      [paste.app_factory]
-      main = forumsrv:main
-      [console_scripts]
-      initialize_forumsrv_db = forumsrv.scripts.initializedb:main
-      
