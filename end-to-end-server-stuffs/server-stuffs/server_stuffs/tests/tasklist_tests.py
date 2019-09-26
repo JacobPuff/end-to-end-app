@@ -158,7 +158,7 @@ class TaskListTests(PyramidTestBase):
         list_id = self.make_list("foo1", user_id)["list_id"]
 
         # Make user two
-        token = self.make_user("differentUser")["session"]["token"]
+        token = self.make_user("differentUser", "differentEmail@jacob.squizzlezig.com")["session"]["token"]
 
         # Get one list
         self.request.method = 'GET'
@@ -221,7 +221,7 @@ class TaskListTests(PyramidTestBase):
         list_id = self.make_list("foo1", user_id)["list_id"]
 
         # Make user two
-        user_data = self.make_user("differentUser")
+        user_data = self.make_user("differentUser", "differentEmail@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
 
         # Update list
@@ -285,7 +285,7 @@ class TaskListTests(PyramidTestBase):
         list_id = self.make_list("foo1", user_id)["list_id"]
 
         # Make user two
-        user_data = self.make_user("differentUser")
+        user_data = self.make_user("differentUser", "differentEmail@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
 
         # Delete list

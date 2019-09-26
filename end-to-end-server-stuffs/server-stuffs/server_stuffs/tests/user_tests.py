@@ -44,12 +44,24 @@ class UserTests(PyramidTestBase):
                                                     "errors": ["username, email, and password are required"]}})
 
     def test_post_user_with_duplicate_username(self):
+        self.make_user()
         self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com", "user_pass": "TestPass"}
+        self.request.json_body = {"user_name": "TestUser", "user_email": "differentemail@jacob.squizzlezig.com",
+                                  "user_pass": "TestPass"}
         users.users(self.request)
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["username already in use"]}})
+
+    def test_post_user_with_duplicate_email(self):
+        self.make_user()
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "DifferentUsername", "user_email": "test@jacob.squizzlezig.com",
+                                  "user_pass": "TestPass"}
+        users.users(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["email already in use"]}})
 
     def test_post_user_with_short_pass(self):
         self.request.method = 'POST'
@@ -105,7 +117,7 @@ class UserTests(PyramidTestBase):
         user_id = user_data["user_id"]
 
         # Make user two
-        user_data = self.make_user("differentUser")
+        user_data = self.make_user("differentUser", "differentEmail@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
 
         # Get user
@@ -154,7 +166,7 @@ class UserTests(PyramidTestBase):
         user_id = user_data["user_id"]
 
         # Make user two
-        user_data = self.make_user("differentUser")
+        user_data = self.make_user("differentUser", "differentEmail@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
 
         # Update user
@@ -229,7 +241,7 @@ class UserTests(PyramidTestBase):
         user_id = user_data["user_id"]
 
         # Make user two
-        user_data = self.make_user("differentUser")
+        user_data = self.make_user("differentUser", "differentEmail@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
 
         # Delete user

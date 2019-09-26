@@ -40,6 +40,14 @@ class EmailTests(PyramidTestBase):
         response = emails.verifytokens(self.request)
         self.assertEqual(response.json_body, {"d": "user successfully verified"})
 
+    def test_put_verify_nothing_provided(self):
+        self.request.method = 'PUT'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
+        response = emails.verifytokens(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["verifytoken is required"]}})
+
     def test_put_nonexistent_verify(self):
         # Verify user
         self.request.method = 'PUT'
@@ -122,10 +130,17 @@ class EmailTests(PyramidTestBase):
         token = reset_token_data["token"]
 
         self.request.method = 'PUT'
-        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
         self.request.json_body = {"resettoken": token, "user_pass": "different pass"}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "password successfully reset"})
+
+    def test_put_reset_nothing_provided(self):
+        self.request.method = 'PUT'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {}
+        response = emails.resettokens(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["resettoken is required"]}})
 
     def test_put_invalid_reset_token(self):
         # Make user

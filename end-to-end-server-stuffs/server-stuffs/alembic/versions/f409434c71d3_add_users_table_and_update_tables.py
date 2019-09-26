@@ -30,6 +30,6 @@ def upgrade():
 
 def downgrade():
     op.execute("TRUNCATE users CASCADE")
-    op.drop_constraint('fk_tasklists_user_id_users', 'tasklists', type_='foreignkey')
+    op.drop_constraint('fk_tasklists_user_id_users', 'tasklists')
     op.drop_table('users')
     op.add_column('tasks', sa.Column('user_id', sa.Integer, nullable=False))

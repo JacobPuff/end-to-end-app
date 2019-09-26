@@ -22,6 +22,16 @@ def username_in_use(user_name, dbsession):
     exists = dbsession.query(UserModel).filter(UserModel.user_name == user_name.lower()).one_or_none()
     return exists is not None
 
+def email_in_use(user_email, dbsession):
+    """
+    Returns true if a email exists
+    :param username: a string username
+    :param dbsession: a db session
+    :return: True if a username exists, otherwise False
+    """
+    exists = dbsession.query(UserModel).filter(UserModel.user_email == user_email.lower()).one_or_none()
+    return exists is not None
+
 
 # This handles requests without a user_id
 @view_config(route_name='users')
@@ -35,6 +45,9 @@ def users(request):
         elif username_in_use(body.get('user_name'), request.dbsession):
             status_code = httpexceptions.HTTPConflict.code
             result = error_dict("api_error", "username already in use")
+        elif email_in_use(body.get('user_email'), request.dbsession):
+            status_code = httpexceptions.HTTPConflict.code
+            result = error_dict("api_error", "email already in use")
         elif len(body.get("user_pass")) < 8:
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "password must be at least 8 characters")
@@ -68,7 +81,7 @@ def users(request):
             request.dbsession.flush()
             request.dbsession.refresh(verifytoken)
 
-            error = send_verification_email(user, verifytoken)
+            error = send_verification_email(request, user, verifytoken)
             if error:
                 status_code = httpexceptions.HTTPBadRequest.code
                 result = error

@@ -39,7 +39,7 @@ def resettokens(request):
                 request.dbsession.refresh(resettoken)
 
                 # Set how the email will look
-                resetlink = "jacob.squizzlezig.com/passwordreset?resettoken=" + resettoken.token
+                resetlink = request.application_url + "/passwordreset?resettoken=" + resettoken.token
                 subject = "Password reset requested"
                 body_text = ("A password reset was requested\r\n"
                              "If you wish to reset your password, go to " + resetlink + "\r\n"
@@ -73,7 +73,10 @@ def resettokens(request):
 
     if request.method == 'PUT':
         body = request.json_body
-        if body.get("resettoken"):
+        if body.get("resettoken") is None:
+            status_code = httpexceptions.HTTPBadRequest.code
+            result = error_dict("api_error", "resettoken is required")
+        else:
             resettoken = request.dbsession.query(ResetTokenModel) \
                 .filter(ResetTokenModel.token == body.get("resettoken")) \
                 .filter(ResetTokenModel.started > (datetime.utcnow() - timedelta(days=1))).one_or_none()
@@ -152,7 +155,7 @@ def verifytokens(request):
                 request.dbsession.flush()
                 request.dbsession.refresh(verifytoken)
 
-                error = send_verification_email(user, verifytoken)
+                error = send_verification_email(request, user, verifytoken)
 
                 if error:
                     status_code = httpexceptions.HTTPBadRequest.code
@@ -170,7 +173,10 @@ def verifytokens(request):
 
     if request.method == 'PUT':
         body = request.json_body
-        if body.get("verifytoken"):
+        if body.get("verifytoken") is None:
+            status_code = httpexceptions.HTTPBadRequest.code
+            result = error_dict("api_error", "verifytoken is required")
+        else:
             verifytoken = request.dbsession.query(VerifyTokenModel) \
                 .filter(VerifyTokenModel.token == body.get("verifytoken")) \
                 .filter(VerifyTokenModel.started > (datetime.utcnow() - timedelta(weeks=1))).one_or_none()

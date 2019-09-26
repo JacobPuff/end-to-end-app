@@ -13,6 +13,6 @@ class UserModel(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     user_name = Column(Text, nullable=False, unique=True)
-    user_email = Column(String(254), nullable=False)
+    user_email = Column(String(254), nullable=False, unique=True)
     user_pass = Column(Text, nullable=False)
     verified = Column(Boolean, default=False, server_default="f", nullable=False)
