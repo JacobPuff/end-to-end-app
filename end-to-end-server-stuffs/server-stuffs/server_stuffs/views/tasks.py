@@ -53,6 +53,9 @@ def tasks(request):
             if tasklist is None:
                 status_code = httpexceptions.HTTPNotFound.code
                 result = error_dict("api_error", "list doesnt exist")
+            elif body.get("task_done") and not isinstance(body.get("task_done"), bool):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "task_done must be a boolean")
             elif tasklist.user_id != request.user.user_id:
                 status_code = httpexceptions.HTTPUnauthorized.code
                 result = error_dict("api_error", "not authenticated for this request")
@@ -61,6 +64,8 @@ def tasks(request):
                 task.list_id = body.get("list_id")
                 task.task_name = body.get("task_name")
                 task.user_id = request.user.user_id
+                if body.get("task_done") and isinstance(body.get("task_done"), bool):
+                    task.task_done = body.get("task_done")
                 request.dbsession.add(task)
                 # We use flush here so that task has a task_id because we need it for testing
                 # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the task_id
