@@ -29,7 +29,7 @@ def tasks(request):
                 result = error_dict("api_error", "not authenticated for this request")
             else:
                 tasksforlist = request.dbsession.query(TaskModel)\
-                    .filter(TaskModel.list_id == request.GET.get("list_id")).all()
+                    .filter(TaskModel.list_id == request.GET.get("list_id")).order_by(TaskModel.task_id).all()
                 status_code = httpexceptions.HTTPOk.code
                 result = array_of_dicts_from_array_of_models(tasksforlist)
 
