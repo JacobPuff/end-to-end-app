@@ -13,13 +13,14 @@ function Task(props) {
     }
 
     React.useEffect(() => {
+        console.log("YEET")
         if (props.data["task_id"][0] == "t") {
             setIsUpdating(true)
         }
         else {
             setIsUpdating(false)
         }
-    }, [props.data]);
+    }, [props.data.task_id]);
 //update text, set prop is updating, then when promise resolves, set it so that its not longer updating. Then it will be accessible again.
 // Maybe save what the text was before, because then it can be set back to its previous value and be set to not updating.
 
@@ -109,6 +110,7 @@ function TaskList(props) {
         const [tasks, setTasks] = React.useState([]);
         const [gotten, setGotten] = React.useState(false);
         const [currentTempId, setCurrentTempId] = React.useState(0);
+        const [updateHappened, setUpdateHappened] = React.useState(false);
 
     //Get tasks
     function initialGetTasks(){
@@ -129,7 +131,7 @@ function TaskList(props) {
                 initialGetTasks();
             }
         });
-        
+        //Use task id outside data, so that child component knows to update
         const createTasks = tasks.map((task) => {
             return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask,
                                                 deleteTask: deleteTask, isUpdating: (task.task_id[0] == "t")}))
@@ -186,6 +188,7 @@ function TaskList(props) {
                 updatedTasksData[index]["task_id"] = newTask.d.task_id
                 console.log(updatedTasksData)
                 setTasks(updatedTasksData);
+                setUpdateHappened(!updateHappened);
             }
 
             var rejectFunction = function(errorData) {
