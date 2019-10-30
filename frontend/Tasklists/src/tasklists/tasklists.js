@@ -4,8 +4,7 @@ import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.j
 
 function Task(props) {
     const [editing, setEditing] = React.useState(false)
-    //editedTaskName might be able to just be a variable because its in a function component now.
-    const [editedTaskName, setEditedTaskName] = React.useState(props.data["task_name"]);
+    var editedTaskName = props.data.task_name;
     const [isUpdating, setIsUpdating] = React.useState(false)
 
     function changeDone(e) {
@@ -37,7 +36,7 @@ function Task(props) {
     }
 
     function changeToEdit(e) {
-        setEditedTaskName(e.target.value)
+        editedTaskName = e.target.value
     }
 
     function saveTask() {
