@@ -13,7 +13,6 @@ function Task(props) {
     }
 
     React.useEffect(() => {
-        console.log("YEET")
         if (props.data["task_id"][0] == "t") {
             setIsUpdating(true)
         }
@@ -131,7 +130,6 @@ function TaskList(props) {
                 initialGetTasks();
             }
         });
-        //Use task id outside data, so that child component knows to update
         const createTasks = tasks.map((task) => {
             return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask,
                                                 deleteTask: deleteTask, isUpdating: (task.task_id[0] == "t")}))
