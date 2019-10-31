@@ -19,7 +19,7 @@ function Task(props) {
         else {
             setIsUpdating(false)
         }
-    }, [props.data.task_id]);
+    }, [props.data["task_id"]]);
 //update text, set prop is updating, then when promise resolves, set it so that its not longer updating. Then it will be accessible again.
 // Maybe save what the text was before, because then it can be set back to its previous value and be set to not updating.
 
@@ -104,12 +104,12 @@ function Task(props) {
 
 function TaskList(props) {
         const [adding, setAdding] = React.useState(false);
-        const [taskToBeAdded, setTaskToBeAdded] = React.useState("");
         const [addedChecked, setAddedChecked] = React.useState(false);
         const [tasks, setTasks] = React.useState([]);
         const [gotten, setGotten] = React.useState(false);
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
+        var taskToBeAdded = "";
 
     //Get tasks
     function initialGetTasks(){
@@ -131,14 +131,13 @@ function TaskList(props) {
             }
         });
         const createTasks = tasks.map((task) => {
-            return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask,
-                                                deleteTask: deleteTask, isUpdating: (task.task_id[0] == "t")}))
+            return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask, deleteTask: deleteTask}))
         });
         return createTasks
     }
     
     function changedAddTask(e) {
-        setTaskToBeAdded(e.target.value)
+        taskToBeAdded = e.target.value
     }
 
     function addTaskView() {
@@ -152,7 +151,7 @@ function TaskList(props) {
                 React.createElement('div', {className: "addTaskContainer"},
                     React.createElement(TextareaAutosize,
                         {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, onKeyDown: (e) => { 
-                            if(e.keyCode == 13 || e.charCode == 13){e.preventDefault(); addTask()}}, value: taskToBeAdded}
+                            if(e.keyCode == 13 || e.charCode == 13){e.preventDefault(); e.target.value = ""; addTask()}}}
                     ),
                     React.createElement('input',
                         {type: "checkbox", onClick: (e) => {setAddedChecked(e.target.checked)}}
@@ -170,7 +169,7 @@ function TaskList(props) {
 
     function toggleAddTaskField() {
         setAdding(!adding);
-        setTaskToBeAdded("");
+        taskToBeAdded = "";
         setAddedChecked(false);
     }
 
@@ -179,13 +178,16 @@ function TaskList(props) {
             var updatedTasksData = tasks.slice(0);
             updatedTasksData.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
             setTasks(updatedTasksData);
-            setTaskToBeAdded("");
+            taskToBeAdded = "";
 
             var successFunction = function(newTask) {
-                var index = updatedTasksData.findIndex(i => i.task_id == "temp" + currentTempId)
-                updatedTasksData[index]["task_id"] = newTask.d.task_id
-                console.log(updatedTasksData)
-                setTasks(updatedTasksData);
+                var newUpdatedTasksData = updatedTasksData.slice(0);
+                var index = newUpdatedTasksData.findIndex(i => i.task_id == "temp" + currentTempId)
+                console.log(currentTempId)
+                console.log(index)
+                console.log(newUpdatedTasksData)
+                newUpdatedTasksData[index]["task_id"] = newTask.d.task_id
+                setTasks(newUpdatedTasksData);
                 setUpdateHappened(!updateHappened);
             }
 
