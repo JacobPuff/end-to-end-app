@@ -178,7 +178,6 @@ function TaskList(props) {
             var updatedTasksData = tasks.slice(0);
             updatedTasksData.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
             setTasks(updatedTasksData);
-            taskToBeAdded = "";
 
             var successFunction = function(newTask) {
                 var newUpdatedTasksData = updatedTasksData.slice(0);
@@ -203,7 +202,9 @@ function TaskList(props) {
             addingTask.then(function(newTask){
                 successFunction(newTask);
             }).catch(function(errorData){rejectFunction(errorData)})
+            
             setCurrentTempId(currentTempId + 1);
+            taskToBeAdded = "";
         }
         else {
             alert("You can't add an empty task")
