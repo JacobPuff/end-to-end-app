@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import TextareaAutosize from 'react-autosize-textarea';
 import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.js';
 
 function Task(props) {
-    const [editing, setEditing] = React.useState(false)
+    const [editing, setEditing] = React.useState(false);
+    const [isUpdating, setIsUpdating] = React.useState(false);
     var editedTaskName = props.data.task_name;
-    const [isUpdating, setIsUpdating] = React.useState(false)
 
     function changeDone(e) {
         props.updateTask(props.data["task_id"], {"task_done": e.target.checked})
@@ -64,7 +65,7 @@ function Task(props) {
                 React.createElement('div',
                     {className: "task"},
                     React.createElement('div', {className:"editContainer"},
-                        React.createElement('textarea',
+                        React.createElement(TextareaAutosize,
                             {className: "editTask", rows: 1, defaultValue: props.data["task_name"], onChange: changeToEdit,
                             onKeyDown: (e) => {if(e.keyCode == 13 || e.charCode == 13){saveTask()}}}
                         ),
@@ -149,7 +150,7 @@ function TaskList(props) {
         if (adding == true){
             return (
                 React.createElement('div', {className: "addTaskContainer"},
-                    React.createElement('textarea',
+                    React.createElement(TextareaAutosize,
                         {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, onKeyDown: (e) => { 
                             if(e.keyCode == 13 || e.charCode == 13){e.preventDefault(); addTask()}}, value: taskToBeAdded}
                     ),

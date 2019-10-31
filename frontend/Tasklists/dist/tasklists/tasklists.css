@@ -6,6 +6,7 @@
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
+    word-wrap: break-word;
 }
 
 .taskUpdating {
@@ -16,13 +17,29 @@
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
+    word-wrap: break-word;
+}
+
+.taskName {
+    width: 95%;
+    min-height: 16px;
+    margin-top: auto;
+    margin-bottom: auto;
+    text-align: start;
+}
+
+.taskCheck {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 3px;
 }
 
 .editTask {
     width: 90%;
     height: 95%;
+    min-height: 16px;
     margin-right: 2px;
-    margin-bottom:3px;
+    padding-top: 0px;
     padding-bottom: 0px;
     vertical-align: middle;
     resize: none;
@@ -44,21 +61,12 @@
     text-align: start;
 }
 
-.taskName {
-    width: 95%;
-    height: 16px;
-    margin-top: auto;
-    margin-bottom: auto;
-    text-align: start;
-}
-
-.taskCheck {
-    margin: 5px;
-    padding: 3px;
-}
-
 .customButton {
     color: white;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-top: 2px;
+    padding-bottom: 2px;
     padding-left: 7px;
     padding-right: 7px;
     background-color: rgb(53, 109, 192);
