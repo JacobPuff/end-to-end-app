@@ -106,6 +106,7 @@ function TaskList(props) {
         const [adding, setAdding] = React.useState(false);
         const [addedChecked, setAddedChecked] = React.useState(false);
         const [tasks, setTasks] = React.useState([]);
+        var varTasks = [];
         const [gotten, setGotten] = React.useState(false);
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
@@ -122,6 +123,11 @@ function TaskList(props) {
             successFunction(tasksGotten);
         });
     }
+
+    //keeps all tasks, but now only the first task in a one second period becomes usable again.
+    React.useEffect(()=>{
+        varTasks = tasks;
+    })
 
     //Make tasks based on data
     function returnTasks() {
@@ -175,18 +181,14 @@ function TaskList(props) {
 
     function addTask() {
         if (taskToBeAdded) {
-            var updatedTasksData = tasks.slice(0);
-            updatedTasksData.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
-            setTasks(updatedTasksData);
+            varTasks.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
+            setTasks(varTasks);
 
             var successFunction = function(newTask) {
-                var newUpdatedTasksData = updatedTasksData.slice(0);
-                var index = newUpdatedTasksData.findIndex(i => i.task_id == "temp" + currentTempId)
-                console.log(currentTempId)
-                console.log(index)
-                console.log(newUpdatedTasksData)
-                newUpdatedTasksData[index]["task_id"] = newTask.d.task_id
-                setTasks(newUpdatedTasksData);
+                var index = varTasks.findIndex(i => i.task_id == "temp" + currentTempId)
+                varTasks[index]["task_id"] = newTask.d.task_id
+                setTasks(varTasks);
+                console.log("update")
                 setUpdateHappened(!updateHappened);
             }
 
@@ -202,7 +204,7 @@ function TaskList(props) {
             addingTask.then(function(newTask){
                 successFunction(newTask);
             }).catch(function(errorData){rejectFunction(errorData)})
-            
+
             setCurrentTempId(currentTempId + 1);
             taskToBeAdded = "";
         }
@@ -210,16 +212,6 @@ function TaskList(props) {
             alert("You can't add an empty task")
         }
     }
-
-
-    /*
-        Tasklist-
-            state
-            addTask()-
-                bar()
-                Promise.then((foo) => {bar(foo)})
-    */  
-
 
     function updateTask(task_id, data) {
         const updatedTasksData = tasks.slice(0)
