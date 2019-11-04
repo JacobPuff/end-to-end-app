@@ -134,10 +134,12 @@ function TaskList(props) {
         return createTasks
     }
 
-    //keeps all tasks, but now only the first task in a one second period becomes usable again.
     React.useEffect(()=>{
         console.log("useEffect")
         tempTasks = tasks;
+        if (updateHappened == true) {
+            setUpdateHappened(false);
+        }
     })
 
     function addTask() {
@@ -149,8 +151,7 @@ function TaskList(props) {
                 var index = tempTasks.findIndex(i => i.task_id == "temp" + currentTempId)
                 tempTasks[index]["task_id"] = newTask.d.task_id
                 setTasks(tempTasks);
-                console.log("update")
-                setUpdateHappened(!updateHappened);
+                setUpdateHappened(true);
             }
 
             var rejectFunction = function(errorData) {
