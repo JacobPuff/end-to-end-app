@@ -13,13 +13,13 @@ function Task(props) {
     }
 
     React.useEffect(() => {
-        if (props.data["task_id"][0] == "t") {
+        if (props.task_id[0] == "t") {
             setIsUpdating(true)
         }
         else {
             setIsUpdating(false)
         }
-    }, [props.data["task_id"]]);
+    }, [props.task_id]);
 //update text, set prop is updating, then when promise resolves, set it so that its not longer updating. Then it will be accessible again.
 // Maybe save what the text was before, because then it can be set back to its previous value and be set to not updating.
 
@@ -106,88 +106,49 @@ function TaskList(props) {
         const [adding, setAdding] = React.useState(false);
         const [addedChecked, setAddedChecked] = React.useState(false);
         const [tasks, setTasks] = React.useState([]);
-        var varTasks = [];
-        const [gotten, setGotten] = React.useState(false);
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
+        var tempTasks = [];
         var taskToBeAdded = "";
 
     //Get tasks
+    React.useEffect(() => {
+        initialGetTasks();
+    }, []);
+
     function initialGetTasks(){
         const gettingTasks = getRequest("tasks?list_id=" + props.list_id + "&token=" + localStorage.getItem("token"));
         var successFunction = function(tasksGotten){
             setTasks(tasksGotten["d"]);
-            setGotten(true);
         }
         gettingTasks.then(function(tasksGotten){
             successFunction(tasksGotten);
         });
     }
 
-    //keeps all tasks, but now only the first task in a one second period becomes usable again.
-    React.useEffect(()=>{
-        varTasks = tasks;
-    })
-
     //Make tasks based on data
     function returnTasks() {
-        React.useEffect(() => {
-            if (gotten == false) {
-                initialGetTasks();
-            }
-        });
         const createTasks = tasks.map((task) => {
-            return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask, deleteTask: deleteTask}))
+            return (React.createElement(Task, {key: task["task_id"], task_id: task["task_id"], data: task, updateTask: updateTask, deleteTask: deleteTask}))
         });
         return createTasks
     }
-    
-    function changedAddTask(e) {
-        taskToBeAdded = e.target.value
-    }
 
-    function addTaskView() {
-        if (adding == false){
-            return (
-                React.createElement('div', {className: "addTasksButton", onClick: toggleAddTaskField},'Add Tasks')
-            )
-        }
-        if (adding == true){
-            return (
-                React.createElement('div', {className: "addTaskContainer"},
-                    React.createElement(TextareaAutosize,
-                        {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, onKeyDown: (e) => { 
-                            if(e.keyCode == 13 || e.charCode == 13){e.preventDefault(); e.target.value = ""; addTask()}}}
-                    ),
-                    React.createElement('input',
-                        {type: "checkbox", onClick: (e) => {setAddedChecked(e.target.checked)}}
-                    ),
-                    React.createElement('input',
-                        {className: "customButton", type: "button", onClick: addTask, value: "Add Task"}
-                    ),
-                    React.createElement('input',
-                        {className: "customButton", type: "button", onClick: toggleAddTaskField, value: "Done"}
-                    )
-                )
-            )
-        }
-    }
-
-    function toggleAddTaskField() {
-        setAdding(!adding);
-        taskToBeAdded = "";
-        setAddedChecked(false);
-    }
+    //keeps all tasks, but now only the first task in a one second period becomes usable again.
+    React.useEffect(()=>{
+        console.log("useEffect")
+        tempTasks = tasks;
+    })
 
     function addTask() {
         if (taskToBeAdded) {
-            varTasks.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
-            setTasks(varTasks);
+            tempTasks.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
+            setTasks(tempTasks);
 
             var successFunction = function(newTask) {
-                var index = varTasks.findIndex(i => i.task_id == "temp" + currentTempId)
-                varTasks[index]["task_id"] = newTask.d.task_id
-                setTasks(varTasks);
+                var index = tempTasks.findIndex(i => i.task_id == "temp" + currentTempId)
+                tempTasks[index]["task_id"] = newTask.d.task_id
+                setTasks(tempTasks);
                 console.log("update")
                 setUpdateHappened(!updateHappened);
             }
@@ -269,12 +230,49 @@ function TaskList(props) {
         }).catch(function(errorData){rejectFunction(errorData)})
     }
 
+    function changedAddTask(e) {
+        taskToBeAdded = e.target.value
+    }
+    
+    function toggleAddTaskField() {
+        setAdding(!adding);
+        taskToBeAdded = "";
+        setAddedChecked(false);
+    }
+
+    function switchDisplay() {
+        if (adding == false){
+            return (
+                React.createElement('div', {className: "addTasksButton", onClick: toggleAddTaskField},'Add Tasks')
+            )
+        }
+        if (adding == true){
+            return (
+                React.createElement('div', {className: "addTaskContainer"},
+                    React.createElement(TextareaAutosize,
+                        {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, onKeyDown: (e) => { 
+                            if(e.keyCode == 13 || e.charCode == 13){e.preventDefault(); e.target.value = ""; addTask()}}}
+                    ),
+                    React.createElement('input',
+                        {type: "checkbox", onClick: (e) => {setAddedChecked(e.target.checked)}}
+                    ),
+                    React.createElement('input',
+                        {className: "customButton", type: "button", onClick: addTask, value: "Add Task"}
+                    ),
+                    React.createElement('input',
+                        {className: "customButton", type: "button", onClick: toggleAddTaskField, value: "Done"}
+                    )
+                )
+            )
+        }
+    }
+
     return(
         React.createElement('div',
             {className: "tasklist"},
             React.createElement('div', {className: "listName"}, props.list_name),
             returnTasks(),
-            addTaskView()
+            switchDisplay()
         )
         
     );
