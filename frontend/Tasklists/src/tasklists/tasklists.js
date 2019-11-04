@@ -13,13 +13,13 @@ function Task(props) {
     }
 
     React.useEffect(() => {
-        if (props.task_id[0] == "t") {
+        if (props.data["task_id"][0] == "t") {
             setIsUpdating(true)
         }
         else {
             setIsUpdating(false)
         }
-    }, [props.task_id]);
+    }, [props.data["task_id"]]);
 //update text, set prop is updating, then when promise resolves, set it so that its not longer updating. Then it will be accessible again.
 // Maybe save what the text was before, because then it can be set back to its previous value and be set to not updating.
 
@@ -129,7 +129,7 @@ function TaskList(props) {
     //Make tasks based on data
     function returnTasks() {
         const createTasks = tasks.map((task) => {
-            return (React.createElement(Task, {key: task["task_id"], task_id: task["task_id"], data: task, updateTask: updateTask, deleteTask: deleteTask}))
+            return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask, deleteTask: deleteTask}))
         });
         return createTasks
     }
