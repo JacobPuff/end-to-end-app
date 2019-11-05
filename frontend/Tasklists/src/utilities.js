@@ -2,6 +2,7 @@ export {getRequest, postRequest, putRequest, deleteRequest}
 
 function getRequest(name) {
     return new Promise(function(resolve, reject){
+        setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
@@ -21,6 +22,8 @@ function getRequest(name) {
         request.open("GET", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send();
+
+        }, 1000)
     });
 }
 
@@ -53,6 +56,7 @@ function postRequest(name, data) {
 
 function putRequest(name, data) {
     return new Promise(function(resolve, reject){
+        setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
@@ -72,11 +76,14 @@ function putRequest(name, data) {
         request.open("PUT", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
+
+        }, 1000)
     });
 }
 
 function deleteRequest(name, data) {
     return new Promise(function(resolve, reject){
+        setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
@@ -96,5 +103,7 @@ function deleteRequest(name, data) {
         request.open("DELETE", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
+
+        }, 1000)
     });
 }

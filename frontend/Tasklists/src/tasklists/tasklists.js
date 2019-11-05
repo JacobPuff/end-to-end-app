@@ -56,7 +56,10 @@ function Task(props) {
                     React.createElement('input',
                         {className: "taskCheck", type: "checkbox", checked: props.data["task_done"], onChange: (e) => {e.preventDefault();}}
                     ),
-                    React.createElement('button', {className: "customButton", onClick: () => {console.log(props.data["task_id"])}}, "x")
+                    React.createElement('button', {className: "customButton", onClick: deleteTask}, "x"),
+                    //This will probably be how I handle timeouts later, but for now I just want to get asynchronous stuff going.
+                    //I don't know how I will get/set the prop at the moment
+                    //React.createElement('button', {className: "customButton", visiblity: props.canReload})
                 )
             )
         }
@@ -106,9 +109,13 @@ function TaskList(props) {
         const [adding, setAdding] = React.useState(false);
         const [addedChecked, setAddedChecked] = React.useState(false);
         const [tasks, setTasks] = React.useState([]);
+        const [deleteList, setDeleteList] = React.useState([]);
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
+        var tempDeleteList = [];
         var tempTasks = [];
+        //If the checkbox is marked after the text is added, it will think its an empty task.
+        //If the "Add Task" button is pressed, it won't clear the textarea.
         var taskToBeAdded = "";
 
     //Get tasks
@@ -121,9 +128,15 @@ function TaskList(props) {
         var successFunction = function(tasksGotten){
             setTasks(tasksGotten["d"]);
         }
+
+        var rejectFunction = function(errorData) {
+            console.log(errorData)
+            console.log("error: " + errorData["d"]["errors"][0])
+        }
+
         gettingTasks.then(function(tasksGotten){
             successFunction(tasksGotten);
-        });
+        }).catch(function(errorData){rejectFunction(errorData)});
     }
 
     //Make tasks based on data
@@ -134,9 +147,11 @@ function TaskList(props) {
         return createTasks
     }
 
+    //For asynchronous stuff.
     React.useEffect(()=>{
         console.log("useEffect")
         tempTasks = tasks;
+        tempDeleteList = deleteList;
         if (updateHappened == true) {
             setUpdateHappened(false);
         }
@@ -149,14 +164,20 @@ function TaskList(props) {
 
             var successFunction = function(newTask) {
                 var index = tempTasks.findIndex(i => i.task_id == "temp" + currentTempId)
-                tempTasks[index]["task_id"] = newTask.d.task_id
-                setTasks(tempTasks);
-                setUpdateHappened(true);
+                if(index != -1) {
+                    //A task should not be able to be deleted while its updating. It should be able to be deleted if it could not be sent to the server.
+                    tempTasks[index]["task_id"] = newTask.d.task_id
+                    setTasks(tempTasks);
+                    setUpdateHappened(true);
+                }
             }
 
             var rejectFunction = function(errorData) {
                 console.log(errorData)
-                console.log("error: " + errorData)
+                console.log("error: " + errorData["d"]["errors"][0])
+                if (errorData["d"]["error_type"] == "connection_errors") {
+                    
+                }
             }
             
             console.log(currentTempId)
@@ -214,21 +235,52 @@ function TaskList(props) {
     }
 
     function deleteTask(task_id) {
+        var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
+        var deletedTask = tempTasks.splice(tempTasksIndex, 1)[0];
+        setTasks(tempTasks);
+        setUpdateHappened(true);
+
+        if (task_id[0] != "t"){
+            tempDeleteList.push(deletedTask);
+            setDeleteList(tempDeleteList);
+
+            const deletingTask = deleteRequest("tasks/" + task_id, {token: localStorage.getItem("token")});
+            deletingTask.then(function(){
+                successFunction()
+            }).catch(function(errorData){rejectFunction(errorData)})
+        }
+
         var successFunction = function() {
-            const updatedTasksData = tasks.slice(0)
-            const index = updatedTasksData.findIndex(i => i.task_id == task_id);
-            updatedTasksData.splice(index, 1);
-            setTasks(updatedTasksData)
-            
+            tempDeleteList.splice(index, 1)
+            setDeleteList(tempDeleteList)
         }
 
         var rejectFunction = function(errorData) {
             console.log("error: " + errorData["d"]["errors"][0])
+            var index = tempDeleteList.findIndex(i=> i.task_id == task_id);
+            var reAddedTask = tempDeleteList[index];
+            tempDeleteList.splice(index, 1);
+            tempTasks.splice(tempTasksIndex, 0, reAddedTask);
+
+            tempTasks.sort(sortTasks);
+
+            console.log(tempTasks);
+            setTasks(tempTasks);
+            setDeleteList(tempDeleteList);
+            setUpdateHappened(true);
         }
-        const deletingTask = deleteRequest("tasks/" + task_id, {token: localStorage.getItem("token")});
-        deletingTask.then(function(){
-            successFunction()
-        }).catch(function(errorData){rejectFunction(errorData)})
+    }
+
+    function sortTasks(a, b) {
+        if(typeof(a.task_id) == "number" && typeof(b.task_id) == "number"){
+            return a.task_id - b.task_id
+        } else if (typeof(a.task_id) == "string" && typeof(b.task_id) == "number") {
+            return 1
+        } else if (typeof(a.task_id) == "number" && typeof(b.task_id) == "string"){
+            return -1
+        } else if (typeof(a.task_id) == "string" && typeof(b.task_id) == "string"){
+            return a.task_id.substring(4) - b.task_id.substring(4)
+        }
     }
 
     function changedAddTask(e) {
@@ -244,7 +296,7 @@ function TaskList(props) {
     function switchDisplay() {
         if (adding == false){
             return (
-                React.createElement('div', {className: "addTasksButton", onClick: toggleAddTaskField},'Add Tasks')
+                React.createElement('div', {className: "wideButton", onClick: toggleAddTaskField},'Add Tasks')
             )
         }
         if (adding == true){
