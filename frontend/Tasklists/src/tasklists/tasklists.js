@@ -251,16 +251,17 @@ function TaskList(props) {
         }
 
         var successFunction = function() {
-            tempDeleteList.splice(index, 1)
+            var deleteIndex = tempDeleteList.findIndex(i=> i.task_id == task_id);
+            tempDeleteList.splice(deleteIndex, 1)
             setDeleteList(tempDeleteList)
         }
 
         var rejectFunction = function(errorData) {
             console.log("error: " + errorData["d"]["errors"][0])
-            var index = tempDeleteList.findIndex(i=> i.task_id == task_id);
-            var reAddedTask = tempDeleteList[index];
-            tempDeleteList.splice(index, 1);
-            tempTasks.splice(tempTasksIndex, 0, reAddedTask);
+            var deleteIndex = tempDeleteList.findIndex(i=> i.task_id == task_id);
+            var reAddedTask = tempDeleteList[deleteIndex];
+            tempDeleteList.splice(deleteIndex, 1);
+            tempTasks.push(reAddedTask);
 
             tempTasks.sort(sortTasks);
 
