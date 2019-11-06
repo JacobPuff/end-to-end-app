@@ -3,5 +3,5 @@
 env
 venv
 *.pyc
-*.jacobsstuffs
+*.bash
 .coverage
