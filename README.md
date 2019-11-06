@@ -1,3 +1,3 @@
-# Dev server
+# End-to-end-tasklist-app
 
-Dev server for things. Testing CICD stuff.
+This is a project I am doing to show off what I know, and learn things along the way.
