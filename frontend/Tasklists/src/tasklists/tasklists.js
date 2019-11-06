@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import TextareaAutosize from 'react-autosize-textarea';
 import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.js';
 
+const ENTER_KEYCODE = 13;
+
 function Task(props) {
     const [editing, setEditing] = React.useState(false);
     const [isUpdating, setIsUpdating] = React.useState(false);
@@ -70,7 +72,7 @@ function Task(props) {
                     React.createElement('div', {className:"editContainer"},
                         React.createElement(TextareaAutosize,
                             {className: "editTask", rows: 1, defaultValue: props.data["task_name"], onChange: changeToEdit,
-                            onKeyDown: (e) => {if(e.keyCode == 13 || e.charCode == 13){saveTask()}}}
+                            onKeyDown: (e) => {if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){saveTask()}}}
                         ),
                         React.createElement('input',
                             {type: "button", onClick: saveTask, value: "Save"}
@@ -165,7 +167,8 @@ function TaskList(props) {
             var successFunction = function(newTask) {
                 var index = tempTasks.findIndex(i => i.task_id == "temp" + currentTempId)
                 if(index != -1) {
-                    //A task should not be able to be deleted while its updating. It should be able to be deleted if it could not be sent to the server.
+                    //A task should not be able to be deleted while its updating.
+                    //It should be able to be deleted if it could not be sent to the server.
                     tempTasks[index]["task_id"] = newTask.d.task_id
                     setTasks(tempTasks);
                     setUpdateHappened(true);
@@ -305,7 +308,7 @@ function TaskList(props) {
                 React.createElement('div', {className: "addTaskContainer"},
                     React.createElement(TextareaAutosize,
                         {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, onKeyDown: (e) => { 
-                            if(e.keyCode == 13 || e.charCode == 13){e.preventDefault(); e.target.value = ""; addTask()}}}
+                            if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){e.preventDefault(); e.target.value = ""; addTask()}}}
                     ),
                     React.createElement('input',
                         {type: "checkbox", onClick: (e) => {setAddedChecked(e.target.checked)}}
