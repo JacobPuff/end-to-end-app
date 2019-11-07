@@ -11,8 +11,6 @@ function Task(props) {
     var editedTaskName = props.data.task_name;
 
     function changeDone(e) {
-        //Remove later
-        console.log(e.target.checked)
         props.updateTask(props.data["task_id"], {"task_done": e.target.checked})
     }
 
@@ -116,11 +114,9 @@ function TaskList(props) {
         const [deleteList, setDeleteList] = React.useState([]);
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
+        const [taskToBeAdded, setTaskToBeAdded] = React.useState("")
         var tempDeleteList = [];
         var tempTasks = [];
-        //If the checkbox is marked after the text is added, it will think its an empty task.
-        //If the "Add Task" button is pressed, it won't clear the textarea.
-        var taskToBeAdded = "";
 
     //Get tasks
     React.useEffect(() => {
@@ -194,7 +190,7 @@ function TaskList(props) {
             }).catch(function(errorData){rejectFunction(errorData)})
 
             setCurrentTempId(currentTempId + 1);
-            taskToBeAdded = "";
+            setTaskToBeAdded("");
         }
         else {
             alert("You can't add an empty task")
@@ -316,12 +312,12 @@ function TaskList(props) {
     }
 
     function changedAddTask(e) {
-        taskToBeAdded = e.target.value
+        setTaskToBeAdded(e.target.value);
     }
     
     function toggleAddTaskField() {
         setAdding(!adding);
-        taskToBeAdded = "";
+        setTaskToBeAdded("");
         setAddedChecked(false);
     }
 
@@ -335,7 +331,7 @@ function TaskList(props) {
             return (
                 React.createElement('div', {className: "addTaskContainer"},
                     React.createElement(TextareaAutosize,
-                        {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, onKeyDown: (e) => { 
+                        {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, value: taskToBeAdded, onKeyDown: (e) => { 
                             if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){e.preventDefault(); e.target.value = ""; addTask()}}}
                     ),
                     React.createElement('input',
