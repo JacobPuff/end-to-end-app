@@ -126,7 +126,7 @@ def tasks_by_id(request):
         elif task_id is None or (body.get("task_name") is None and body.get("list_id") is None and body.get("task_done") is None):
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "task_name, list_id, or task_done, and task_id are required")
-        elif body.get("task_done") and isinstance(body.get("task_done"), bool) is not True:
+        elif body.get("task_done") is not None and isinstance(body.get("task_done"), bool) is not True:
                 status_code = httpexceptions.HTTPBadRequest.code
                 result = error_dict("api_error", "task_done must be a boolean")
         else:
@@ -146,7 +146,7 @@ def tasks_by_id(request):
                         task.task_name = body.get("task_name")
                     if body.get("list_id"):
                         task.list_id = body.get("list_id")
-                    if body.get("task_done"):
+                    if body.get("task_done") is not None:
                         task.task_done = body.get("task_done")
                     request.dbsession.flush()
                     request.dbsession.refresh(task)
