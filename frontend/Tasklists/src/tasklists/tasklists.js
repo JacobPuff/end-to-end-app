@@ -11,6 +11,8 @@ function Task(props) {
     var editedTaskName = props.data.task_name;
 
     function changeDone(e) {
+        //Remove later
+        console.log(e.target.checked)
         props.updateTask(props.data["task_id"], {"task_done": e.target.checked})
     }
 
@@ -161,14 +163,15 @@ function TaskList(props) {
 
     function addTask() {
         if (taskToBeAdded) {
-            tempTasks.push({task_id: "temp" + currentTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
+            var localTempId = currentTempId;
+            tempTasks.push({task_id: "temp" + localTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
             setTasks(tempTasks);
 
             var successFunction = function(newTask) {
-                var index = tempTasks.findIndex(i => i.task_id == "temp" + currentTempId)
+                var index = tempTasks.findIndex(i => i.task_id == "temp" + localTempId)
                 if(index != -1) {
-                    //A task should not be able to be deleted while its updating.
-                    //It should be able to be deleted if it could not be sent to the server.
+                    //This if statement is here because you can currently delete tasks while they are being added.
+                    //It should be removed when that inevitably changess.
                     tempTasks[index]["task_id"] = newTask.d.task_id
                     setTasks(tempTasks);
                     setUpdateHappened(true);
@@ -183,7 +186,6 @@ function TaskList(props) {
                 }
             }
             
-            console.log(currentTempId)
             const addingTask = postRequest("tasks", {list_id: props.list_id, task_name: taskToBeAdded,
                 task_done: addedChecked, token: localStorage.getItem("token")});
 
@@ -198,52 +200,78 @@ function TaskList(props) {
             alert("You can't add an empty task")
         }
     }
+        
+    /*
+        preUpdateValues = [{task_id: 12, task_name: "balhblahsblashl"},
+                            {task_id:34, task_done: false},
+                            {task_id: 12, task_done: false}]
+
+        Can use scope to get data needed in the success function.       Side note: Need to check that currentTempId won't break if state
+                                                                        is not updated. (Get it? Its on the side.)
+        promiseFunc(URL, Data, resolveData) {
+            resolve([])
+        }
+        
+        var localVar = neededData
+        scopePromiseFunc(url, data).then(function(successData){ successFunction(successData)})
+        successFunction(){ does whatever using localVar }
+    */
 
     function updateTask(task_id, data) {
-        const updatedTasksData = tasks.slice(0)
-        const index = updatedTasksData.findIndex(i => i.task_id == task_id)
+        var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id)
+
+        //Copy task instead of referencing it
+        var preUpdateTask = {}
+        preUpdateTask.task_id = tempTasks[tempTasksIndex].task_id
+        preUpdateTask.task_name = tempTasks[tempTasksIndex].task_name;
+        preUpdateTask.task_done = tempTasks[tempTasksIndex].task_done;
+
         var dataToUpdate = {}
         var updated = false
-        
-        var successFunction = function() {
-            if (data["task_done"] != null) {
-                updatedTasksData[index]["task_done"] = data["task_done"]
-            }
-            if (data["task_name"]) {
-                updatedTasksData[index]["task_name"] = data["task_name"]
-            }
-            setTasks(updatedTasksData);
-        }
         
         var rejectFunction = function(errorData) {
             console.log(errorData)
             console.log("error: " + errorData["d"]["errors"][0])
+
+            //Recalculate index so that tasks that already exist on the server can be deleted
+            //It will return a -1 instead of reverting the wrong task if the task was deleted
+            var revertIndex = tempTasks.findIndex(i => i.task_id == task_id)
+            if (revertIndex != -1) {
+                tempTasks[revertIndex] = preUpdateTask;
+                setTasks(tempTasks);
+                setUpdateHappened(true);
+            }
         }
 
         if (data["task_done"] != null) {
+            tempTasks[tempTasksIndex]["task_done"] = data["task_done"]
             dataToUpdate["task_done"] = data["task_done"]
             updated = true;
         }
-        if (data["task_name"] && data["task_name"] != updatedTasksData[index]["task_name"]) {
+        if (data["task_name"] && data["task_name"] != tempTasks[tempTasksIndex]["task_name"]) {
+            tempTasks[tempTasksIndex]["task_name"] = data["task_name"]
             dataToUpdate["task_name"] = data["task_name"]
             updated = true;
         }
         if (updated) {
+            setTasks(tempTasks);
+            setUpdateHappened(true);
             dataToUpdate["token"] = localStorage.getItem("token")
             var updatingTask = putRequest("tasks/" + task_id, dataToUpdate)
-            updatingTask.then(function(){
-                successFunction()
-            }).catch(function(errorData){rejectFunction(errorData)});
+            updatingTask.catch(function(errorData){rejectFunction(errorData)});
         }
     }
 
     function deleteTask(task_id) {
-        var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
-        var deletedTask = tempTasks.splice(tempTasksIndex, 1)[0];
-        setTasks(tempTasks);
-        setUpdateHappened(true);
-
+        
+        //A task should not be able to be deleted while its being added.
+        //It should be able to be deleted if it could not be sent to the server.
         if (task_id[0] != "t"){
+            var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
+            var deletedTask = tempTasks.splice(tempTasksIndex, 1)[0];
+            setTasks(tempTasks);
+            setUpdateHappened(true);
+
             tempDeleteList.push(deletedTask);
             setDeleteList(tempDeleteList);
 
