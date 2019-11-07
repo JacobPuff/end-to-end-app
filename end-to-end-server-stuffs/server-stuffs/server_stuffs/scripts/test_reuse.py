@@ -97,11 +97,12 @@ class TestBase(TestCase):
         returndict = dict_from_row(new_list)
         return returndict
 
-    def make_task(self, list_id, task_name):
+    def make_task(self, list_id, task_name, task_done=False):
         # Make task
         new_task = TaskModel()
         new_task.list_id = list_id
         new_task.task_name = task_name
+        new_task.task_done = task_done
 
         # Put on task_id
         self.dbsession.add(new_task)
