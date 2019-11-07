@@ -8,43 +8,41 @@ const ENTER_KEYCODE = 13;
 function Task(props) {
     const [editing, setEditing] = React.useState(false);
     const [isUpdating, setIsUpdating] = React.useState(false);
-    var editedTaskName = props.data.task_name;
-
-    function changeDone(e) {
-        props.updateTask(props.data["task_id"], {"task_done": e.target.checked})
-    }
+    const [editedTaskName, setEditedTaskName] =  React.useState(props.data.task_name);
 
     React.useEffect(() => {
         if (props.data["task_id"][0] == "t") {
-            setIsUpdating(true)
+            setIsUpdating(true);
         }
         else {
-            setIsUpdating(false)
+            setIsUpdating(false);
         }
     }, [props.data["task_id"]]);
-//update text, set prop is updating, then when promise resolves, set it so that its not longer updating. Then it will be accessible again.
-// Maybe save what the text was before, because then it can be set back to its previous value and be set to not updating.
 
     function deleteTask() {
         // This gets annoying if you are deleting in bulk. Find a way to select for deletion at some point or something.
         //var shouldDelete = confirm("Are you sure you want to delete\n" + "\"" + props.data["task_name"] + "\"?")
         var shouldDelete = true;
         if (shouldDelete) {
-            props.deleteTask(props.data["task_id"])
+            props.deleteTask(props.data["task_id"]);
         }
     }
 
     function changeEditState() {
-        setEditing(!editing)
+        setEditing(!editing);
     }
 
     function changeToEdit(e) {
-        editedTaskName = e.target.value
+        setEditedTaskName(e.target.value);
+    }
+
+    function changeDone(e) {
+        props.updateTask(props.data["task_id"], {"task_done": e.target.checked});
     }
 
     function saveTask() {
-        props.updateTask(props.data["task_id"], {"task_name": editedTaskName})
-        changeEditState()
+        props.updateTask(props.data["task_id"], {"task_name": editedTaskName});
+        changeEditState();
     }
 
     function switchDisplay() {
@@ -71,7 +69,7 @@ function Task(props) {
                     {className: "task"},
                     React.createElement('div', {className:"editContainer"},
                         React.createElement(TextareaAutosize,
-                            {className: "editTask", rows: 1, defaultValue: props.data["task_name"], onChange: changeToEdit,
+                            {className: "editTask", rows: 1, value: editedTaskName, onChange: changeToEdit,
                             onKeyDown: (e) => {if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){saveTask()}}}
                         ),
                         React.createElement('input',
@@ -115,8 +113,8 @@ function TaskList(props) {
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
         const [taskToBeAdded, setTaskToBeAdded] = React.useState("")
-        var tempDeleteList = [];
         var tempTasks = [];
+        var tempDeleteList = [];
 
     //Get tasks
     React.useEffect(() => {
