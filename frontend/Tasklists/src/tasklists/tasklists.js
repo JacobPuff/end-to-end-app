@@ -317,7 +317,11 @@ function TaskList(props) {
         const retryAddingTask = postRequest("tasks", {list_id: props.list_id, task_name: retryTask["task_name"],
                                         task_done: retryTask["task_done"], token: localStorage.getItem("token")})
 
-        retryAddingTask.then(function(newTask){successFunction(newTask)})
+        retryAddingTask.then(function(newTask){
+            successFunction(newTask)
+        }).catch(function(errorData){
+            rejectFunction(errorData);
+        })
 
         var successFunction = function(newTask) {
             //retryTask is a reference to the task in tempTasks
@@ -325,6 +329,11 @@ function TaskList(props) {
             retryTask["canRetry"] = false;
             setTasks(tempTasks);
             setUpdateHappened(true);
+        }
+
+        var rejectFunction = function(errorData) {
+            console.log(errorData)
+            console.log("error: " + errorData["d"]["errors"][0])
         }
     }
 
