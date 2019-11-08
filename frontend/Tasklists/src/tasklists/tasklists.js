@@ -112,6 +112,9 @@ function Task(props) {
 }
 
 function TaskList(props) {
+        const [listName, setListName] = React.useState("loading")
+        const [prevListName, setPrevListName] = React.useState(props.list_name);
+        const [editingListName, setEditingListName] = React.useState(false);
         const [adding, setAdding] = React.useState(false);
         const [addedChecked, setAddedChecked] = React.useState(false);
         const [tasks, setTasks] = React.useState([]);
@@ -124,10 +127,21 @@ function TaskList(props) {
 
     //Get tasks
     React.useEffect(() => {
-        initialGetTasks();
+        initialGetRequests();
     }, []);
 
-    function initialGetTasks(){
+    function initialGetRequests(){
+        //Get tasklist
+        const gettingTasklist = getRequest("tasklists/" + props.list_id + "?token=" + localStorage.getItem("token"));
+        gettingTasklist.then(function(tasklistData){
+            setListName(tasklistData["d"]["list_name"])
+        }).catch(function(errorData){
+            console.log(errorData)
+            console.log("error: " + errorData["d"]["errors"][0])
+            setListName("Couldn't connect, please reload");
+        });
+
+        //Get tasks
         const gettingTasks = getRequest("tasks?list_id=" + props.list_id + "&token=" + localStorage.getItem("token"));
         var successFunction = function(tasksGotten){
             setTasks(tasksGotten["d"]);
@@ -170,8 +184,6 @@ function TaskList(props) {
 
             var successFunction = function(newTask) {
                 var index = tempTasks.findIndex(i => i.task_id == "temp" + localTempId)
-                //This if statement is here because you can currently delete tasks while they are being added.
-                //It should be removed when that inevitably changes.
                 tempTasks[index]["task_id"] = newTask.d.task_id
                 if (tempTasks[index]["canRetry"]){
                     tempTasks[index]["canRetry"] = false;
@@ -205,22 +217,6 @@ function TaskList(props) {
             alert("You can't add an empty task")
         }
     }
-        
-    /*
-        preUpdateValues = [{task_id: 12, task_name: "balhblahsblashl"},
-                            {task_id:34, task_done: false},
-                            {task_id: 12, task_done: false}]
-
-        Can use scope to get data needed in the success function.       Side note: Need to check that currentTempId won't break if state
-                                                                        is not updated. (Get it? Its on the side.)
-        promiseFunc(URL, Data, resolveData) {
-            resolve([])
-        }
-        
-        var localVar = neededData
-        scopePromiseFunc(url, data).then(function(successData){ successFunction(successData)})
-        successFunction(){ does whatever using localVar }
-    */
 
     function updateTask(task_id, data) {
         var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id)
@@ -268,9 +264,6 @@ function TaskList(props) {
     }
 
     function deleteTask(task_id) {
-        
-        //A task should not be able to be deleted while its being added.
-        //It should be able to be deleted if it could not be sent to the server.
         var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
 
         if(task_id[0] != "t" || tempTasks[tempTasksIndex]["canRetry"]){
@@ -349,14 +342,52 @@ function TaskList(props) {
         }
     }
 
+    function changeListName(e) {
+        setListName(e.target.value)
+    }
+
     function changedAddTask(e) {
         setTaskToBeAdded(e.target.value);
+    }
+
+    function toggleEditListName() {
+        setPrevListName(listName);
+        setEditingListName(!editingListName);
     }
     
     function toggleAddTaskField() {
         setAdding(!adding);
         setTaskToBeAdded("");
         setAddedChecked(false);
+    }
+
+    function saveListName() {
+        if(listName && listName != prevListName) {
+            const updateListName = putRequest("tasklists/" + props.list_id, {"list_name": listName,
+                                            token: localStorage.getItem("token")});
+            updateListName.catch(function(errorData){rejectFunction(errorData);})
+
+            var rejectFunction = function(errorData){
+                console.log(errorData)
+                console.log("error: " + errorData["d"]["errors"][0])
+                setListName(prevListName);
+            }
+        } else {
+            setListName(prevListName);
+        }
+    }
+
+    function returnListName() {
+        if(editingListName) {
+            return (
+                React.createElement(TextareaAutosize, {className: "editingListName", defaultValue: listName, onChange: changeListName,
+                    onKeyDown: (e) => {if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){saveListName(); toggleEditListName();}}})
+            )
+        } else {
+            return (
+                React.createElement('div', {className: "listName", onClick: toggleEditListName}, listName)
+            )
+        }
     }
 
     function switchDisplay() {
@@ -389,7 +420,7 @@ function TaskList(props) {
     return(
         React.createElement('div',
             {className: "tasklist"},
-            React.createElement('div', {className: "listName"}, props.list_name),
+            returnListName(),
             returnTasks(),
             switchDisplay()
         )
@@ -398,6 +429,6 @@ function TaskList(props) {
 }
 
 ReactDOM.render(
-    React.createElement(TaskList, {list_id: 22, list_name: "list1"}),
+    React.createElement(TaskList, {list_id: 22}),
     document.getElementById('root')
 );

@@ -100,11 +100,30 @@
 .listName {
     width: 90%;
     margin: Auto;
+    padding: 2px;
     font-size: 20pt;
     border: 2px solid #000;
     border-radius: 5px;
     background-color: rgb(200, 205, 255);
+    word-wrap: break-word;
 }
+
+.editingListName {
+    width: 90%;
+    margin-bottom: -4px;
+    font-size: 20pt;
+    font-family: Helvetica, sans-serif;
+    resize: none;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background-color: rgb(200, 205, 255);
+}
+
+.editingListName:focus{
+    outline: 0px;
+    border: 2px solid rgb(37, 65, 226);
+}
+
 
 .wideButton {
     color: white;
