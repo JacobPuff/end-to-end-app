@@ -45,6 +45,10 @@ function Task(props) {
         changeEditState();
     }
 
+    function retryAddTask() {
+        props.retryAddTask(props.data["task_id"]);
+    }
+
     function switchDisplay() {
         if (isUpdating) {
             return (
@@ -53,13 +57,15 @@ function Task(props) {
                     React.createElement('div', {className: "taskName"},
                         props.data["task_name"]
                     ),
-                    React.createElement('input',
-                        {className: "taskCheck", type: "checkbox", checked: props.data["task_done"], onChange: (e) => {e.preventDefault();}}
-                    ),
+                    (!props.canRetry && React.createElement('input',
+                        {className: "taskCheck", type: "checkbox", checked: props.data["task_done"],
+                        onChange: (e) => {e.preventDefault();}}
+                    )),
+                    (props.canRetry && React.createElement('button',
+                        {className: "customButton retryButton", onClick: retryAddTask},
+                        "\u21BB"
+                    )),
                     React.createElement('button', {className: "customButton", onClick: deleteTask}, "x"),
-                    //This will probably be how I handle timeouts later, but for now I just want to get asynchronous stuff going.
-                    //I don't know how I will get/set the prop at the moment
-                    //React.createElement('button', {className: "customButton", visiblity: props.canReload})
                 )
             )
         }
@@ -69,7 +75,7 @@ function Task(props) {
                     {className: "task"},
                     React.createElement('div', {className:"editContainer"},
                         React.createElement(TextareaAutosize,
-                            {className: "editTask", rows: 1, value: editedTaskName, onChange: changeToEdit,
+                            {className: "editTask", rows: 1, defaultValue: props.data["task_name"], onChange: changeToEdit,
                             onKeyDown: (e) => {if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){saveTask()}}}
                         ),
                         React.createElement('input',
@@ -140,7 +146,8 @@ function TaskList(props) {
     //Make tasks based on data
     function returnTasks() {
         const createTasks = tasks.map((task) => {
-            return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask, deleteTask: deleteTask}))
+            return (React.createElement(Task, {key: task["task_id"], data: task, updateTask: updateTask,
+                            deleteTask: deleteTask, retryAddTask: retryAddTask, canRetry: task["canRetry"]}))
         });
         return createTasks
     }
@@ -163,20 +170,24 @@ function TaskList(props) {
 
             var successFunction = function(newTask) {
                 var index = tempTasks.findIndex(i => i.task_id == "temp" + localTempId)
-                if(index != -1) {
-                    //This if statement is here because you can currently delete tasks while they are being added.
-                    //It should be removed when that inevitably changess.
-                    tempTasks[index]["task_id"] = newTask.d.task_id
-                    setTasks(tempTasks);
-                    setUpdateHappened(true);
+                //This if statement is here because you can currently delete tasks while they are being added.
+                //It should be removed when that inevitably changes.
+                tempTasks[index]["task_id"] = newTask.d.task_id
+                if (tempTasks[index]["canRetry"]){
+                    tempTasks[index]["canRetry"] = false;
                 }
+                setTasks(tempTasks);
+                setUpdateHappened(true);
             }
 
             var rejectFunction = function(errorData) {
                 console.log(errorData)
                 console.log("error: " + errorData["d"]["errors"][0])
                 if (errorData["d"]["error_type"] == "connection_errors") {
-                    
+                    var index = tempTasks.findIndex(i => i.task_id == "temp" + localTempId)
+                    tempTasks[index]["canRetry"] = true;
+                    setTasks(tempTasks);
+                    setUpdateHappened(true);
                 }
             }
             
@@ -260,12 +271,15 @@ function TaskList(props) {
         
         //A task should not be able to be deleted while its being added.
         //It should be able to be deleted if it could not be sent to the server.
-        if (task_id[0] != "t"){
-            var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
+        var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
+
+        if(task_id[0] != "t" || tempTasks[tempTasksIndex]["canRetry"]){
             var deletedTask = tempTasks.splice(tempTasksIndex, 1)[0];
             setTasks(tempTasks);
             setUpdateHappened(true);
+        }
 
+        if (task_id[0] != "t"){
             tempDeleteList.push(deletedTask);
             setDeleteList(tempDeleteList);
 
@@ -293,6 +307,23 @@ function TaskList(props) {
             console.log(tempTasks);
             setTasks(tempTasks);
             setDeleteList(tempDeleteList);
+            setUpdateHappened(true);
+        }
+    }
+
+    function retryAddTask(tempId){
+        var index = tempTasks.findIndex(i => i.task_id == tempId);
+        var retryTask = tempTasks[index]
+        const retryAddingTask = postRequest("tasks", {list_id: props.list_id, task_name: retryTask["task_name"],
+                                        task_done: retryTask["task_done"], token: localStorage.getItem("token")})
+
+        retryAddingTask.then(function(newTask){successFunction(newTask)})
+
+        var successFunction = function(newTask) {
+            //retryTask is a reference to the task in tempTasks
+            retryTask["task_id"] = newTask.d.task_id
+            retryTask["canRetry"] = false;
+            setTasks(tempTasks);
             setUpdateHappened(true);
         }
     }
@@ -330,7 +361,7 @@ function TaskList(props) {
                 React.createElement('div', {className: "addTaskContainer"},
                     React.createElement(TextareaAutosize,
                         {className: "addTask", rows: 1, type: "text", onChange: changedAddTask, value: taskToBeAdded, onKeyDown: (e) => { 
-                            if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){e.preventDefault(); e.target.value = ""; addTask()}}}
+                            if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){e.preventDefault(); addTask();}}}
                     ),
                     React.createElement('input',
                         {type: "checkbox", onClick: (e) => {setAddedChecked(e.target.checked)}}

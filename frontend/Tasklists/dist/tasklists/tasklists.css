@@ -84,6 +84,10 @@
     background-color: rgb(37, 65, 226);
 }
 
+.customButton.retryButton {
+    font-size: 12px;
+}
+
 .tasklist {
     padding: 10px;
     margin: auto;
