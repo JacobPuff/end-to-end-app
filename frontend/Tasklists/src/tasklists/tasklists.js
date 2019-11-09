@@ -21,8 +21,6 @@ function Task(props) {
     }, [props.data["task_id"]]);
 
     function deleteTask() {
-        // This gets annoying if you are deleting in bulk. Find a way to select for deletion at some point or something.
-        //var shouldDelete = confirm("Are you sure you want to delete\n" + "\"" + props.data["task_name"] + "\"?")
         var shouldDelete = true;
         if (shouldDelete) {
             props.deleteTask(props.data["task_id"]);
@@ -80,7 +78,7 @@ function Task(props) {
                             onKeyDown: (e) => {if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){saveTask()}}}
                         ),
                         React.createElement('input',
-                            {type: "button", onClick: saveTask, value: "Save"}
+                            {className: "customButton", type: "button", onClick: saveTask, value: "Save"}
                         )
                     ),
                     React.createElement('input',
