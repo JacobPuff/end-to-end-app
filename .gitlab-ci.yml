@@ -1,8 +1,8 @@
 before_script:
-  - apk update
-  - apk upgrade
-  - apk add bash
-  - apk add openssh-client
+  - apt update
+  - apt upgrade
+  - apt add bash
+  - apt add openssh-client
 
 update-server:
   stage: deploy
