@@ -124,6 +124,7 @@ function TaskList(props) {
         const [updateHappened, setUpdateHappened] = React.useState(false);
         const [taskToBeAdded, setTaskToBeAdded] = React.useState("")
         var tempTasks = [];
+        var getting = false;
         var tempDeleteList = [];
 
     //Get tasks
@@ -132,25 +133,30 @@ function TaskList(props) {
     }, []);
 
     function initialGetTasks(){
-        const gettingTasks = getRequest("tasks?list_id=" + props.list_id + "&token=" + localStorage.getItem("token"));
-        var successFunction = function(tasksGotten){
-            setTasks(tasksGotten["d"]);
-            if (canRetryList) {
-                setCanRetryList(false);
+        if(!getting) {
+            getting = true;
+            const gettingTasks = getRequest("tasks?list_id=" + props.list_id + "&token=" + localStorage.getItem("token"));
+            var successFunction = function(tasksGotten){
+                setTasks(tasksGotten["d"]);
+                getting = false;
+                if (canRetryList) {
+                    setCanRetryList(false);
+                }
             }
-        }
 
-        var rejectFunction = function(errorData) {
-            console.log(errorData)
-            console.log("error: " + errorData["d"]["errors"][0])
-            if (errorData["d"]["error_type"] == "connection_errors"){
-                setCanRetryList(true);
+            var rejectFunction = function(errorData) {
+                console.log(errorData)
+                console.log("error: " + errorData["d"]["errors"][0])
+                if (errorData["d"]["error_type"] == "connection_errors"){
+                    getting = false;
+                    setCanRetryList(true);
+                }
             }
-        }
 
-        gettingTasks.then(function(tasksGotten){
-            successFunction(tasksGotten);
-        }).catch(function(errorData){rejectFunction(errorData)});
+            gettingTasks.then(function(tasksGotten){
+                successFunction(tasksGotten);
+            }).catch(function(errorData){rejectFunction(errorData)});
+        }
     }
 
     //Make tasks based on data
