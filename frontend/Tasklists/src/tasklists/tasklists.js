@@ -112,10 +112,11 @@ function Task(props) {
 }
 
 function TaskList(props) {
-        const [listName, setListName] = React.useState("loading")
+        const [listName, setListName] = React.useState(props.list_name)
         const [prevListName, setPrevListName] = React.useState(props.list_name);
         const [editingListName, setEditingListName] = React.useState(false);
         const [adding, setAdding] = React.useState(false);
+        const [canRetryList, setCanRetryList] = React.useState(false);
         const [addedChecked, setAddedChecked] = React.useState(false);
         const [tasks, setTasks] = React.useState([]);
         const [deleteList, setDeleteList] = React.useState([]);
@@ -127,29 +128,24 @@ function TaskList(props) {
 
     //Get tasks
     React.useEffect(() => {
-        initialGetRequests();
+        initialGetTasks();
     }, []);
 
-    function initialGetRequests(){
-        //Get tasklist
-        const gettingTasklist = getRequest("tasklists/" + props.list_id + "?token=" + localStorage.getItem("token"));
-        gettingTasklist.then(function(tasklistData){
-            setListName(tasklistData["d"]["list_name"])
-        }).catch(function(errorData){
-            console.log(errorData)
-            console.log("error: " + errorData["d"]["errors"][0])
-            setListName("Couldn't connect, please reload");
-        });
-
-        //Get tasks
+    function initialGetTasks(){
         const gettingTasks = getRequest("tasks?list_id=" + props.list_id + "&token=" + localStorage.getItem("token"));
         var successFunction = function(tasksGotten){
             setTasks(tasksGotten["d"]);
+            if (canRetryList) {
+                setCanRetryList(false);
+            }
         }
 
         var rejectFunction = function(errorData) {
             console.log(errorData)
             console.log("error: " + errorData["d"]["errors"][0])
+            if (errorData["d"]["error_type"] == "connection_errors"){
+                setCanRetryList(true);
+            }
         }
 
         gettingTasks.then(function(tasksGotten){
@@ -378,7 +374,12 @@ function TaskList(props) {
     }
 
     function returnListName() {
-        if(editingListName) {
+        if (canRetryList) {
+            return (
+                React.createElement('div', {className: "listName"}, "Couldn't connect. Please press the retry button")
+            )
+        }
+        else if(editingListName) {
             return (
                 React.createElement(TextareaAutosize, {className: "editingListName", defaultValue: listName, onChange: changeListName,
                     onKeyDown: (e) => {if(e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE){saveListName(); toggleEditListName();}}})
@@ -391,12 +392,17 @@ function TaskList(props) {
     }
 
     function switchDisplay() {
-        if (adding == false){
+        if (canRetryList) {
+            return (
+                React.createElement('div', {className: "wideButton", onClick: initialGetTasks}, "Retry")
+            )
+        }
+        else if (adding == false){
             return (
                 React.createElement('div', {className: "wideButton", onClick: toggleAddTaskField},'Add Tasks')
             )
         }
-        if (adding == true){
+        else if (adding == true){
             return (
                 React.createElement('div', {className: "addTaskContainer"},
                     React.createElement(TextareaAutosize,
@@ -429,6 +435,6 @@ function TaskList(props) {
 }
 
 ReactDOM.render(
-    React.createElement(TaskList, {list_id: 22}),
+    React.createElement(TaskList, {list_id: 22, list_name: "This will eventually be set by another component."}),
     document.getElementById('root')
 );
