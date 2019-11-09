@@ -1,8 +1,7 @@
 before_script:
   - apt update
   - apt upgrade
-  - apt add bash
-  - apt add openssh-client
+  - apt install openssh-client
 
 update-server:
   stage: deploy
