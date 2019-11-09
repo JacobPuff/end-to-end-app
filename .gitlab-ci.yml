@@ -1,7 +1,9 @@
 before_script:
-  - apt update
-  - apt upgrade
-  - apt install openssh-client
+  image: alpine:latest
+  - apk update
+  - apk upgrade
+  - apk add bash
+  - apk add openssh-client
 
 update-server:
   stage: deploy
