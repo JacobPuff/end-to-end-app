@@ -1,5 +1,5 @@
+image: alpine:latest
 before_script:
-  image: alpine:latest
   - apk update
   - apk upgrade
   - apk add bash
