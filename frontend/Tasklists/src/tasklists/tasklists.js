@@ -4,6 +4,7 @@ import TextareaAutosize from 'react-autosize-textarea';
 import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.js';
 
 const ENTER_KEYCODE = 13;
+const RETRY_UNICODE = "\u21BB"; //↻ 
 
 function Task(props) {
     const [editing, setEditing] = React.useState(false);
@@ -63,7 +64,7 @@ function Task(props) {
                     )),
                     (props.canRetry && React.createElement('button',
                         {className: "customButton retryButton", onClick: retryAddTask},
-                        "\u21BB"
+                        RETRY_UNICODE
                     )),
                     React.createElement('button', {className: "customButton", onClick: deleteTask}, "x"),
                 )
