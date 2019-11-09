@@ -61,7 +61,7 @@ function Task(props) {
                         onChange: (e) => {e.preventDefault();}}
                     )),
                     (props.canRetry && React.createElement('button',
-                        {className: "customButton retryButton", onClick: retryAddTask},
+                        {className: "customButton taskRetryButton", onClick: retryAddTask},
                         RETRY_UNICODE
                     )),
                     React.createElement('button', {className: "customButton", onClick: deleteTask}, "x"),
