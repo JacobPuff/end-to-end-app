@@ -17,7 +17,8 @@ def tasklists(request):
             result = error_dict("api_error", "not authenticated for this request")
         else:
             query = request.dbsession.query(TaskListModel)
-            tasklists_for_user = query.filter(TaskListModel.user_id == request.user.user_id).all()
+            tasklists_for_user = query.filter(TaskListModel.user_id == request.user.user_id)\
+                .order_by(TaskListModel.list_id).all()
             status_code = httpexceptions.HTTPOk.code
             result = array_of_dicts_from_array_of_models(tasklists_for_user)
 

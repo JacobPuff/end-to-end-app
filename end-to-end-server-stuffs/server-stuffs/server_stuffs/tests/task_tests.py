@@ -123,6 +123,26 @@ class TaskTests(PyramidTestBase):
                                                     "task_name": "task",
                                                     "task_done": False}})
 
+    def test_post_task_with_task_done(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one task
+        self.request.method = 'POST'
+        self.request.json_body = {"list_id": list_id, "task_name": "task", "task_done": True, "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        task_id = response.json_body["d"]["task_id"]
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task",
+                                                    "task_done": True}})
+
     def test_post_task_no_token(self):
         # Create one task
         self.request.method = 'POST'
@@ -179,6 +199,24 @@ class TaskTests(PyramidTestBase):
         response = tasks.tasks(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["list_id and task_name are required"]}})
+
+    def test_post_task_with_task_done_not_a_boolean(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin task to
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one task
+        self.request.method = 'POST'
+        self.request.json_body = {"list_id": list_id, "task_name": "task",
+                                  "task_done": "Not a boolean", "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["task_done must be a boolean"]}})
 
     def test_post_task_different_user_list(self):
         # Make user
@@ -279,13 +317,36 @@ class TaskTests(PyramidTestBase):
         # Update the task
         self.request.method = 'PUT'
         self.request.matchdict = {"task_id": task_id}
-        self.request.json_body = {"list_id": list_id, "task_name": "task updated", "task_done": True, "token": token}
+        self.request.json_body = {"list_id": list_id, "task_name": "task updated","task_done": True, "token": token}
         self.request.user = user(self.request)
         response = tasks.tasks_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"task_id": task_id,
                                                     "list_id": list_id,
                                                     "task_name": "task updated",
                                                     "task_done": True}})
+
+    def test_put_task_by_id_task_done_false(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        # Create task list to pin taskt o
+        list_id = self.make_list("list", user_id)["list_id"]
+
+        # Create one task
+        task_id = self.make_task(list_id, "task", True)["task_id"]
+
+        # Update the task
+        self.request.method = 'PUT'
+        self.request.matchdict = {"task_id": task_id}
+        self.request.json_body = {"task_done": False, "token": token}
+        self.request.user = user(self.request)
+        response = tasks.tasks_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"task_id": task_id,
+                                                    "list_id": list_id,
+                                                    "task_name": "task",
+                                                    "task_done": False}})
 
     def test_put_task_by_id_task_done_non_bool(self):
         # Make user

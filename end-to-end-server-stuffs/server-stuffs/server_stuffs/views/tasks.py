@@ -29,7 +29,7 @@ def tasks(request):
                 result = error_dict("api_error", "not authenticated for this request")
             else:
                 tasksforlist = request.dbsession.query(TaskModel)\
-                    .filter(TaskModel.list_id == request.GET.get("list_id")).all()
+                    .filter(TaskModel.list_id == request.GET.get("list_id")).order_by(TaskModel.task_id).all()
                 status_code = httpexceptions.HTTPOk.code
                 result = array_of_dicts_from_array_of_models(tasksforlist)
 
@@ -53,6 +53,9 @@ def tasks(request):
             if tasklist is None:
                 status_code = httpexceptions.HTTPNotFound.code
                 result = error_dict("api_error", "list doesnt exist")
+            elif body.get("task_done") and not isinstance(body.get("task_done"), bool):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "task_done must be a boolean")
             elif tasklist.user_id != request.user.user_id:
                 status_code = httpexceptions.HTTPUnauthorized.code
                 result = error_dict("api_error", "not authenticated for this request")
@@ -61,6 +64,8 @@ def tasks(request):
                 task.list_id = body.get("list_id")
                 task.task_name = body.get("task_name")
                 task.user_id = request.user.user_id
+                if body.get("task_done") and isinstance(body.get("task_done"), bool):
+                    task.task_done = body.get("task_done")
                 request.dbsession.add(task)
                 # We use flush here so that task has a task_id because we need it for testing
                 # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the task_id
@@ -121,7 +126,7 @@ def tasks_by_id(request):
         elif task_id is None or (body.get("task_name") is None and body.get("list_id") is None and body.get("task_done") is None):
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "task_name, list_id, or task_done, and task_id are required")
-        elif body.get("task_done") and isinstance(body.get("task_done"), bool) is not True:
+        elif body.get("task_done") is not None and isinstance(body.get("task_done"), bool) is not True:
                 status_code = httpexceptions.HTTPBadRequest.code
                 result = error_dict("api_error", "task_done must be a boolean")
         else:
@@ -141,7 +146,7 @@ def tasks_by_id(request):
                         task.task_name = body.get("task_name")
                     if body.get("list_id"):
                         task.list_id = body.get("list_id")
-                    if body.get("task_done"):
+                    if body.get("task_done") is not None:
                         task.task_done = body.get("task_done")
                     request.dbsession.flush()
                     request.dbsession.refresh(task)
