@@ -197,9 +197,11 @@ function TaskList(props) {
             case "connection_errors":
                 setCurrentAlert("There appears to be a connection problem, please try again in a bit");
                 setDisplayAlert(true);
+                break;
             case "authentication_errors":
                 setCurrentAlert("You are not logged in, please log and try again");
                 setDisplayAlert(true);
+                break;
         }
     }
 
@@ -240,7 +242,8 @@ function TaskList(props) {
             setTaskToBeAdded("");
         }
         else {
-            alert("You can't add an empty task")
+            setCurrentAlert("You can't add an empty task")
+            setDisplayAlert(true);
         }
     }
 
@@ -409,7 +412,7 @@ function TaskList(props) {
     function returnListName() {
         if (canRetryList) {
             return (
-                React.createElement('div', {className: "listName"}, "Couldn't connect. Please press the retry button")
+                React.createElement('div', {className: "listName"}, "Couldn't get tasks. Please press the retry button")
             )
         }
         else if(editingListName) {
