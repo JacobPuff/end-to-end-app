@@ -34,5 +34,5 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('tasklists')
     op.drop_table('tasks')
+    op.drop_table('tasklists')
