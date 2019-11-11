@@ -8,7 +8,7 @@ Getting Started
 
 - $VENV/bin/pip install -e .
 
-- $VENV/bin/initialize_server-stuffs_db development.ini
+- $VENV/bin/alembic upgrade head
 
 - $VENV/bin/pserve development.ini
 

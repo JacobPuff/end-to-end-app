@@ -53,8 +53,5 @@ setup(name='server-stuffs',
           'paste.app_factory': [
               'main = server_stuffs:main'
             ],
-          'console_scripts': [
-              'initialize_server-stuffs_db = server_stuffs.scripts.initializedb:main',
-            ],
       },
 )

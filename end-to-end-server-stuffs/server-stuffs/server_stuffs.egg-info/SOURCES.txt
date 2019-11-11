@@ -25,7 +25,6 @@ server_stuffs/models/verifytokenmodel.py
 server_stuffs/scripts/__init__.py
 server_stuffs/scripts/benchmark_hash.py
 server_stuffs/scripts/converters.py
-server_stuffs/scripts/initializedb.py
 server_stuffs/scripts/password_hashing.py
 server_stuffs/scripts/test_reuse.py
 server_stuffs/scripts/utilities.py
