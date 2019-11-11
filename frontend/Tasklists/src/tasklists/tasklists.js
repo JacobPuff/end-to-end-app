@@ -155,13 +155,10 @@ function TaskList(props) {
             }
 
             var rejectFunction = function(errorData) {
-                console.log(errorData)
-                console.log("error: " + errorData["d"]["errors"][0])
+                tasklistErrorHandler(errorData)
                 if (errorData["d"]["error_type"] == "connection_errors"){
                     getting = false;
                     setCanRetryList(true);
-                    setCurrentAlert("There appears to be a connection problem, please try again in a bit");
-                    setDisplayAlert(true);
                 }
             }
 
@@ -190,6 +187,22 @@ function TaskList(props) {
         }
     })
 
+    function tasklistErrorHandler(errorData) {
+        console.log(errorData)
+        console.log("error: " + errorData["d"]["errors"][0])
+        var error_type = errorData["d"]["error_type"]
+        var error = errorData["d"]["errors"][0]
+        
+        switch(error_type) {
+            case "connection_errors":
+                setCurrentAlert("There appears to be a connection problem, please try again in a bit");
+                setDisplayAlert(true);
+            case "authentication_errors":
+                setCurrentAlert("You are not logged in, please log and try again");
+                setDisplayAlert(true);
+        }
+    }
+
     function addTask() {
         if (taskToBeAdded) {
             var localTempId = currentTempId;
@@ -207,8 +220,7 @@ function TaskList(props) {
             }
 
             var rejectFunction = function(errorData) {
-                console.log(errorData)
-                console.log("error: " + errorData["d"]["errors"][0])
+                tasklistErrorHandler(errorData)
                 if (errorData["d"]["error_type"] == "connection_errors") {
                     var index = tempTasks.findIndex(i => i.task_id == "temp" + localTempId)
                     tempTasks[index]["canRetry"] = true;
@@ -245,9 +257,7 @@ function TaskList(props) {
         var updated = false
         
         var rejectFunction = function(errorData) {
-            console.log(errorData)
-            console.log("error: " + errorData["d"]["errors"][0])
-
+            tasklistErrorHandler(errorData)
             //Recalculate index so that tasks that already exist on the server can be deleted
             //It will return a -1 instead of reverting the wrong task if the task was deleted
             var revertIndex = tempTasks.findIndex(i => i.task_id == task_id)
@@ -303,7 +313,7 @@ function TaskList(props) {
         }
 
         var rejectFunction = function(errorData) {
-            console.log("error: " + errorData["d"]["errors"][0])
+            tasklistErrorHandler(errorData)
             var deleteIndex = tempDeleteList.findIndex(i=> i.task_id == task_id);
             var reAddedTask = tempDeleteList[deleteIndex];
             tempDeleteList.splice(deleteIndex, 1);
@@ -339,8 +349,7 @@ function TaskList(props) {
         }
 
         var rejectFunction = function(errorData) {
-            console.log(errorData)
-            console.log("error: " + errorData["d"]["errors"][0])
+            tasklistErrorHandler(errorData)
         }
     }
 
@@ -382,8 +391,7 @@ function TaskList(props) {
             updateListName.catch(function(errorData){rejectFunction(errorData);})
 
             var rejectFunction = function(errorData){
-                console.log(errorData)
-                console.log("error: " + errorData["d"]["errors"][0])
+                tasklistErrorHandler(errorData)
                 setListName(prevListName);
             }
         } else {
