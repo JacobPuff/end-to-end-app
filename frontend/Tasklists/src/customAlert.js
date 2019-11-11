@@ -24,12 +24,12 @@ function CustomAlert(props) {
                     )
                 )
             case "ok/cancel":
-            return (
-                React.createElement("div", {className: "alertButtonContainer"},
-                    singleButton(true, "ok"),
-                    singleButton(false, "cancel")
+                return (
+                    React.createElement("div", {className: "alertButtonContainer"},
+                        singleButton(true, "ok"),
+                        singleButton(false, "cancel")
+                    )
                 )
-            )
             case "ok":
                 return (
                     React.createElement("div", {className: "alertButtonContainer"},
