@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ssh -i ${KEY_PATH} -oStrictHostKeyChecking=no ubuntu@3.18.103.85 '
+ssh -i ${KEY_PATH} -oStrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} '
 cd /var/www/
 git pull
 '
