@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TextareaAutosize from 'react-autosize-textarea';
 import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.js';
+import {CustomAlert} from '../customAlert.js';
 
 const ENTER_KEYCODE = 13;
 const RETRY_UNICODE = "\u21BB"; //↻ 
@@ -111,17 +112,27 @@ function Task(props) {
 }
 
 function TaskList(props) {
+        //List
         const [listName, setListName] = React.useState(props.list_name)
         const [prevListName, setPrevListName] = React.useState(props.list_name);
         const [editingListName, setEditingListName] = React.useState(false);
-        const [adding, setAdding] = React.useState(false);
         const [canRetryList, setCanRetryList] = React.useState(false);
+
+        const [currentAlert, setCurrentAlert] = React.useState("alert");
+        const [displayAlert, setDisplayAlert] = React.useState(false);
+
+        //Adding stuff
+        const [adding, setAdding] = React.useState(false);
         const [addedChecked, setAddedChecked] = React.useState(false);
+        const [taskToBeAdded, setTaskToBeAdded] = React.useState("")
+
+        //Asynchronous task stuff
         const [tasks, setTasks] = React.useState([]);
         const [deleteList, setDeleteList] = React.useState([]);
         const [currentTempId, setCurrentTempId] = React.useState(0);
         const [updateHappened, setUpdateHappened] = React.useState(false);
-        const [taskToBeAdded, setTaskToBeAdded] = React.useState("")
+
+        //temp vars for said task stuff
         var tempTasks = [];
         var getting = false;
         var tempDeleteList = [];
@@ -149,6 +160,8 @@ function TaskList(props) {
                 if (errorData["d"]["error_type"] == "connection_errors"){
                     getting = false;
                     setCanRetryList(true);
+                    setCurrentAlert("There appears to be a connection problem, please try again in a bit");
+                    setDisplayAlert(true);
                 }
             }
 
@@ -378,6 +391,13 @@ function TaskList(props) {
         }
     }
 
+    function handleAlertButtons(value) {
+        if(value){
+            setDisplayAlert(false)
+        }
+        console.log("button value: ", value)
+    }
+
     function returnListName() {
         if (canRetryList) {
             return (
@@ -433,7 +453,10 @@ function TaskList(props) {
             {className: "tasklist"},
             returnListName(),
             returnTasks(),
-            switchDisplay()
+            switchDisplay(),
+            (displayAlert && React.createElement(CustomAlert,
+                {type: "ok", alert: currentAlert, handleButtons: handleAlertButtons}
+            ))
         )
         
     );

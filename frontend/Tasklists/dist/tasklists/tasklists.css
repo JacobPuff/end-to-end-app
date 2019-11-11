@@ -61,29 +61,6 @@
     text-align: start;
 }
 
-.customButton {
-    color: white;
-    margin-top: auto;
-    margin-bottom: auto;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 7px;
-    padding-right: 7px;
-    background-color: rgb(53, 109, 192);
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none;
-    border-radius: 5px;
-    border: 2px solid black;
-}
-
-.customButton:hover:active {
-    background-color: rgb(37, 65, 226);
-}
-
 .customButton.taskRetryButton {
     font-size: 12px;
 }
@@ -122,27 +99,6 @@
 .editingListName:focus{
     outline: 0px;
     border: 2px solid rgb(37, 65, 226);
-}
-
-
-.wideButton {
-    color: white;
-    margin-left: 5px;
-    margin-right: 5px;
-    background-color: rgb(53, 109, 192);
-    padding: 5px;
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none;
-    border-radius: 5px;
-    border: 2px solid black;
-}
-
-.wideButton:hover:active {
-    background-color: rgb(37, 65, 226);
 }
 
 .addTaskContainer {

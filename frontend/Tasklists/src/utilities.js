@@ -7,7 +7,6 @@ function getRequest(name) {
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
-                    alert("There appears to be a connection problem, please try again in a bit")
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
                 else if (request.readyState == 4 && request.status !== 200){
@@ -34,7 +33,6 @@ function postRequest(name, data) {
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
-                    alert("There appears to be a connection problem, please try again in a bit")
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
                 else if (request.readyState == 4 && request.status !== 200){
@@ -61,7 +59,6 @@ function putRequest(name, data) {
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
-                    alert("There appears to be a connection problem, please try again in a bit")
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
                 else if (request.readyState == 4 && request.status !== 200){
@@ -88,7 +85,6 @@ function deleteRequest(name, data) {
         request.onreadystatechange = function() {
             if (request.readyState !== 4 || request.status !== 200) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
-                    alert("There appears to be a connection problem, please try again in a bit")
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
                 else if (request.readyState == 4 && request.status !== 200){
