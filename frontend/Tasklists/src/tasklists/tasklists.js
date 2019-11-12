@@ -193,12 +193,12 @@ function TaskList(props) {
         var error_type = errorData["d"]["error_type"]
         var error = errorData["d"]["errors"][0]
         
-        switch(error_type) {
-            case "connection_errors":
+        switch(error) {
+            case "a connection error occured":
                 setCurrentAlert("There appears to be a connection problem, please try again in a bit");
                 setDisplayAlert(true);
                 break;
-            case "authentication_errors":
+            case "not authenticated for this request":
                 setCurrentAlert("You are not logged in, please log and try again");
                 setDisplayAlert(true);
                 break;
