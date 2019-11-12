@@ -1,0 +1,113 @@
+.customButton {
+    color: white;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 7px;
+    padding-right: 7px;
+    background-color: rgb(53, 109, 192);
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+.customButton:hover:active {
+    background-color: rgb(37, 65, 226);
+}
+
+.customRedButton {
+    color: white;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 7px;
+    padding-right: 7px;
+    background-color: rgb(192, 53, 53);
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+.customRedButton:hover:active {
+    background-color: rgb(184, 0, 0);
+}
+
+.wideButton {
+    color: white;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: rgb(53, 109, 192);
+    padding: 5px;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+.wideButton:hover:active {
+    background-color: rgb(37, 65, 226);
+}
+
+.alertBackgroundContainer {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
+    background-color: rgb(0, 0, 0, 0.3);
+}
+
+.customAlert {
+    top: 50%;
+    left: 50%;
+    width: 30%;
+    min-height: 20%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    background-color: aliceblue;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    position: fixed;
+    font-size: 20pt;
+    word-wrap: break-word;
+}
+
+.customAlertText {
+    background-color: rgb(179, 179, 255);
+    padding: 3px;
+    border-radius: 5px;
+}
+
+.alertButtonContainer {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+}
+.alertButtonContainer .customButton {
+    width: 20%;
+    margin-left: 2px;
+    margin-right: 2px
+}
+.alertButtonContainer .customRedButton {
+    width: 20%;
+    margin-left: 2px;
+    margin-right: 2px;
+}
