@@ -199,7 +199,7 @@ function TaskList(props) {
                 setDisplayAlert(true);
                 break;
             case "not authenticated for this request":
-                setCurrentAlert("You are not logged in, please log and try again");
+                setCurrentAlert("You are not logged in, please log in and try again");
                 setDisplayAlert(true);
                 break;
         }
