@@ -26,4 +26,4 @@ update-server:
     - echo $KEY_PATH
     - cd ../../
     - bash ./thing.bash
-    - rsync -a --dry-run dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
+    - rsync -a --dry-run -r "ssh -i $KEY_PATH" dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
