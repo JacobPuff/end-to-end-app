@@ -17,6 +17,7 @@ update-server:
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - pwd
     - ls
+    - find / "id_rsa"
     - chmod 600 .ssh/id_rsa
     - cd frontend/Tasklists
     - npm install
@@ -24,5 +25,5 @@ update-server:
     - npm install -g webpack-cli
     - npx webpack --mode="production"
     - echo $KEY_PATH
-    - rsync -a --dry-run -e "ssh -i id_rsa" dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
+    - rsync -a --dry-run -e "ssh -i .ssh/id_rsa" dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
