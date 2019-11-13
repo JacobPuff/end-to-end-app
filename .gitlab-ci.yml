@@ -19,6 +19,6 @@ update-server:
     - chmod 600 .ssh/id_rsa
     - ls
     - cd frontend/Tasklists
-    - webpack --mode="production"
+    - npx webpack --mode="production"
     - rsync -a --dry-run /frontend/Tasklists/dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
