@@ -17,7 +17,7 @@ update-server:
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - pwd
     - ls
-    - find / "id_rsa"
+    - find .ssh "id_rsa"
     - chmod 600 .ssh/id_rsa
     - cd frontend/Tasklists
     - npm install
