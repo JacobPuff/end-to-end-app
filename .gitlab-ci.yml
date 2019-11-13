@@ -6,9 +6,6 @@ before_script:
   - apk add openssh-client
   - apk add rsync
   - apk add npm
-  - npm install
-  - npm install -g webpack
-  - npm install -g webpack-cli
 
 update-server:
   stage: deploy
@@ -21,6 +18,9 @@ update-server:
     - chmod 600 .ssh/id_rsa
     - ls
     - cd frontend/Tasklists
+    - npm install
+    - npm install -g webpack
+    - npm install -g webpack-cli
     - npx webpack --mode="production"
     - rsync -a --dry-run dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
