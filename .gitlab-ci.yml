@@ -18,7 +18,7 @@ update-server:
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - chmod 600 .ssh/id_rsa
     - ls
-    - cd /frontend/Tasklists
+    - cd frontend/Tasklists
     - npm run build
     - rsync -a --dry-run /frontend/Tasklists/dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
