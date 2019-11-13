@@ -25,5 +25,5 @@ update-server:
     - npx webpack --mode="production"
     - echo $KEY_PATH
     - cd ../../
-    - rsync -a --dry-run dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
+    - rsync -a --dry-run dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
