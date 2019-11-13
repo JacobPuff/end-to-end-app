@@ -21,5 +21,6 @@ update-server:
     - ls
     - cd frontend/Tasklists
     - npx webpack --mode="production"
+    - yes
     - rsync -a --dry-run dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
