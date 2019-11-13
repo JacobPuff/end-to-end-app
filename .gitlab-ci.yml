@@ -4,6 +4,9 @@ before_script:
   - apk upgrade
   - apk add bash
   - apk add openssh-client
+  - apk add rsync
+  - apk add npm
+  - npm install webpack webpack-cli
 
 update-server:
   stage: deploy
@@ -14,4 +17,7 @@ update-server:
     - chmod 700 .ssh
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - chmod 600 .ssh/id_rsa
+    - cd /frontend/Tasklists
+    - npm run build
+    - rsync -a --dry-run /frontend/Tasklists/dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
