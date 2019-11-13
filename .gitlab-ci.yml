@@ -24,5 +24,4 @@ update-server:
     - npm install -g webpack-cli
     - npx webpack --mode="production"
     - echo $KEY_PATH
-    - rsync -a --dry-run dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
