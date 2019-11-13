@@ -22,5 +22,6 @@ update-server:
     - npm install -g webpack-cli
     - npx webpack --mode="production"
     - echo $KEY_PATH
+    - echo "/build/JacobPuff/dev-server/.ssh/id_rsa"
     - rsync -a --dry-run -e "ssh -i $KEY_PATH" dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
