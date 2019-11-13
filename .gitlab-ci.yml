@@ -24,4 +24,4 @@ update-server:
     - npm install -g webpack-cli
     - npx webpack --mode="production"
     - echo $KEY_PATH
-    - bash ./thing.bash
+    - bash ./../../thing.bash
