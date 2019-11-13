@@ -24,3 +24,5 @@ update-server:
     - cd ../../
     - bash ./thing.bash
     - rsync -a -e "ssh -i $KEY_PATH" frontend/Tasklists/dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
+    - cd /
+    - ls
