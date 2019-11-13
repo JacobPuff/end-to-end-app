@@ -22,5 +22,5 @@ update-server:
     - npm install -g webpack
     - npm install -g webpack-cli
     - npx webpack --mode="production"
-    - rsync -a --dry-run dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
+    - rsync -a --dry-run -e "ssh -i .ssh/id_rsa" dist ${SERVER_USER}@${SERVER_IP}:/var/www/frontend/Tasklists/dist
     - bash ./thing.bash
