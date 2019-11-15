@@ -51,6 +51,7 @@ h2 {
 }
 
 .projects {
+    min-width: min-content;
     color: white;
     width: 75%;
     margin-top: 50px;
