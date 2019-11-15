@@ -51,7 +51,6 @@ h2 {
 }
 
 .projects {
-    min-width: min-content;
     color: white;
     width: 75%;
     margin-top: 50px;
@@ -75,6 +74,7 @@ h2 {
     padding: 10px;
     border-radius: 5px;
     border: 1px solid white;
+    word-wrap: break-word;
 }
 
 .projectContent:hover {
