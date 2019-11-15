@@ -1,9 +1,41 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="css/home.css" type="text/css"/>
+        <link rel="stylesheet" href="css/index.css" type="text/css"/>
     </head>
     <body>
-            <p>this page is not completed at all. I'm currently focused on tasklists</p>
-            <button onclick="window.location.href='/tasklists'">To Tasklists</button>
+        <header>
+                <h1 class="name">Jacob Hansmann</h1>
+                <h1 class="title">Software Engineer</h1>
+        </header>
+        <div class="mainContainer">
+            <div class="secondaryContainer">
+                <h2>This is my website. Its not much, but it gets the job done.
+                    I'll just be putting stuff I make here sometimes</h2>
+                <p>this page is not completed at all. I'm currently focused on <a href="/tasklists">tasklists</a></p>
+            </div>
+            <div class="projects">
+                <h1 class="sectionName">Projects</h1>
+                <div class="sectionContent">
+                    <h2>I've worked on a few projects at this point. You'll find them here.</h2>
+                    <div class="projectContainer">
+                        <div class="projectContent" onclick="window.location.href='https://phonejanitor.com'">
+                            <h2 class="projectName">Phone Janitor</h2>
+                            <p>This is a phone routing system that makes it so you only get the calls and texts you want.</p>
+                        </div>
+                        <div class="projectContent" onclick="window.location.href='/tasklists'">
+                            <h2 class="projectName">Tasklists (WIP)</h2>
+                            <p>A simple todo app that I made.</p>
+                        </div>
+                        <div class="projectContent" onclick="window.location.href='https://github.com/JacobPuff/Python-maze-gen'">
+                            <h2 class="projectName">Python Maze Generator</h2>
+                            <p>A simple maze generator with a command line interface.
+                                It can even draw the solution with fancy colors.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

@@ -1,0 +1,130 @@
+header {
+    color: white;
+    text-align: center;
+    margin: 50px;
+    height: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 50px;
+    width: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+}
+
+.name {
+    margin-top: auto;
+    margin-bottom: auto;
+    font-size: 70pt;
+    border-bottom: 3px solid white;
+}
+
+.title {
+    font-size: 50pt;
+}
+
+.mainContainer {
+    padding: 100px;
+    height: 100%;
+    background-color: rgba(0, 0, 25, 0.5);
+    text-align: center;
+}
+
+.secondaryContainer {
+    color: white;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+    background-color: rgb(20, 47, 82);
+    border-radius: 5px;
+    padding: 30px;
+    word-wrap: break-word;
+}
+
+h1 {
+    font-weight: normal;
+}
+
+h2 {
+    font-weight: normal;
+    font-size: 20pt;
+}
+
+.projects {
+    color: white;
+    width: 75%;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px;
+    background-color: rgb(20, 47, 82);
+    border-radius: 5px;
+}
+
+.projectContainer {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.projectContent {
+    min-width: 275px;
+    max-width: calc(100%/4);
+    height: min-content;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid white;
+}
+
+.projectContent:hover {
+    color: rgb(0, 110, 255);
+    border: 1px solid rgb(0, 110, 255);
+    cursor: pointer;
+}
+
+.projectName {
+    width: fit-content;
+    text-align: center;
+    border-bottom: 2px dotted white;
+}
+
+.projectContent:hover .projectName {
+    color: rgb(0, 110, 255);
+    border-bottom: 2px dotted rgb(0, 110, 255);
+}
+
+.projectName a {
+    color: white;
+    text-decoration: none;
+}
+
+.sectionName {
+    text-align: left;
+    border-bottom: 2px solid white;
+    padding-left: 10px;
+}
+
+.sectionContent {
+    text-align: left;
+    padding-left: 50px;
+}
+
+p {
+    font-size: 16pt;
+}
+
+a {
+    color: white;
+    text-decoration-style: dotted;
+}
+
+body {
+    margin: 0px;
+    font-family: 'Lato', sans-serif;
+    background-image: url(/background.jpg);
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat
+}
+html {
+    min-height: 100%;
+}
