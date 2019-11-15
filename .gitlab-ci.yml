@@ -23,7 +23,7 @@ build-js:
   stage: deploy
   only:
     changes:
-      frontend/Tasklists/src/**/*
+      - frontend/Tasklists/src/**/*
   script:
     - cd frontend/Tasklists
     - npm install
