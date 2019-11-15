@@ -206,6 +206,10 @@ function TaskList(props) {
     }
 
     function addTask() {
+        // Dont add more tasks if not logged in.
+        // if (displayAlert) {
+        //     return;
+        // }
         if (taskToBeAdded) {
             var localTempId = currentTempId;
             tempTasks.push({task_id: "temp" + localTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
