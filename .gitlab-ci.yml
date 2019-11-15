@@ -16,11 +16,11 @@ update-server:
     - chmod 700 .ssh
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - chmod 600 .ssh/id_rsa
-    - cd frontend/Tasklists
+    - cd frontend/
     - npm install
     - npm install -g webpack
     - npm install -g webpack-cli
     - npx webpack --mode="production"
     - cd ../../
     - bash ./thing.bash
-    - rsync -a -e "ssh -i $KEY_PATH" frontend/Tasklists/dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/Tasklists/dist
+    - rsync -a -e "ssh -i $KEY_PATH" frontend/dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/dist

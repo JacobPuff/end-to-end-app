@@ -1,5 +1,4 @@
 header {
-    color: white;
     text-align: center;
     margin: 50px;
     min-width: min-content;
@@ -31,7 +30,6 @@ header {
 }
 
 .secondaryContainer {
-    color: white;
     margin-left: auto;
     margin-right: auto;
     width: 75%;
@@ -41,17 +39,7 @@ header {
     word-wrap: break-word;
 }
 
-h1 {
-    font-weight: normal;
-}
-
-h2 {
-    font-weight: normal;
-    font-size: 20pt;
-}
-
 .projects {
-    color: white;
     width: 75%;
     margin-top: 50px;
     margin-left: auto;
@@ -95,7 +83,6 @@ h2 {
 }
 
 .projectName a {
-    color: white;
     text-decoration: none;
 }
 
@@ -108,25 +95,4 @@ h2 {
 .sectionContent {
     text-align: left;
     padding-left: 50px;
-}
-
-p {
-    font-size: 16pt;
-}
-
-a {
-    color: white;
-    text-decoration-style: dotted;
-}
-
-body {
-    margin: 0px;
-    font-family: 'Lato', sans-serif;
-    background-image: url(/background.jpg);
-    background-attachment: fixed;
-    background-size: cover;
-    background-repeat: no-repeat
-}
-html {
-    min-height: 100%;
 }

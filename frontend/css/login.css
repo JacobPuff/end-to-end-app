@@ -1,0 +1,61 @@
+.centerContainer {
+    width: 50%;
+    height: calc(100% - 1px);
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 50px;
+    padding-bottom: 25px;
+    margin-top: 10%;
+    margin-bottom: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.inputName {
+    border-bottom: 2px solid white;
+    padding-left: 10px;
+}
+
+.customInput {
+    margin: 10px;
+    margin-left: 25px;
+    background-color: transparent;
+    font-size: 25pt;
+    border: 0px;
+    border-bottom: 2px solid white;
+    color: white;
+}
+
+.customInput:focus {
+    outline: 0px;
+    border-bottom: 2px solid rgb(0, 110, 255);
+}
+
+.inputButtonContainer {
+    display:flex;
+    justify-content: space-evenly;
+    margin-top: 25px;
+}
+
+.inputButton {
+    width: 25%;
+    min-width: fit-content;
+    height: min-content;
+    color: white;
+    font-size: 16pt;
+    text-align: center;
+    padding: 20px;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 5px;
+}
+
+.inputButton:hover {
+    color: rgb(0, 110, 255);
+    border: 1px solid rgb(0, 110, 255);
+}
+
+.miniButton .inputButton {
+    padding: 10px;
+}
