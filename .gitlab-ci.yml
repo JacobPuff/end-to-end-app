@@ -24,7 +24,8 @@ update-server:
 build-js-update-server:
   stage: build
   only:
-    - master
+    refs:
+      - master
     changes:
       - frontend/src/**/*
   script:
