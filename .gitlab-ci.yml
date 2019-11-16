@@ -11,21 +11,17 @@ update-server:
   stage: deploy
   only:
     - master
+  except:
+    changes:
+      - frontend/src/**/*
   script:
     - mkdir .ssh
     - chmod 700 .ssh
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - chmod 600 .ssh/id_rsa
-    - cd frontend/
-    - npm install
-    - npm install -g webpack
-    - npm install -g webpack-cli
-    - npx webpack --mode="production"
-    - cd ../
     - bash ./thing.bash
-    - rsync -a -e "ssh -i $KEY_PATH" frontend/dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/dist
 
-build-js:
+build-js-update-server:
   stage: build
   only:
     - master
@@ -42,5 +38,5 @@ build-js:
     - npm install -g webpack-cli
     - npx webpack --mode="production"
     - cd ../
-    - ssh -i $KEY_PATH $SERVER_USER@$SERVER_IP
+    - bash ./thing.bash
     - rsync -a -e "ssh -i $KEY_PATH" frontend/dist/ $SERVER_USER@$SERVER_IP:/var/www/frontend/dist
