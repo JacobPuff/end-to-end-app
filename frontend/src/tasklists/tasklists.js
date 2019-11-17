@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TextareaAutosize from 'react-autosize-textarea';
 import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.js';
-import {CustomAlert} from '../customAlert.js';
+import {CustomAlert} from './customAlert.js';
 
 const ENTER_KEYCODE = 13;
 const RETRY_UNICODE = "\u21BB"; //↻ 
