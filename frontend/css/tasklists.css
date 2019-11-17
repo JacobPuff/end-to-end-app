@@ -1,3 +1,13 @@
+.customButton.sourceButton {
+    top: 0;
+    right: 0;
+    position: fixed;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 .task {
     margin: 5px;
     padding: 3px;
