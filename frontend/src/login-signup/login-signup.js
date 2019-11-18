@@ -120,7 +120,7 @@ function LoginSignup(props) {
                 (displayError && React.createElement('p', {className:"error"}, errorValue)),
                 React.createElement('div', {className:"inputButtonContainer"},
                     React.createElement('div', {className:"miniButton"},
-                        React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/forgotpassword"},
+                        React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/forgotpassword"}},
                             "Forgot Password?"),
                         React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/signup"}},
                             "Sign Up")
