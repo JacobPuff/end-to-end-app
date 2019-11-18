@@ -3,6 +3,7 @@ const path = require('path');
 module.exports = {
     mode: 'development',
     entry: {
+        "login-signup": './src/login-signup/login-signup.js',
         tasklists: './src/tasklists/tasklists.js'
     },
     devtool: 'eval',

@@ -1,10 +1,9 @@
 .centerContainer {
     width: 50%;
-    height: calc(100% - 1px);
     background-color: rgba(0, 0, 0, 0.6);
     padding: 50px;
     padding-bottom: 25px;
-    margin-top: 10%;
+    margin-top: 9%;
     margin-bottom: 5%;
     margin-left: auto;
     margin-right: auto;

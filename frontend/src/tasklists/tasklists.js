@@ -440,7 +440,7 @@ function TaskList(props) {
         }
         else if (adding == false){
             return (
-                React.createElement('div', {className: "wideButton", onClick: toggleAddTaskField},'Add Tasks')
+                React.createElement('div', {className: "wideButton", onClick: toggleAddTaskField}, "Add Tasks")
             )
         }
         else if (adding == true){
@@ -464,7 +464,7 @@ function TaskList(props) {
         }
     }
 
-    return(
+    return (
         React.createElement('div',
             {className: "tasklist"},
             returnListName(),
