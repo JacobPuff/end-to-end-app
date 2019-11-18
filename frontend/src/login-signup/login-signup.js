@@ -106,6 +106,10 @@ function LoginSignup(props) {
         })
     }
 
+    function handleSignupSubmit() {
+        return;
+    }
+
     if (window.location.pathname == "/login/") {
         document.title = "Login"
         return (
@@ -116,7 +120,7 @@ function LoginSignup(props) {
                 (displayError && React.createElement('p', {className:"error"}, errorValue)),
                 React.createElement('div', {className:"inputButtonContainer"},
                     React.createElement('div', {className:"miniButton"},
-                        React.createElement('button', {className:"inputButton"},
+                        React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/forgotpassword"},
                             "Forgot Password?"),
                         React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/signup"}},
                             "Sign Up")
@@ -139,7 +143,7 @@ function LoginSignup(props) {
                 React.createElement('div', {className:"inputButtonContainer"},
                     React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/login"}},
                         "Login"),
-                    React.createElement('button', {className:"inputButton", onClick: handleSubmit},
+                    React.createElement('button', {className:"inputButton", onClick: handleSignupSubmit},
                         "Submit")
                 )
             )
