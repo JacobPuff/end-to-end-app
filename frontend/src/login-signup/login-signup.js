@@ -35,22 +35,19 @@ function LoginSignup(props) {
         console.log("error: " + errorData["d"]["errors"][0])
         var error_type = errorData["d"]["error_type"]
         var error = errorData["d"]["errors"][0]
-        setErrorValue("error: " + error);
-        setDisplayError(true);
         switch (error) {
             case "user doesn't exist":
                 setErrorValue("error: username or password are incorrect");
                 setDisplayError(true);
                 break;
-            case "username already in use":
-                setErrorValue("error: username already in use");
+            default:
+                setErrorValue("error: " + error);
                 setDisplayError(true);
         }
     }
 
     function checkEnter(e) {
         if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
-            console.log("YEET")
             if (document.title == "Login") {
                 handleLoginSubmit();
             } else if (document.title == "Sign up") {
