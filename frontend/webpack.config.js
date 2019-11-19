@@ -5,6 +5,7 @@ module.exports = {
     entry: {
         "login-signup": './src/login-signup/login-signup.js',
         verify: './src/verify/verify.js',
+        homePage: './src/homePage.js',
         tasklists: './src/tasklists/tasklists.js'
     },
     devtool: 'eval',
