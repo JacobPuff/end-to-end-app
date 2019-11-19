@@ -21,7 +21,7 @@ function LoginSignup(props) {
     const [errorValue, setErrorValue] = React.useState("error: this is shown before being set")
 
     const [displaySuccess, setDisplaySuccess] = React.useState(false);
-    const [successValue, setSuccesssValue] = React.useState("success: or is it? because this is shown before being set")
+    const [successValue, setSuccessValue] = React.useState("success: or is it? because this is shown before being set")
 
     function ValidateEmail(mail) {
         if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
@@ -53,7 +53,6 @@ function LoginSignup(props) {
             } else if (document.title == "Sign up") {
                 handleSignupSubmit();
             }
-            console.log(e.target.value)
             return;
         }
     }
@@ -81,6 +80,8 @@ function LoginSignup(props) {
     }
 
     function handleLoginSubmit() {
+        console.log(sendingRequest)
+        setDisplaySuccess(false);
         if (!UsernameEmail) {
             setErrorValue("error: username is required");
             setDisplayError(true);
@@ -94,6 +95,7 @@ function LoginSignup(props) {
         else {
             setDisplayError(false);
         }
+
         if (!sendingRequest) {
             if (ValidateEmail(UsernameEmail)) {
                 var loginPost = postRequest("sessions", {"user_email": UsernameEmail,
@@ -121,6 +123,7 @@ function LoginSignup(props) {
     }
 
     function handleSignupSubmit() {
+        setDisplaySuccess(false);
         if (!Username) {
             setErrorValue("error: username is required");
             setDisplayError(true);
@@ -148,13 +151,15 @@ function LoginSignup(props) {
         else {
             setDisplayError(false);
         }
+
         if (!sendingRequest) {
             var signupRequest = postRequest("users", {"user_name": Username, "user_email": Email, "user_pass": Password})
             setSendingRequest(true)
 
             signupRequest.then(function(result){
                 setSendingRequest(false)
-                setSuccessValue("successfully signed up");
+                localStorage.setItem("token", result.d.token);
+                setSuccessValue("successfully signed up! check your email to verify it!");
                 setDisplaySuccess(true);
             }).catch(function(errorData){
                 setSendingRequest(false);
