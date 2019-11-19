@@ -132,37 +132,45 @@ def resettokens(request):
 def verifytokens(request):
     if request.method == 'POST':
         body = request.json_body
-        if body.get("user_email") is None:
+        if body.get("verifytoken") is None:
             status_code = httpexceptions.HTTPBadRequest.code
-            result = error_dict("api_error", "user email is required")
+            result = error_dict("api_error", "verifytoken is required")
         else:
-            user = request.dbsession.query(UserModel)\
-                .filter(UserModel.user_email == body.get("user_email").lower())\
-                .one_or_none()
-            if user is None:
+            oldVerifytoken = request.dbsession.query(VerifyTokenModel) \
+                .filter(VerifyTokenModel.token == body.get("verifytoken")).one_or_none()
+            
+            if oldVerifytoken is None:
                 status_code = httpexceptions.HTTPNotFound.code
-                result = error_dict("api_error", "user doesnt exist")
-            elif user.verified is True:
-                status_code = httpexceptions.HTTPBadRequest.code
-                result = error_dict("api_error", "user already verified")
+                result = error_dict("api_error", "verify token doesnt exist")
             else:
-                # Make new verification token
-                new_token = str(uuid4())
-                verifytoken = VerifyTokenModel()
-                verifytoken.user_id = user.user_id
-                verifytoken.token = new_token
-                request.dbsession.add(verifytoken)
-                request.dbsession.flush()
-                request.dbsession.refresh(verifytoken)
+                user = request.dbsession.query(UserModel)\
+                    .filter(UserModel.user_id == oldVerifytoken.user_id)\
+                    .one_or_none()
 
-                error = send_verification_email(request, user, verifytoken)
-
-                if error:
+                if user is None:
+                    status_code = httpexceptions.HTTPNotFound.code
+                    result = error_dict("api_error", "user doesnt exist")
+                elif user.verified is True:
                     status_code = httpexceptions.HTTPBadRequest.code
-                    result = error
+                    result = error_dict("api_error", "user already verified")
                 else:
-                    status_code = httpexceptions.HTTPOk.code
-                    result = "verification email sent"
+                    # Make new verification token
+                    new_token = str(uuid4())
+                    verifytoken = VerifyTokenModel()
+                    verifytoken.user_id = user.user_id
+                    verifytoken.token = new_token
+                    request.dbsession.add(verifytoken)
+                    request.dbsession.flush()
+                    request.dbsession.refresh(verifytoken)
+
+                    error = send_verification_email(request, user, verifytoken)
+
+                    if error:
+                        status_code = httpexceptions.HTTPBadRequest.code
+                        result = error
+                    else:
+                        status_code = httpexceptions.HTTPOk.code
+                        result = "verification email sent"
 
         return Response(
             content_type='application/json',
@@ -178,12 +186,14 @@ def verifytokens(request):
             result = error_dict("api_error", "verifytoken is required")
         else:
             verifytoken = request.dbsession.query(VerifyTokenModel) \
-                .filter(VerifyTokenModel.token == body.get("verifytoken")) \
-                .filter(VerifyTokenModel.started > (datetime.utcnow() - timedelta(weeks=1))).one_or_none()
+                .filter(VerifyTokenModel.token == body.get("verifytoken")).one_or_none()
 
             if verifytoken is None:
                 status_code = httpexceptions.HTTPNotFound.code
                 result = error_dict("api_error", "verify token doesnt exist")
+            elif verifytoken.started < (datetime.utcnow() - timedelta(weeks=1)):
+                status_code = httpexceptions.HTTPNotAcceptable.code
+                result = error_dict("api_error", "verify token is expired")
             else:
                 # We don't set user.verified yet, because if there is an error in sending an email, user.verified
                 # would be set and the user wouldn't know

@@ -16,10 +16,12 @@ class EmailTests(PyramidTestBase):
     def test_post_already_verified(self):
         # Make user
         user_data = self.make_user()
-        user_email = user_data["user_email"]
+        user_id = user_data["user_id"]
+        verifytoken_data = self.make_verifytoken(user_id)
+        verifytoken_token = verifytoken_data["token"]
 
         self.request.method = 'POST'
-        self.request.json_body = {"user_email": user_email}
+        self.request.json_body = {"verifytoken": verifytoken_token}
 
         self.request.user = user(self.request)
         response = emails.verifytokens(self.request)

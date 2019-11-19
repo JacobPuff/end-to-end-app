@@ -74,7 +74,7 @@ class SessionTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["user doesn't exist"]}})
+                                                    "errors": ["user doesnt exist"]}})
 
     def test_login_with_nothing_provided(self):
         # Make user

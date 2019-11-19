@@ -29,7 +29,7 @@ function LoginSignup(props) {
         var error_type = errorData["d"]["error_type"]
         var error = errorData["d"]["errors"][0]
         switch (error) {
-            case "user doesn't exist":
+            case "user doesnt exist":
                 setErrorValue("error: username or password are incorrect");
                 setDisplayError(true);
                 break;
@@ -73,7 +73,6 @@ function LoginSignup(props) {
     }
 
     function handleLoginSubmit() {
-        console.log(sendingRequest)
         setDisplaySuccess(false);
         if (!UsernameEmail) {
             setErrorValue("error: username is required");
@@ -106,7 +105,7 @@ function LoginSignup(props) {
             loginPost.then(function(result){
                 setSendingRequest(false)
                 localStorage.setItem("token", result.d.token)
-                setSuccesssValue("successfully logged in");
+                setSuccessValue("successfully logged in");
                 setDisplaySuccess(true);
             }).catch(function(errorData){
                 setSendingRequest(false);
