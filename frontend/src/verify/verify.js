@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {putRequest, postRequest} from '../utilities.js';
 
-const ENTER_KEYCODE = 13;
-
 function Verify() {
     const [verifyToken, setVerifyToken] = React.useState(new URL(window.location.href).searchParams.get("verifytoken"));
     const [smolMessage, setSmolMessage] = React.useState(true);
