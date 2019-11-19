@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom';
 import {putRequest, postRequest, validateEmail} from '../utilities.js';
 
 function Verify(props) {
-    const [verified, setVerified] = React.useState(false);
     const [verifyToken, setVerifyToken] = React.useState(new URL(window.location.href).searchParams.get("verifytoken"));
+    const [smolMessage, setSmolMessage] = React.useState(false);
+
+    const [inputNameState, setInputNameState] = React.useState("Loading");
+    const [messageValue, setMessageValue] = React.useState("just a sec");
 
     const [displayError, setDisplayError] = React.useState(false);
     const [errorValue, setErrorValue] = React.useState(false);
@@ -12,42 +15,72 @@ function Verify(props) {
     const [displaySuccess, setDisplaySuccess] = React.useState(false);
     const [successValue, setSuccessValue] = React.useState(false);
 
-    //Should probably make things state so that I can have errors and successes
-
     React.useEffect(() => {
         if (verifyToken) {
+            setSmolMessage(true);
             const verifyRequest = putRequest("verifytokens", {"verifytoken": verifyToken});
-            verifyRequest.then(function(){
-                setVerified = true;
-            }).catch(function(errorData){
+            verifyRequest.then(function() {
+                setInputNameState("Verified email!")
+                setMessageValue("Your email has successfully been verified");
+            }).catch(function(errorData) {
                 console.log(errorData)
+                setInputNameState("Verify email")
+                setMessageValue("Your verification email has expired, but you can send another one!");
+                setSmolMessage(false);
             });
+        } else {
+            setSmolMessage(false)
+            setInputNameState("Verify email")
+            setMessageValue("You can send yourself a verification email here!");
         }
     }, []);
-    if (verified) {
-        return (
-            React.createElement('div', {className: "centerContainer"},
-                React.createElement('h1', {className: "inputName"}, "Verify email"),
-                React.createElement('p', {}, "Your email has successfully been verified!"),
-                React.createElement('button', {className: "inputButton miniButton", onClick: () => {window.location.href = "/"}}, "To home page")
-            )
-        );
+
+    /*
+
+    if verifytoken {
+        send token
+        token valid, messageValueState = "verified email"
+        token invalid, messageValueState = "Email expired, send new one here"
+    } else {
+        messageValueState = "send yourself a verification email"
     }
-    else {
-        return (
-            React.createElement('div', {className: "centerContainer"},
-                React.createElement('h1', {className: "inputName"}, "Verify email"),
-                React.createElement('p', {}, "Your verification email has expired, but you can send another one!"),
-                React.createElement('input', {className: "customInput", placeholder: "Email"}),
-                React.createElement('div', {className: "inputButtonContainer"},
-                    React.createElement('button', {className: "inputButton miniButton", onClick: () => {window.location.href = "/"}},
-                        "To home page"),
-                    React.createElement('button', {className: "inputButton"},
-                        "Submit")
-                )
-            )
-        );
-    }
+
+    centerContainer
+        inputName, "inputNameState" -- so I could put "Loading"
+        p tag, "messageValueState
+
+        (displayError && error)
+        (displaySuccess && success)
+
+        (smolMessage != false && single To home page miniButton)
+        (verified == false  &&
+            customInput, placeholder=Email
+            button container
+                To home page miniButton
+                Submit inputButton
+        )
+    */
+
+    return (
+        React.createElement('div', {className: "centerContainer"},
+            React.createElement('h1', {className: "inputName"}, inputNameState),
+            React.createElement('p', {}, messageValue),
+            (!smolMessage && React.createElement('input', {className: "customInput", placeholder: "Email"})),
+
+            (displayError && React.createElement('p', {className:"error"}, errorValue)),
+            (displaySuccess && React.createElement('p', {className:"success"}, successValue)),
+            
+            (!smolMessage && React.createElement('div', {className: "inputButtonContainer"},
+                React.createElement('button', {className: "inputButton miniButton", onClick: () => {window.location.href = "/"}},
+                    "To home page"),
+                React.createElement('button', {className: "inputButton"},
+                    "Submit")
+            )),
+
+            (smolMessage && React.createElement('button', {className: "inputButton miniButton", onClick: () => {window.location.href = "/"}},
+                "To home page"))
+        )
+    );
 }
 
 ReactDOM.render(
