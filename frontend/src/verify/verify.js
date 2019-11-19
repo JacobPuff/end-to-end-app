@@ -35,32 +35,6 @@ function Verify(props) {
         }
     }, []);
 
-    /*
-
-    if verifytoken {
-        send token
-        token valid, messageValueState = "verified email"
-        token invalid, messageValueState = "Email expired, send new one here"
-    } else {
-        messageValueState = "send yourself a verification email"
-    }
-
-    centerContainer
-        inputName, "inputNameState" -- so I could put "Loading"
-        p tag, "messageValueState
-
-        (displayError && error)
-        (displaySuccess && success)
-
-        (smolMessage != false && single To home page miniButton)
-        (verified == false  &&
-            customInput, placeholder=Email
-            button container
-                To home page miniButton
-                Submit inputButton
-        )
-    */
-
     return (
         React.createElement('div', {className: "centerContainer"},
             React.createElement('h1', {className: "inputName"}, inputNameState),
