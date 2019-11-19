@@ -4,7 +4,7 @@ import {postRequest, validateEmail} from '../utilities.js'
 
 const ENTER_KEYCODE = 13;
 
-function LoginSignup(props) {
+function LoginSignup() {
     //Login state
     const [UsernameEmail, setUsernameEmail] = React.useState("");
 
@@ -24,10 +24,9 @@ function LoginSignup(props) {
     const [successValue, setSuccessValue] = React.useState("success: or is it? because this is shown before being set")
 
     function LoginSignupErrorHandler(errorData) {
-        console.log(errorData)
-        console.log("error: " + errorData["d"]["errors"][0])
-        var error_type = errorData["d"]["error_type"]
+        var error_type = errorData["d"]["error_type"];
         var error = errorData["d"]["errors"][0]
+        console.log("error_type: " + error_type, "\nerror: ", error);
         switch (error) {
             case "user doesnt exist":
                 setErrorValue("error: username or password are incorrect");

@@ -188,10 +188,9 @@ function TaskList(props) {
     })
 
     function tasklistErrorHandler(errorData) {
-        console.log(errorData)
-        console.log("error: " + errorData["d"]["errors"][0])
-        var error_type = errorData["d"]["error_type"]
+        var error_type = errorData["d"]["error_type"];
         var error = errorData["d"]["errors"][0]
+        console.log("error_type: " + error_type, "\nerror: ", error);
         
         switch(error) {
             case "a connection error occured":
