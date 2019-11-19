@@ -3,14 +3,22 @@ import ReactDOM from 'react-dom';
 import {putRequest, postRequest, validateEmail} from '../utilities.js';
 
 function Verify(props) {
-    var verified = false;
-    var verifyToken = new URL(window.location.href).searchParams.get("verifytoken");
+    const [verified, setVerified] = React.useState(false);
+    const [verifyToken, setVerifyToken] = React.useState(new URL(window.location.href).searchParams.get("verifytoken"));
+
+    const [displayError, setDisplayError] = React.useState(false);
+    const [errorValue, setErrorValue] = React.useState(false);
+    
+    const [displaySuccess, setDisplaySuccess] = React.useState(false);
+    const [successValue, setSuccessValue] = React.useState(false);
+
+    //Should probably make things state so that I can have errors and successes
 
     React.useEffect(() => {
         if (verifyToken) {
-            const verifyRequest = putRequest("verifytoken", {"verifytokens": verifyToken});
+            const verifyRequest = putRequest("verifytokens", {"verifytoken": verifyToken});
             verifyRequest.then(function(){
-                verified = true;
+                setVerified = true;
             }).catch(function(errorData){
                 console.log(errorData)
             });
@@ -20,7 +28,8 @@ function Verify(props) {
         return (
             React.createElement('div', {className: "centerContainer"},
                 React.createElement('h1', {className: "inputName"}, "Verify email"),
-                React.createElement('p', {}, "Your email has successfully been verified!")
+                React.createElement('p', {}, "Your email has successfully been verified!"),
+                React.createElement('button', {className: "inputButton miniButton", onClick: () => {window.location.href = "/"}}, "To home page")
             )
         );
     }

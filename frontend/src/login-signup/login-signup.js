@@ -171,10 +171,10 @@ function LoginSignup(props) {
                 (displayError && React.createElement('p', {className:"error"}, errorValue)),
                 (displaySuccess && React.createElement('p', {className:"success"}, successValue)),
                 React.createElement('div', {className:"inputButtonContainer"},
-                    React.createElement('div', {className:"miniButton"},
-                        React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/forgotpassword"}},
+                    React.createElement('div', {},
+                        React.createElement('button', {className:"inputButton miniButton", onClick:() => {window.location.href="/forgotpassword"}},
                             "Forgot Password?"),
-                        React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/signup"}},
+                        React.createElement('button', {className:"inputButton miniButton", onClick:() => {window.location.href="/signup"}},
                             "Sign Up")
                     ),
                     React.createElement('button', {className:"inputButton", onClick: handleLoginSubmit},
@@ -195,7 +195,7 @@ function LoginSignup(props) {
                 (displayError && React.createElement('p', {className:"error"}, errorValue)),
                 (displaySuccess && React.createElement('p', {className:"success"}, successValue)),
                 React.createElement('div', {className:"inputButtonContainer"},
-                    React.createElement('button', {className:"inputButton", onClick:() => {window.location.href="/login"}},
+                    React.createElement('button', {className:"inputButton miniButton", onClick:() => {window.location.href="/login"}},
                         "Login"),
                     React.createElement('button', {className:"inputButton", onClick: handleSignupSubmit},
                         "Submit")
