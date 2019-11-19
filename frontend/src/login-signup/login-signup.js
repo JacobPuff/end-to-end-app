@@ -149,7 +149,7 @@ function LoginSignup() {
 
             signupRequest.then(function(result){
                 setSendingRequest(false)
-                localStorage.setItem("token", result.d.token);
+                localStorage.setItem("token", result.d.session.token);
                 setSuccessValue("successfully signed up! check your email to verify it!");
                 setDisplaySuccess(true);
             }).catch(function(errorData){
