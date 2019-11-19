@@ -32,7 +32,7 @@ def sessions(request):
 
                 if user is None or not pwd_context.verify(body["user_pass"], user.user_pass):
                     status_code = httpexceptions.HTTPNotFound.code
-                    result = error_dict("api_error", "user doesn't exist")
+                    result = error_dict("api_error", "user doesnt exist")
 
                 else:
                     if user.verified is False:
