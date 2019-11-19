@@ -4,6 +4,7 @@ module.exports = {
     mode: 'development',
     entry: {
         "login-signup": './src/login-signup/login-signup.js',
+        verify: './src/verify/verify.js',
         tasklists: './src/tasklists/tasklists.js'
     },
     devtool: 'eval',

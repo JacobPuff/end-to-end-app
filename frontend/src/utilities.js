@@ -1,4 +1,4 @@
-export {getRequest, postRequest, putRequest, deleteRequest}
+export {getRequest, postRequest, putRequest, deleteRequest, validateEmail}
 
 function getRequest(name) {
     return new Promise(function(resolve, reject){
@@ -102,4 +102,11 @@ function deleteRequest(name, data) {
 
         }, 1000)
     });
+}
+
+function validateEmail(mail) {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+        return (true)
+    }
+    return (false)
 }

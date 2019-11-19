@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {postRequest} from '../utilities.js'
+import {postRequest, validateEmail} from '../utilities.js'
 
 const ENTER_KEYCODE = 13;
 
@@ -22,13 +22,6 @@ function LoginSignup(props) {
 
     const [displaySuccess, setDisplaySuccess] = React.useState(false);
     const [successValue, setSuccessValue] = React.useState("success: or is it? because this is shown before being set")
-
-    function ValidateEmail(mail) {
-        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
-            return (true)
-        }
-        return (false)
-    }
 
     function LoginSignupErrorHandler(errorData) {
         console.log(errorData)
@@ -97,7 +90,7 @@ function LoginSignup(props) {
         }
 
         if (!sendingRequest) {
-            if (ValidateEmail(UsernameEmail)) {
+            if (validateEmail(UsernameEmail)) {
                 var loginPost = postRequest("sessions", {"user_email": UsernameEmail,
                                                             "user_pass": Password,
                                                             "token": localStorage.getItem("token")})
@@ -128,12 +121,12 @@ function LoginSignup(props) {
             setErrorValue("error: username is required");
             setDisplayError(true);
             return;
-        } else if (ValidateEmail(Username)) {
+        } else if (validateEmail(Username)) {
             setErrorValue("error: you put your email in the wrong field")
             setDisplayError(true);
             return;
         }
-        else if (!Email || !ValidateEmail(Email)) {
+        else if (!Email || !validateEmail(Email)) {
             setErrorValue("error: valid email is required");
             setDisplayError(true);
             return;
