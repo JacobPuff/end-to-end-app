@@ -89,7 +89,7 @@ class EmailTests(PyramidTestBase):
         self.request.method = 'POST'
         self.request.json_body = {"user_email": "success@simulator.amazonses.com"}
         response = emails.resettokens(self.request)
-        self.assertEqual(response.json_body, {"d": "password reset email sent"})
+        self.assertEqual(response.json_body, {"d": "Received an email"})
 
     def test_post_reset_token_no_email(self):
         # Make user
@@ -106,8 +106,7 @@ class EmailTests(PyramidTestBase):
         self.request.method = 'POST'
         self.request.json_body = {"user_email": "nonexistent@jacob.squizzlezig.com"}
         response = emails.resettokens(self.request)
-        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["user doesnt exist"]}})
+        self.assertEqual(response.json_body, {"d": "Received an email"})
 
     def test_post_not_verified(self):
         # Make user
@@ -119,9 +118,7 @@ class EmailTests(PyramidTestBase):
 
         self.request.user = user(self.request)
         response = emails.resettokens(self.request)
-        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["user not verified"]}})
-
+        self.assertEqual(response.json_body, {"d": "Received an email"})
     def test_put_reset_successful(self):
         # Make user
         user_data = self.make_user()

@@ -24,11 +24,27 @@ def resettokens(request):
                 .filter(UserModel.user_email == body.get("user_email").lower())\
                 .one_or_none()
             if user is None:
-                status_code = httpexceptions.HTTPNotFound.code
-                result = error_dict("api_error", "user doesnt exist")
+                status_code = httpexceptions.HTTPAccepted.code
+                result = "Received an email"
             elif user.verified is False:
-                status_code = httpexceptions.HTTPBadRequest.code
-                result = error_dict("api_error", "user not verified")
+                # People may try to reset their password when not verified, so let them know with this email
+                
+                # Make new verification token
+                new_token = str(uuid4())
+                verifytoken = VerifyTokenModel()
+                verifytoken.user_id = user.user_id
+                verifytoken.token = new_token
+                request.dbsession.add(verifytoken)
+                request.dbsession.flush()
+                request.dbsession.refresh(verifytoken)
+                error = send_verification_email(request, user, verifytoken, "Please verify your email before password reset")
+
+                if error:
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error
+                else:
+                    status_code = httpexceptions.HTTPAccepted.code
+                    result = "Received an email"
             else:
                 # Create and add reset token
                 resettoken = ResetTokenModel()
@@ -61,8 +77,8 @@ def resettokens(request):
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error
                 else:
-                    status_code = httpexceptions.HTTPOk.code
-                    result = "password reset email sent"
+                    status_code = httpexceptions.HTTPAccepted.code
+                    result = "Received an email"
 
         return Response(
             content_type='application/json',
@@ -105,7 +121,7 @@ def resettokens(request):
                             """
                 error = send_email(user.user_email, subject, body_text, body_html)
                 if error:
-                    status_code = httpexceptions.HTTP.code
+                    status_code = httpexceptions.HTTPBadRequest.code
                     result = error
                 else:
                     request.dbsession.query(ResetTokenModel) \

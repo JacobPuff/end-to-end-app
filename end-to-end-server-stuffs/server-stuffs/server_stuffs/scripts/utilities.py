@@ -73,9 +73,8 @@ def send_email(email, subject, body_text, body_html):
 
     return error
 
-def send_verification_email(request, user, verifytoken):
+def send_verification_email(request, user, verifytoken, subject = "Please verify your email"):
     verifylink = request.application_url + "/verify?verifytoken=" + verifytoken.token
-    subject = "Please verify your email"
     body_text = ("Please verify your email by going to " + verifylink + "\r\n"
                 "If you did not make this account, please feel free to ignore this email")
     body_html = """
