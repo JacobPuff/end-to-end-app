@@ -28,7 +28,7 @@ function userActionButton() {
     }
 
     return (
-        React.createElement('button', {className: "userActionButton", onClick: handleButton}, buttonValue)
+        React.createElement('div', {className: "userActionButton", onClick: handleButton}, buttonValue)
     );
 }
 
