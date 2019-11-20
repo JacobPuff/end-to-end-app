@@ -16,14 +16,27 @@ removals = ['user_pass']
 def resettokens(request):
     if request.method == 'POST':
         body = request.json_body
-        if body.get("user_email") is None:
+        if body.get("user_email") is None and body.get("resettoken") is None:
             status_code = httpexceptions.HTTPBadRequest.code
-            result = error_dict("api_error", "user_email is required")
+            result = error_dict("api_error", "user_email or resettoken is required")
         else:
-            user = request.dbsession.query(UserModel)\
-                .filter(UserModel.user_email == body.get("user_email").lower())\
-                .one_or_none()
-            if user is None:
+            if body.get("user_email"):
+                user = request.dbsession.query(UserModel)\
+                    .filter(UserModel.user_email == body.get("user_email").lower())\
+                    .one_or_none()
+            if body.get("resettoken"):
+                resettoken = request.dbsession.query(ResetTokenModel)\
+                    .filter(ResetTokenModel.token == body.get("resettoken"))\
+                    .one_or_none()
+                if resettoken is None:
+                    status_code = httpexceptions.HTTPNotFound.code
+                    result = error_dict("api_error", "reset token doesnt exist")
+                else:
+                    user = request.dbsession.query(UserModel)\
+                        .filter(UserModel.user_id == resettoken.user_id)\
+                        .one_or_none()
+
+            if user is None and result is None:
                 status_code = httpexceptions.HTTPOk.code
                 result = "Received an email"
             elif user.verified is False:
