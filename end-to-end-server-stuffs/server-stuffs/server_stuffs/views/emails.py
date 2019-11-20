@@ -28,15 +28,15 @@ def resettokens(request):
                 resettoken = request.dbsession.query(ResetTokenModel)\
                     .filter(ResetTokenModel.token == body.get("resettoken"))\
                     .one_or_none()
-                if resettoken is None:
-                    status_code = httpexceptions.HTTPNotFound.code
-                    result = error_dict("api_error", "reset token doesnt exist")
-                else:
+                if resettoken is not None:
                     user = request.dbsession.query(UserModel)\
                         .filter(UserModel.user_id == resettoken.user_id)\
                         .one_or_none()
 
-            if user is None and result is None:
+            if body.get("resettoken") and resettoken is None:
+                status_code = httpexceptions.HTTPNotFound.code
+                result = error_dict("api_error", "reset token doesnt exist")
+            elif user is None:
                 status_code = httpexceptions.HTTPOk.code
                 result = "Received an email"
             elif user.verified is False:
@@ -107,14 +107,19 @@ def resettokens(request):
             result = error_dict("api_error", "resettoken is required")
         else:
             resettoken = request.dbsession.query(ResetTokenModel) \
-                .filter(ResetTokenModel.token == body.get("resettoken")) \
-                .filter(ResetTokenModel.started > (datetime.utcnow() - timedelta(days=1))).one_or_none()
+                .filter(ResetTokenModel.token == body.get("resettoken")).one_or_none()
             if resettoken is None:
                 status_code = httpexceptions.HTTPNotFound.code
                 result = error_dict("api_error", "reset token doesnt exist")
+            elif resettoken.started < (datetime.utcnow() - timedelta(days=1)):
+                status_code = httpexceptions.HTTPNotAcceptable.code
+                result = error_dict("api_error", "reset token is expired")
             elif body.get("user_pass") is None:
                 status_code = httpexceptions.HTTPBadRequest.code
                 result = error_dict("api_error", "user_pass is required")
+            elif len(body.get("user_pass")) < 8:
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "password must be at least 8 characters")
             else:
                 # We don't set the password just yet, because if there is an error in sending an email, the password
                 # would be reset and the user wouldn't know

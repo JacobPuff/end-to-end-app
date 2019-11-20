@@ -91,7 +91,7 @@ class EmailTests(PyramidTestBase):
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "Received an email"})
 
-    def test_post_reset_token_no_email(self):
+    def test_post_reset_token_nothing_provided(self):
         # Make user
         self.make_user()
 
@@ -100,7 +100,7 @@ class EmailTests(PyramidTestBase):
         self.request.json_body = {}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["user_email is required"]}})
+                                                    "errors": ["user_email or resettoken is required"]}})
 
     def test_post_reset_token_nonexistent_user(self):
         self.request.method = 'POST'
@@ -119,6 +119,26 @@ class EmailTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "Received an email"})
+
+    def test_post_invalid_reset_token(self):
+        # Make user
+        user_data = self.make_user(email="success@simulator.amazonses.com")
+        user_id = user_data["user_id"]
+
+        # Make reset token
+        reset_token = self.make_resettoken(user_id)
+
+        # Make reset token invalid
+        reset_token["started"] = datetime.utcnow() - timedelta(days=1)
+        self.dbsession.query(ResetTokenModel).filter(ResetTokenModel.token == reset_token["token"]) \
+            .update({ResetTokenModel.started: reset_token["started"]})
+
+        self.request.method = 'POST'
+        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
+        self.request.json_body = {"resettoken": reset_token["token"], "user_pass": "different pass"}
+        response = emails.resettokens(self.request)
+        self.assertEqual(response.json_body, {"d": "Received an email"})
+
     def test_put_reset_successful(self):
         # Make user
         user_data = self.make_user()
@@ -132,6 +152,21 @@ class EmailTests(PyramidTestBase):
         self.request.json_body = {"resettoken": token, "user_pass": "different pass"}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "password successfully reset"})
+
+    def test_put_reset_less_than_eight_chars(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+
+        # Make reset token
+        reset_token_data = self.make_resettoken(user_id)
+        token = reset_token_data["token"]
+
+        self.request.method = 'PUT'
+        self.request.json_body = {"resettoken": token, "user_pass": "less"}
+        response = emails.resettokens(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error", 
+                                                    "errors": ["password must be at least 8 characters"]}})
 
     def test_put_reset_nothing_provided(self):
         self.request.method = 'PUT'
@@ -159,7 +194,7 @@ class EmailTests(PyramidTestBase):
         self.request.json_body = {"resettoken": reset_token["token"], "user_pass": "different pass"}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
-                                                    "errors": ["reset token doesnt exist"]}})
+                                                    "errors": ["reset token is expired"]}})
 
     def test_put_nonexistent_reset_token(self):
         # Make user
