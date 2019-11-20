@@ -33,9 +33,11 @@ function ForgotPassword() {
                 setSendingRequest(true);
                 const resetEmailRequest = postRequest("resettokens", {"user_email": Email});
                 resetEmailRequest.then(function() {
-                    setSuccessValue("If there is a user with that email, you'lll receive a password reset link");
+                    setSendingRequest(false);
+                    setSuccessValue("If there is a user with that email, you'lll receive a password reset link!");
                     setDisplaySuccess(true);
                 }).catch(function(errorData) {
+                    setSendingRequest(false);
                     console.log(errorData)
                     console.log("error_type: ", errorData.d.error_type,
                                 "\nerror: ", errorData.d.errors[0]);
