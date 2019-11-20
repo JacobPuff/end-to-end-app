@@ -60,7 +60,7 @@
     padding: 10px;
 }
 
-.homePageButton {
+.backButton {
     position: fixed;
     top: 0;
     left: 0;
@@ -75,4 +75,23 @@
     border-bottom: 1px solid white;
     border-bottom-right-radius: 5px;
     background: rgba(0, 0, 0, 0.5);
+}
+
+.backButtonContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.backButton.middle {
+    position: relative;
+    border-bottom-right-radius: 0px;
+    top:auto;
+}
+
+.backButton.bottom {
+    position: relative;
+    top:auto;
 }
