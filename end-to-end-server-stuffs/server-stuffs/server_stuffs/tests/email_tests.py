@@ -134,7 +134,6 @@ class EmailTests(PyramidTestBase):
             .update({ResetTokenModel.started: reset_token["started"]})
 
         self.request.method = 'POST'
-        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
         self.request.json_body = {"resettoken": reset_token["token"], "user_pass": "different pass"}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "Received an email"})
@@ -190,7 +189,6 @@ class EmailTests(PyramidTestBase):
             .update({ResetTokenModel.started: reset_token["started"]})
 
         self.request.method = 'PUT'
-        # This needs to be set because DummyRequest doesnt actually have a json_body attribute
         self.request.json_body = {"resettoken": reset_token["token"], "user_pass": "different pass"}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
