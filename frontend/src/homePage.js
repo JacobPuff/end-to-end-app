@@ -7,13 +7,20 @@ function userActionButton() {
     const [buttonValue, setButtonValue] = React.useState("login");
 
     React.useEffect(() => {
-        const checkLoggedInRequest = putRequest("sessions", {"token": localStorage.getItem("token")});
-        checkLoggedInRequest.then(function() {
+        if(localStorage.getItem("token")){
             setLoggedIn(true);
             setButtonValue("sign out");
-        }).catch(function() {
-            localStorage.removeItem("token");
-        });
+            const checkLoggedInRequest = putRequest("sessions", {"token": localStorage.getItem("token")});
+            checkLoggedInRequest.then(function() {
+                //empty now because if there is a token, it should already be sign out. This is just checking.
+                //If there isn't a token its already login.
+                //I could probably make this check a lot faster by also including the last-active value.
+            }).catch(function() {
+                localStorage.removeItem("token");
+                setLoggedIn(false);
+                setButtonValue("login");
+            });
+        }
     }, []);
 
     function handleButton() {
