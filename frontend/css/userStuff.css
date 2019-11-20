@@ -41,6 +41,7 @@
     width: 25%;
     min-width: fit-content;
     height: min-content;
+    align-self: center;
     color: white;
     font-size: 16pt;
     text-align: center;
