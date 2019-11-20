@@ -24,7 +24,7 @@ def resettokens(request):
                 .filter(UserModel.user_email == body.get("user_email").lower())\
                 .one_or_none()
             if user is None:
-                status_code = httpexceptions.HTTPAccepted.code
+                status_code = httpexceptions.HTTPOk.code
                 result = "Received an email"
             elif user.verified is False:
                 # People may try to reset their password when not verified, so let them know with this email
@@ -43,7 +43,7 @@ def resettokens(request):
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error
                 else:
-                    status_code = httpexceptions.HTTPAccepted.code
+                    status_code = httpexceptions.HTTPOk.code
                     result = "Received an email"
             else:
                 # Create and add reset token
@@ -77,7 +77,7 @@ def resettokens(request):
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error
                 else:
-                    status_code = httpexceptions.HTTPAccepted.code
+                    status_code = httpexceptions.HTTPOk.code
                     result = "Received an email"
 
         return Response(
