@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { putRequest } from './utilities';
+import { putRequest, postRequest } from './utilities';
 
 const ENTER_KEYCODE = 13;
 
@@ -94,7 +94,7 @@ function PasswordReset() {
             return;
         }
 
-        if(!sendingRequest) {
+        if (!sendingRequest) {
             setSendingRequest(true);
             const resetPasswordRequest = putRequest("resettokens", {"user_pass": newPassword,
                                                                     "resettoken": resetToken});
@@ -104,6 +104,23 @@ function PasswordReset() {
                 setInputNameState("Reset password!");
                 setMessageValue("Successfully reset your password! Now that wasnt that hard, was it?");
             }).catch(function(errorData) {
+                setSendingRequest(false);
+                passwordResetErrorHandler(errorData);
+            });
+        }
+    }
+
+    function handleSendPasswordResetEmail() {
+        if (!sendingRequest) {
+            setSendingRequest(true);
+            const passwordResetEmailRequest = postRequest("resettokens", {"resettoken": resetToken});
+            passwordResetEmailRequest.then(function() {
+                setSendingRequest(false);
+                setActionWasTaken(true);
+                setSuccessValue("success! you have been sent a password reset email");
+                setDisplaySuccess(true);
+            }).catch(function(errorData){
+                setSendingRequest(false);
                 passwordResetErrorHandler(errorData);
             });
         }
@@ -114,20 +131,20 @@ function PasswordReset() {
             React.createElement('h1', {className: "inputName"}, inputNameState),
             React.createElement('p', {}, messageValue),
             ((!smolMessage && !actionWasTaken) && React.createElement('input', {className: "customInput", placeholder: "new password",
-                                onChange: handleInputChanges, onKeyDown: checkEnter})),
+                    type: "password", onChange: handleInputChanges, onKeyDown: checkEnter})),
             ((!smolMessage && !actionWasTaken) && React.createElement('input', {className: "customInput", placeholder: "new password again",
-                                onChange: handleInputChanges, onKeyDown: checkEnter})),
+                    type: "password", onChange: handleInputChanges, onKeyDown: checkEnter})),
             
             (displayError && React.createElement('p', {className: "error"}, errorValue)),
-            (displaySuccess && React.createElement('p', {className: "success", successValue})),
+            (displaySuccess && React.createElement('p', {className: "success"}, successValue)),
 
             React.createElement('div', {className: "inputButtonContainer"},
                 React.createElement('div', {className: "inputButton miniButton", onClick: () => {window.location.href = "/"}},
                     "To home page"),
                 ((!smolMessage && !actionWasTaken) && React.createElement('div', {className: "inputButton",
                     onClick: handlePasswordSubmit}, "Submit")),
-                ((expired && !actionWasTaken) && React.createElement('div', {className: "inputButton"},
-                    "Send another!"))
+                ((expired && !actionWasTaken) && React.createElement('div', {className: "inputButton",
+                    onClick: handleSendPasswordResetEmail},"Send another!"))
             )
         )
     );
