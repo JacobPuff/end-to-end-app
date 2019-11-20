@@ -6,6 +6,7 @@ module.exports = {
         "login-signup": './src/login-signup.js',
         verify: './src/verify.js',
         forgotpassword: './src/forgotpassword.js',
+        passwordreset: './src/passwordreset.js',
         homePage: './src/homePage.js',
         tasklists: './src/tasklists/tasklists.js'
     },

@@ -58,7 +58,9 @@ function ForgotPassword() {
                                             onChange: changeEmail, onKeyDown: checkEnter}),
             (displayError && React.createElement('p', {className:"error"}, errorValue)),
             (displaySuccess && React.createElement('p', {className:"success"}, successValue)),
-            React.createElement('div', {className: "inputButton", onClick: handleSubmit}, "Submit")
+            React.createElement('div', {className: "inputButtonContainer"},
+                React.createElement('div', {className: "inputButton miniButton", onClick: handleSubmit}, "Submit")
+            )
         )
     );
 }
