@@ -51,7 +51,7 @@ function Verify() {
                 setMessageValue("The token used doesnt exist. If you used the link in your verification email, you've already verified your email");
                 break;
             default:
-                setErrorValue(error);
+                setErrorValue("error: " + error);
                 setDisplayError(true);
         }
     }
