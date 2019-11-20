@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {putRequest, postRequest} from './utilities.js';
 
 function Verify() {
-    const [verifyToken, setVerifyToken] = React.useState(new URL(window.location.href).searchParams.get("verifytoken"));
+    const verifyToken = new URL(window.location.href).searchParams.get("verifytoken");
     const [smolMessage, setSmolMessage] = React.useState(true);
 
     const [inputNameState, setInputNameState] = React.useState("Loading");

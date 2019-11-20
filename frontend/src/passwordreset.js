@@ -5,7 +5,7 @@ import { putRequest, postRequest } from './utilities';
 const ENTER_KEYCODE = 13;
 
 function PasswordReset() {
-    const [resetToken, setResetToken] = React.useState(new URL(window.location.href).searchParams.get("resettoken"));
+    const resetToken = new URL(window.location.href).searchParams.get("resettoken");
     const [smolMessage, setSmolMessage] = React.useState(true);
     const [expired, setExpired] = React.useState(false);
     const [newPassword, setNewPassword] = React.useState("");
