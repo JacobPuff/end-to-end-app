@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {postRequest, validateEmail} from '../utilities.js'
+import {postRequest, validateEmail} from './utilities.js'
 
 const ENTER_KEYCODE = 13;
 

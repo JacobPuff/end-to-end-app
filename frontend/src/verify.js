@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {putRequest, postRequest} from '../utilities.js';
+import {putRequest, postRequest} from './utilities.js';
 
 function Verify() {
     const [verifyToken, setVerifyToken] = React.useState(new URL(window.location.href).searchParams.get("verifytoken"));
