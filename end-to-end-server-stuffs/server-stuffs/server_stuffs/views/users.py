@@ -137,6 +137,15 @@ def users_by_id(request):
                 elif body.get("user_name") is None and body.get("user_email") is None and body.get("user_pass") is None:
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "no values provided to update")
+                elif body.get("user_pass") and body.get("old_pass") is None:
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error_dict("api_error", "old_pass required when updating password")
+                elif body.get("old_pass") and body.get("user_pass") is None:
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error_dict("api_error", "user_pass required when using old_pass")
+                elif body.get("old_pass") and not pwd_context.verify(body.get("old_pass"), request.user.user_pass):
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error_dict("api_error", "old_pass didnt match")
                 else:
                     if body.get("user_name"):
                         request.user.user_name = body.get("user_name").lower()

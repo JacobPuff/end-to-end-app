@@ -139,11 +139,59 @@ class UserTests(PyramidTestBase):
         self.request.method = 'PUT'
         self.request.matchdict = {"user_id": user_id}
         self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
-                                  "user_pass": "passwordForTest", "token": token}
+                                  "old_pass": "TestPass", "user_pass": "passwordForTest", "token": token}
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "userfortesting",
                                                     "user_email": "testerino@squizzlezig.com", "verified": True}})
+
+    def test_put_user_by_id_no_old_pass(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+        user_id = user_data["user_id"]
+
+        # Update user
+        self.request.method = 'PUT'
+        self.request.matchdict = {"user_id": user_id}
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+                                  "user_pass": "passwordForTest", "token": token}
+        self.request.user = user(self.request)
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["old_pass required when updating password"]}})
+
+    def test_put_user_by_id_no_new_pass(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+        user_id = user_data["user_id"]
+
+        # Update user
+        self.request.method = 'PUT'
+        self.request.matchdict = {"user_id": user_id}
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+                                  "old_pass": "TestPass", "token": token}
+        self.request.user = user(self.request)
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["user_pass required when using old_pass"]}})
+    
+    def test_put_user_by_id_different_old_pass(self):
+        # Make user
+        user_data = self.make_user()
+        token = user_data["session"]["token"]
+        user_id = user_data["user_id"]
+
+        # Update user
+        self.request.method = 'PUT'
+        self.request.matchdict = {"user_id": user_id}
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+                                  "old_pass": "WrongOldPass", "user_pass": "passwordForTest", "token": token}
+        self.request.user = user(self.request)
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["old_pass didnt match"]}})
 
     def test_put_user_by_id_no_token(self):
         # Make user
