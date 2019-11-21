@@ -103,6 +103,7 @@ function LoginSignup() {
 
             loginPost.then(function(result){
                 setSendingRequest(false)
+                localStorage.setItem("localLastActive", new Date());
                 localStorage.setItem("token", result.d.token)
                 setSuccessValue("successfully logged in");
                 setDisplaySuccess(true);
@@ -149,6 +150,7 @@ function LoginSignup() {
 
             signupRequest.then(function(result){
                 setSendingRequest(false)
+                localStorage.setItem("localLastActive", new Date());
                 localStorage.setItem("token", result.d.session.token);
                 setSuccessValue("successfully signed up! check your email to verify it!");
                 setDisplaySuccess(true);
