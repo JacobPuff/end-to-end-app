@@ -8,7 +8,7 @@ import json
 from ..models import UserModel, SessionModel, ResetTokenModel, VerifyTokenModel
 from ..scripts.password_hashing import pwd_context
 from ..scripts.converters import dict_from_row
-from ..scripts.utilities import error_dict, datetime_serializer, send_verification_email
+from ..scripts.utilities import error_dict, datetime_serializer, send_verification_email, send_email
 
 removals = ['user_pass']
 
@@ -147,6 +147,9 @@ def users_by_id(request):
                 elif body.get("user_name") is None and body.get("user_email") is None and body.get("user_pass") is None:
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "no values provided to update")
+                elif body.get("user_email") and email_in_use(body.get("user_email"), request.dbsession):
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error_dict("api_error", "email already in use")
                 elif body.get("user_pass") and body.get("old_pass") is None:
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "old_pass required when updating password")
@@ -160,29 +163,48 @@ def users_by_id(request):
                     if body.get("user_name"):
                         request.user.user_name = body.get("user_name").lower()
                     if body.get("user_email"):
-                        request.user.verified = False
-                        # Check
-                        # request.user.user_email = body.get("user_email").lower()
+
                         # Make verification token
                         new_token = str(uuid4())
                         verifytoken = VerifyTokenModel()
                         verifytoken.user_id = request.user.user_id
+                        verifytoken.temp_email = body.get("user_email").lower()
                         verifytoken.token = new_token
                         request.dbsession.add(verifytoken)
                         request.dbsession.flush()
                         request.dbsession.refresh(verifytoken)
 
-                        error = send_verification_email(request, body.get("user_email").lower(), verifytoken)
+                        # Set how the email will look
+                        verifylink = request.application_url + "/verify?verifytoken=" + verifytoken.token
+                        subject = "Please verify to change your email"
+                        body_text = ("A change of email was requested for user " + request.user.user_name + "\r\n"
+                                    "To verify that you own this account and email, go to " + verifylink + "\r\n"
+                                    "If you did not change your email or you dont own this account, please ignore this email"
+                                    )
+                        body_html = """
+                        <html>
+                        <head></head>
+                        <body>
+                            <p>A change of email was requested for user """ + request.user.user_name + """</p>
+                            <p>To verify that you own this account and email, go to 
+                                <a href='""" + verifylink + """'>""" + verifylink + """</a></p>
+                            <p>If you did not change your email or you dont own this account, please ignore this email</p>
+                        </body>
+                        </html>
+                                    """
+                        error = send_email(body.get("user_email").lower(), subject, body_text, body_html)
+                        
                         if error:
                             status_code = httpexceptions.HTTPBadRequest.code
                             result = error
                     if body.get("user_pass"):
                         request.user.user_pass = pwd_context.hash(body.get("user_pass"))
 
-                    request.dbsession.flush()
-                    request.dbsession.refresh(request.user)
-                    status_code = httpexceptions.HTTPOk.code
-                    result = dict_from_row(request.user, remove_fields=removals)
+                    if body.get("user_email") is None or not error:
+                        request.dbsession.flush()
+                        request.dbsession.refresh(request.user)
+                        status_code = httpexceptions.HTTPOk.code
+                        result = dict_from_row(request.user, remove_fields=removals)
 
         return Response(
             content_type='application/json',

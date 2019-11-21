@@ -233,6 +233,9 @@ def verifytokens(request):
                 # would be set and the user wouldn't know
                 user = request.dbsession.query(UserModel).filter(UserModel.user_id == verifytoken.user_id).one_or_none()
 
+                # If an error happens, it will not get to refresh the user object
+                if verifytoken.temp_email is not None:
+                    user.user_email = verifytoken.temp_email
                 # Set how the email will look
                 subject = "Email successfully verified"
                 body_text = "Your email successfully verified"
@@ -252,9 +255,9 @@ def verifytokens(request):
                     request.dbsession.query(VerifyTokenModel) \
                         .filter(VerifyTokenModel.started < (datetime.utcnow() - timedelta(weeks=1))).delete()
 
+                    user.verified = True
                     request.dbsession.delete(verifytoken)
 
-                    user.verified = True
                     request.dbsession.flush()
                     request.dbsession.refresh(user)
                     status_code = httpexceptions.HTTPOk.code
