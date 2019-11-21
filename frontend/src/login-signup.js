@@ -29,7 +29,7 @@ function LoginSignup() {
         console.log("error_type: " + error_type, "\nerror: ", error);
         switch (error) {
             case "user doesnt exist":
-                setErrorValue("error: username or password are incorrect");
+                setErrorValue("error: username/email or password are incorrect");
                 setDisplayError(true);
                 break;
             default:
@@ -83,6 +83,11 @@ function LoginSignup() {
             setDisplayError(true);
             return;
         }
+        else if (Password.length < 8) {
+            setErrorValue("error: password must be at least 8 characters");
+            setDisplayError(true);
+            return;
+        }
         else {
             setDisplayError(false);
         }
@@ -90,14 +95,12 @@ function LoginSignup() {
         if (!sendingRequest) {
             if (validateEmail(UsernameEmail)) {
                 var loginPost = postRequest("sessions", {"user_email": UsernameEmail,
-                                                            "user_pass": Password,
-                                                            "token": localStorage.getItem("token")})
+                                                            "user_pass": Password})
                 setSendingRequest(true)
             }
             else {
                 var loginPost = postRequest("sessions", {"user_name": UsernameEmail,
-                                                            "user_pass": Password,
-                                                            "token": localStorage.getItem("token")})
+                                                            "user_pass": Password})
                 setSendingRequest(true)
             }
 
