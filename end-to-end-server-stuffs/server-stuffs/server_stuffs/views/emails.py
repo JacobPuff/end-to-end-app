@@ -50,7 +50,7 @@ def resettokens(request):
                 request.dbsession.add(verifytoken)
                 request.dbsession.flush()
                 request.dbsession.refresh(verifytoken)
-                error = send_verification_email(request, user, verifytoken, "Please verify your email before password reset")
+                error = send_verification_email(request, user.user_email, verifytoken, "Please verify your email before password reset")
 
                 if error:
                     status_code = httpexceptions.HTTPBadRequest.code
@@ -197,7 +197,7 @@ def verifytokens(request):
                     request.dbsession.flush()
                     request.dbsession.refresh(verifytoken)
 
-                    error = send_verification_email(request, user, verifytoken)
+                    error = send_verification_email(request, user.user_email, verifytoken)
 
                     if error:
                         status_code = httpexceptions.HTTPBadRequest.code

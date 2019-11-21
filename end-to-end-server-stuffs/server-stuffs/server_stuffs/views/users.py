@@ -27,9 +27,10 @@ def email_in_use(user_email, dbsession):
     Returns true if a email exists
     :param username: a string username
     :param dbsession: a db session
-    :return: True if a username exists, otherwise False
+    :return: True if an email exists that is verified, otherwise False
     """
-    exists = dbsession.query(UserModel).filter(UserModel.user_email == user_email.lower()).one_or_none()
+    exists = dbsession.query(UserModel).filter(UserModel.user_email == user_email.lower())\
+        .filter(UserModel.verified == True).one_or_none()
     return exists is not None
 
 
@@ -52,11 +53,20 @@ def users(request):
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "password must be at least 8 characters")
         else:
+            existingUser = request.dbsession.query(UserModel)\
+                .filter(UserModel.user_email == body.get("user_email").lower())\
+                .filter(UserModel.verified == False).one_or_none()
+            
             user = UserModel()
+            if existingUser is not None:
+                user = existingUser
+            
             user.user_name = body["user_name"].lower()
             user.user_email = body["user_email"].lower()
             user.user_pass = pwd_context.hash(body["user_pass"])
-            request.dbsession.add(user)
+
+            if existingUser is None:
+                request.dbsession.add(user)
             # We use flush here so that user has a user_id because we need it for testing
             # Autocommit is true, but just in case that is turned off, we use refresh, so it pulls the user_id
             request.dbsession.flush()
@@ -81,7 +91,7 @@ def users(request):
             request.dbsession.flush()
             request.dbsession.refresh(verifytoken)
 
-            error = send_verification_email(request, user, verifytoken)
+            error = send_verification_email(request, user.user_email, verifytoken)
             if error:
                 status_code = httpexceptions.HTTPBadRequest.code
                 result = error
@@ -150,7 +160,22 @@ def users_by_id(request):
                     if body.get("user_name"):
                         request.user.user_name = body.get("user_name").lower()
                     if body.get("user_email"):
-                        request.user.user_email = body.get("user_email").lower()
+                        request.user.verified = False
+                        # Check
+                        # request.user.user_email = body.get("user_email").lower()
+                        # Make verification token
+                        new_token = str(uuid4())
+                        verifytoken = VerifyTokenModel()
+                        verifytoken.user_id = request.user.user_id
+                        verifytoken.token = new_token
+                        request.dbsession.add(verifytoken)
+                        request.dbsession.flush()
+                        request.dbsession.refresh(verifytoken)
+
+                        error = send_verification_email(request, body.get("user_email").lower(), verifytoken)
+                        if error:
+                            status_code = httpexceptions.HTTPBadRequest.code
+                            result = error
                     if body.get("user_pass"):
                         request.user.user_pass = pwd_context.hash(body.get("user_pass"))
 
