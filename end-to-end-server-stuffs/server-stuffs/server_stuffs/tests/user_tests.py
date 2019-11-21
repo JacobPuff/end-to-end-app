@@ -155,7 +155,7 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "userfortesting",
-                                                    "user_email": "test@jacob.squizzlezig.com", "verified": False}})
+                                                    "user_email": "test@jacob.squizzlezig.com", "verified": True}})
 
     def test_put_user_by_id_no_old_pass(self):
         # Make user

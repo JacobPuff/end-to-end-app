@@ -126,10 +126,11 @@ class TestBase(TestCase):
         returndict = dict_from_row(new_resettoken)
         return returndict
 
-    def make_verifytoken(self, user_id):
+    def make_verifytoken(self, user_id, temp_email=None):
         # Make verifytoken
         new_verifytoken = VerifyTokenModel()
         new_verifytoken.user_id = user_id
+        new_verifytoken.temp_email = temp_email
         new_verifytoken.token = str(uuid4())
 
         # Put on verifytoken_id

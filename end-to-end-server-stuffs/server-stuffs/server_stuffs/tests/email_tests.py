@@ -28,6 +28,42 @@ class EmailTests(PyramidTestBase):
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["user already verified"]}})
 
+    def test_post_old_verify_token(self):
+        # Make user
+        user_data = self.make_user(email="success@simulator.amazonses.com", verified=False)
+        user_id = user_data["user_id"]
+
+        # Make reset token
+        verify_token = self.make_verifytoken(user_id)
+
+        # Make reset token invalid
+        verify_token["started"] = datetime.utcnow() - timedelta(days=1)
+        self.dbsession.query(VerifyTokenModel).filter(VerifyTokenModel.token == verify_token["token"]) \
+            .update({ResetTokenModel.started: verify_token["started"]})
+
+        self.request.method = 'POST'
+        self.request.json_body = {"verifytoken": verify_token["token"], "user_pass": "different pass"}
+        response = emails.verifytokens(self.request)
+        self.assertEqual(response.json_body, {"d": "verification email sent"})
+    
+    def test_post_old_verify_token_temp_email(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+
+        # Make reset token
+        verify_token = self.make_verifytoken(user_id, temp_email="success@simulator.amazonses.com")
+
+        # Make reset token invalid
+        verify_token["started"] = datetime.utcnow() - timedelta(days=1)
+        self.dbsession.query(ResetTokenModel).filter(ResetTokenModel.token == verify_token["token"]) \
+            .update({ResetTokenModel.started: verify_token["started"]})
+
+        self.request.method = 'POST'
+        self.request.json_body = {"verifytoken": verify_token["token"], "user_pass": "different pass"}
+        response = emails.verifytokens(self.request)
+        self.assertEqual(response.json_body, {"d": "verification email sent"})
+
     def test_put_verify_user_email(self):
         # Make user
         user_data = self.make_user(email="success@simulator.amazonses.com", verified=False)
@@ -120,7 +156,7 @@ class EmailTests(PyramidTestBase):
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "Received an email"})
 
-    def test_post_invalid_reset_token(self):
+    def test_post_old_reset_token(self):
         # Make user
         user_data = self.make_user(email="success@simulator.amazonses.com")
         user_id = user_data["user_id"]

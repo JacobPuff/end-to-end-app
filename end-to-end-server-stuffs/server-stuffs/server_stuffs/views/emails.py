@@ -184,7 +184,7 @@ def verifytokens(request):
                 if user is None:
                     status_code = httpexceptions.HTTPNotFound.code
                     result = error_dict("api_error", "user doesnt exist")
-                elif user.verified is True:
+                elif user.verified is True and oldVerifytoken.temp_email is None:
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "user already verified")
                 else:
@@ -193,6 +193,10 @@ def verifytokens(request):
                     verifytoken = VerifyTokenModel()
                     verifytoken.user_id = user.user_id
                     verifytoken.token = new_token
+
+                    if oldVerifytoken.temp_email:
+                        verifytoken.temp_email = oldVerifytoken.temp_email
+
                     request.dbsession.add(verifytoken)
                     request.dbsession.flush()
                     request.dbsession.refresh(verifytoken)
