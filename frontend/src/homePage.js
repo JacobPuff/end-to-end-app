@@ -42,11 +42,15 @@ function userActionButton() {
     }
 
     return (
-        React.createElement('div', {className: "userActionButton", onClick: handleButton}, buttonValue)
+        React.createElement('div', {className: "userActionButtonContainer"},
+            (loggedIn && React.createElement('div', {className: "userActionButton middle", onClick: () => {window.location.href="/yourprofile"}},
+                "Your profile")),
+            React.createElement('div', {className: "userActionButton bottom", onClick: handleButton}, buttonValue)
+        )
     );
 }
 
 ReactDOM.render(
     React.createElement(userActionButton),
-    document.getElementById("userActionButton")
+    document.getElementById("userActionButtonContainer")
 );
