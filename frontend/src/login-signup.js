@@ -133,6 +133,11 @@ function LoginSignup() {
             setDisplayError(true);
             return;
         }
+        else if (Password.length < 8) {
+            setErrorValue("error: password must be at least 8 characters");
+            setDisplayError(true);
+            return;
+        }
         else if (!Password) {
             setErrorValue("error: password is required")
             setDisplayError(true);
