@@ -20,7 +20,7 @@ function miniList(props) {
     if (editing) {
         return (
             React.createElement('div', {className: "miniListContainer"},
-                React.createElement(TextareaAutosize, {className: "editMiniList"}, listName),
+                React.createElement(TextareaAutosize, {className: "editMiniList", defaultValue: listName}),
                 React.createElement('button', {className: "customButton", onClick: handleSave}, "Save"),
                 React.createElement('button', {className: "customButton"}, "x")
             )
