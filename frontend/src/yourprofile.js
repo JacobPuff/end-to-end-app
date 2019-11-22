@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {getRequest, validateEmail} from './utilities.js';
+import {getRequest, validateEmail, putRequest} from './utilities.js';
 
 const ENTER_KEYCODE = 13;
 
@@ -53,9 +53,22 @@ function UserProfile() {
                 setMessageValue("please try again in a bit");
                 break;
             case "not authenticated for this request":
+                setLoggedIn(false);
                 setInputNameState("Not logged in");
-                setMessageValue("Gotta be logged in to edit your account");
+                setMessageValue("Gotta be logged in to edit your account.");
                 break;
+            case "username already in use":
+                setErrorValue("error: username already in use");
+                setDisplayError(true);
+                break;
+            case "email already in use":
+                setErrorValue("error: email already in use");
+                setDisplayError(true);
+                break;
+            case "old_pass didnt match":
+                setErrorValue("error: current password is incorrect");
+                setDisplayError(true);
+                return;
 
         }
     }
@@ -114,7 +127,7 @@ function UserProfile() {
             return;
         } else if (user_email != prevUser_email) {
             if (validateEmail(user_email)) {
-                dataToUpdate["user_name"] = user_email;
+                dataToUpdate["user_email"] = user_email;
             } else {
                 setErrorValue("error: valid email is required");
                 setDisplayError(true);
@@ -126,13 +139,43 @@ function UserProfile() {
             setErrorValue("error: all password fields are required to update password");
             setDisplayError(true);
             return;
+        } else if (new_pass != new_passAgain) {
+            setErrorValue("error: passwords dont match");
+            setDisplayError(true);
+            return;
         } else if (new_pass && new_pass.length < 8) {
             setErrorValue("error: password must be at least 8 characters");
             setDisplayError(true);
             return;
         } else {
             dataToUpdate["old_pass"] = old_pass;
-            dataToUpdate["new_pass"] = new_pass;
+            dataToUpdate["user_pass"] = new_pass;
+        }
+
+        if (dataToUpdate["user_name"] ||
+            dataToUpdate["user_name"] || old_pass) {
+
+            dataToUpdate["token"] = localStorage.getItem("token");
+            const updateUserProfileRequest = putRequest("users/" + user_id, dataToUpdate);
+            
+            updateUserProfileRequest.then(function() {
+                if (dataToUpdate["user_pass"]) {
+                    setOld_pass("");
+                    setNew_pass("");
+                    setNew_passAgain("");
+                }
+                if (dataToUpdate["user_email"]) {
+                    setSuccessValue("successfully saved changes! Check your new email to verify and change it!")
+                } else {
+                    setSuccessValue("successfully saved your changes");
+                }
+                setDisplaySuccess(true);
+            }).catch(function(errorData) {
+                userProfileErrorHandler(errorData);
+            });
+        } else {
+            setSuccessValue("successfully saved no changes");
+            setDisplaySuccess(true);
         }
     }
 
