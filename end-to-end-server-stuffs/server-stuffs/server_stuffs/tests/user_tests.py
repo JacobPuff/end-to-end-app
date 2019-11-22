@@ -13,9 +13,30 @@ class UserTests(PyramidTestBase):
     def tearDown(self):
         PyramidTestBase.tearDown(self)
 
+    def test_get_user_by_token(self):
+        # Make user
+        user_data = self.make_user()
+        user_id = user_data["user_id"]
+        token = user_data["session"]["token"]
+
+        self.request.GET = {"token": token}
+        self.request.user = user(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
+                                                    "user_email": "test@jacob.squizzlezig.com",
+                                                    "verified": True}})
+
+    def test_get_user_by_token_invalid_token(self):
+        self.request.GET = {"token": "invalidToken"}
+        self.request.user = user(self.request)
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["not authenticated for this request"]}})
+
     def test_post_user(self):
         self.request.method = 'POST'
         self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com", "user_pass": "TestPass"}
+        self.request.user = user(self.request)
         response = users.users(self.request)
         user_id = response.json_body["d"]["user_id"]
         session = response.json_body["d"]["session"]
@@ -26,6 +47,7 @@ class UserTests(PyramidTestBase):
     def test_post_user_no_password(self):
         self.request.method = 'POST'
         self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com"}
+        self.request.user = user(self.request)
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["username, email, and password are required"]}})

@@ -37,6 +37,21 @@ def email_in_use(user_email, dbsession):
 # This handles requests without a user_id
 @view_config(route_name='users')
 def users(request):
+    if request.method == 'GET':
+        if request.user is None:
+            status_code = httpexceptions.HTTPBadRequest.code
+            result = error_dict("api_error", "not authenticated for this request")
+        else:
+            status_code = httpexceptions.HTTPOk.code
+            result = dict_from_row(request.user, removals)
+        
+        return Response(
+            content_type='application/json',
+            charset='UTF-8',
+            status_code=status_code,
+            body=json.dumps({"d": result}, default=datetime_serializer)
+        )
+
     if request.method == 'POST':
         body = request.json_body
 
@@ -107,7 +122,7 @@ def users(request):
             body=json.dumps({"d": result}, default=datetime_serializer)
         )
 
-    if request.method != 'POST':
+    if request.method not in ('GET', 'POST'):
         return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)
 
 
