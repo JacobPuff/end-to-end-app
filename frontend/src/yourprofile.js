@@ -11,6 +11,9 @@ function UserProfile() {
     const [prevUser_email, setPrevUser_email] = React.useState("");
     const [user_name, setUser_name] = React.useState("");
     const [user_email, setUser_email] = React.useState("");
+    const [old_pass, setOld_pass] = React.useState("");
+    const [new_pass, setNew_pass] = React.useState("");
+    const [new_passAgain, setNew_passAgain] = React.useState("");
 
     const [inputNameState, setInputNameState] = React.useState("Loading");
     const [messageValue, setMessageValue] = React.useState("just a sec");
@@ -88,17 +91,17 @@ function UserProfile() {
                 React.createElement('div', {className: "customInputContainer"},
                     React.createElement('h2', {className: "singleInputName"}, "Current password: "),
                     React.createElement('input', {className: "customInput", placeholder: "current password", onChange: handleInputs,
-                            onKeyDown: checkEnter, value: user_email})
+                            onKeyDown: checkEnter, value: old_pass, type: "password"})
                 ),
                 React.createElement('div', {className: "customInputContainer"},
                     React.createElement('h2', {className: "singleInputName"}, "New password: "),
                     React.createElement('input', {className: "customInput", placeholder: "new password", onChange: handleInputs,
-                            onKeyDown: checkEnter, value: user_email})
+                            onKeyDown: checkEnter, value: new_pass, type: "password"})
                 ),
                 React.createElement('div', {className: "customInputContainer"},
                     React.createElement('h2', {className: "singleInputName"}, "New password again: "),
                     React.createElement('input', {className: "customInput", placeholder: "new password again", onChange: handleInputs,
-                            onKeyDown: checkEnter, value: user_email})
+                            onKeyDown: checkEnter, value: new_passAgain, type: "password"})
                 ),
 
                 (displayError && React.createElement('p', {className: "error"}, errorValue)),
