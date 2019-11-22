@@ -126,12 +126,13 @@ function UserProfile() {
             setErrorValue("error: all password fields are required to update password");
             setDisplayError(true);
             return;
-        }
-
-        if (new_pass && new_pass.length < 8) {
+        } else if (new_pass && new_pass.length < 8) {
             setErrorValue("error: password must be at least 8 characters");
             setDisplayError(true);
             return;
+        } else {
+            dataToUpdate["old_pass"] = old_pass;
+            dataToUpdate["new_pass"] = new_pass;
         }
     }
 
