@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {getRequest} from './utilities.js';
+import {getRequest, validateEmail} from './utilities.js';
 
 const ENTER_KEYCODE = 13;
 
@@ -62,7 +62,7 @@ function UserProfile() {
 
     function checkEnter(e) {
         if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
-            handleSubmit();
+            handleSave();
             return;
         }
     }
@@ -89,8 +89,50 @@ function UserProfile() {
         }
     }
 
-    function handleSubmit() {
+    function handleSave() {
+        setDisplayError(false);
+        setDisplaySuccess(false);
+        var dataToUpdate = {};
 
+        if (!user_name) {
+            setErrorValue("error: you gotta have a username");
+            setDisplayError(true);
+            return;
+        } else if (user_name != prevUser_name) {
+            if (!validateEmail(user_name)) {
+                dataToUpdate["user_name"] = user_name;
+            } else {
+                setErrorValue("error: you put your email in the wrong field");
+                setDisplayError(true);
+                return;
+            }
+        }
+
+        if (!user_email) {
+            setErrorValue("error: you gotta have an email");
+            setDisplayError(true);
+            return;
+        } else if (user_email != prevUser_email) {
+            if (validateEmail(user_email)) {
+                dataToUpdate["user_name"] = user_email;
+            } else {
+                setErrorValue("error: valid email is required");
+                setDisplayError(true);
+                return;
+            }
+        }
+
+        if ((old_pass || new_pass || new_passAgain) && !(old_pass && new_pass && new_passAgain)){
+            setErrorValue("error: all password fields are required to update password");
+            setDisplayError(true);
+            return;
+        }
+
+        if (new_pass && new_pass.length < 8) {
+            setErrorValue("error: password must be at least 8 characters");
+            setDisplayError(true);
+            return;
+        }
     }
 
     if (loggedIn) {
@@ -129,8 +171,8 @@ function UserProfile() {
                 (displaySuccess && React.createElement('p', {className: "success"}, successValue)),
 
                 React.createElement('div', {className: "inputButtonContainer"},
-                    React.createElement('button', {className:"inputButton miniButton", onClick: handleSubmit},
-                        "Submit")
+                    React.createElement('button', {className:"inputButton miniButton", onClick: handleSave},
+                        "Save")
                 )
             )
         );
