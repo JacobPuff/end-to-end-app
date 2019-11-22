@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {getRequest, validateEmail, putRequest} from './utilities.js';
+import {getRequest, validateEmail, putRequest, deleteRequest} from './utilities.js';
 
 const ENTER_KEYCODE = 13;
 
 function UserProfile() {
     const [loggedIn, setLoggedIn] = React.useState(false);
+    const [deleting, setDeleting] = React.useState(false);
+
     const [user_id, setUser_id] = React.useState();
     const [prevUser_name, setPrevUser_name] = React.useState("");
     const [prevUser_email, setPrevUser_email] = React.useState("");
@@ -49,8 +51,13 @@ function UserProfile() {
 
         switch (error) {
             case "a connection error occured":
-                setInputNameState("a connection error occured");
-                setMessageValue("please try again in a bit");
+                if (loggedIn) {
+                    setErrorValue("a connection error occured. please try again in a bit");
+                    setDisplayError(true);
+                } else {
+                    setInputNameState("a connection error occured");
+                    setMessageValue("please try again in a bit");
+                }
                 break;
             case "not authenticated for this request":
                 setLoggedIn(false);
@@ -99,6 +106,40 @@ function UserProfile() {
             case "new password again":
                 setNew_passAgain(e.target.value);
                 break;
+        }
+    }
+
+    function changeDeleting() {
+        setDisplayError(false);
+        setDisplaySuccess(false);
+
+        if(!deleting) {
+            setInputNameState("Are you sure you want to delete your account?");
+            setMessageValue("You wont be able to get it back.");
+        }
+        setDeleting(!deleting);
+    }
+
+    function handleDelete() {
+        setDisplayError(false);
+        setDisplaySuccess(false);
+        if(!sendingRequest) {
+            setSendingRequest(true);
+            var deleteUserRequest = deleteRequest("users/" + user_id, {"token": localStorage.getItem("token")});
+            deleteUserRequest.then(function() {
+                setSendingRequest(false);
+                setInputNameState("Deleted user");
+                setMessageValue("It has been done.");
+
+                localStorage.removeItem("localLastActive");
+                localStorage.removeItem("token");
+
+                setLoggedIn(false);
+                setDeleting(false);
+            }).catch(function(errorData) {
+                setSendingRequest(false);
+                userProfileErrorHandler(errorData);
+            });
         }
     }
 
@@ -153,33 +194,38 @@ function UserProfile() {
         }
 
         if (dataToUpdate["user_name"] ||
-            dataToUpdate["user_name"] || old_pass) {
-
-            dataToUpdate["token"] = localStorage.getItem("token");
-            const updateUserProfileRequest = putRequest("users/" + user_id, dataToUpdate);
-            
-            updateUserProfileRequest.then(function() {
-                if (dataToUpdate["user_pass"]) {
-                    setOld_pass("");
-                    setNew_pass("");
-                    setNew_passAgain("");
-                }
-                if (dataToUpdate["user_email"]) {
-                    setSuccessValue("successfully saved changes! Check your new email to verify and change it!")
-                } else {
-                    setSuccessValue("successfully saved your changes");
-                }
-                setDisplaySuccess(true);
-            }).catch(function(errorData) {
-                userProfileErrorHandler(errorData);
-            });
+            dataToUpdate["user_name"] || 
+            dataToUpdate["user_pass"]) {
+            if(!sendingRequest) {
+                setSendingRequest(true);
+                dataToUpdate["token"] = localStorage.getItem("token");
+                const updateUserProfileRequest = putRequest("users/" + user_id, dataToUpdate);
+                
+                updateUserProfileRequest.then(function() {
+                    setSendingRequest(false);
+                    if (dataToUpdate["user_pass"]) {
+                        setOld_pass("");
+                        setNew_pass("");
+                        setNew_passAgain("");
+                    }
+                    if (dataToUpdate["user_email"]) {
+                        setSuccessValue("successfully saved changes! Check your new email to verify and change it!")
+                    } else {
+                        setSuccessValue("successfully saved your changes");
+                    }
+                    setDisplaySuccess(true);
+                }).catch(function(errorData) {
+                    setSendingRequest(false);
+                    userProfileErrorHandler(errorData);
+                });
+            }
         } else {
             setSuccessValue("successfully saved no changes");
             setDisplaySuccess(true);
         }
     }
 
-    if (loggedIn) {
+    if (loggedIn && !deleting) {
         return (
             React.createElement('div', {className: "centerContainer userProfile"},
                 React.createElement('h1', {className: "inputName"}, inputNameState),
@@ -216,7 +262,26 @@ function UserProfile() {
 
                 React.createElement('div', {className: "inputButtonContainer"},
                     React.createElement('button', {className:"inputButton miniButton", onClick: handleSave},
-                        "Save")
+                        "Save"),
+                    React.createElement('button', {className: "inputButton red deleteButton", onClick: () => {changeDeleting();}},
+                        "Delete account")
+                )
+            )
+        );
+    } else if (loggedIn && deleting) {
+        return (
+            React.createElement('div', {className: "centerContainer"},
+                React.createElement('h1', {className: "inputName"}, inputNameState),
+                React.createElement('p', {}, messageValue),
+
+                (displayError && React.createElement('p', {className: "error"}, errorValue)),
+                (displaySuccess && React.createElement('p', {className: "success"}, successValue)),
+
+                React.createElement('div', {className: "inputButtonContainer"},
+                    React.createElement('button', {className:"inputButton red miniButton", onClick: handleDelete},
+                        "Yes"),
+                    React.createElement('button', {className:"inputButton miniButton", onClick: changeDeleting},
+                        "No")
                 )
             )
         );
