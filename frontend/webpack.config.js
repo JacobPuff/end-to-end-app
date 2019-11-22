@@ -7,6 +7,7 @@ module.exports = {
         verify: './src/verify.js',
         forgotpassword: './src/forgotpassword.js',
         passwordreset: './src/passwordreset.js',
+        yourprofile: './src/yourprofile.js',
         homePage: './src/homePage.js',
         tasklists: './src/tasklists/tasklists.js'
     },
