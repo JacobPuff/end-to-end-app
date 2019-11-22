@@ -14,7 +14,7 @@ function miniList(props) {
     }
 
     function handleSave() {
-        
+
     }
 
     if (editing) {
@@ -46,6 +46,7 @@ function ListOfLists() {
     //We only really need the user_id anyways.
     //I just might want to have a "{username}'s lists" title or something later.
     const [userData, setUserData] = React.useState({});
+    const [adding, setAdding] = React.useState(true);
 
     //Alert
     const [alertValue, setAlertValue] = React.useState("");
@@ -82,12 +83,21 @@ function ListOfLists() {
         setDisplayAlert(false);
     }
 
+    function changeAdding() {
+        setAdding(!adding);
+    }
+
     return (
         React.createElement('div', {className: "listOfLists"},
             React.createElement('div', {className: "listOfListsName"}, allListsName),
             React.createElement(miniList, {list_name: "Le Yeet"}),
             React.createElement(miniList, {list_name: "Le Haw"}),
             React.createElement(miniList, {list_name: "Le Yeethaw"}),
+            (!adding && React.createElement('div', {className: "wideButton", onClick: changeAdding}, "Add list")),
+            (adding && React.createElement('div', {className: "addListContainer"},
+                React.createElement(TextareaAutosize, {className: "addList", rows: 1, type: "text"}),
+                React.createElement('button', {className: "customButton", onClick: changeAdding}, "Done")
+            )),
             (displayAlert && React.createElement(CustomAlert, {type: alertType, alert: alertValue, handleButtons: handleAlertButtons}))
         )
     );
