@@ -34,17 +34,13 @@ function UserProfile() {
             setUser_id(userData.d.user_id);
             setUser_name(userData.d.user_name);
             setUser_email(userData.d.user_email);
+
+            setPrevUser_name(userData.d.user_name);
+            setPrevUser_email(userData.d.user_email);
         }).catch(function(errorData) {
             userProfileErrorHandler(errorData);
         });
     },[]);
-
-    function checkEnter(e) {
-        if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
-            handleSubmit();
-            return;
-        }
-    }
 
     function userProfileErrorHandler(errorData) {
         var error_type = errorData.d.error_type;
@@ -61,6 +57,13 @@ function UserProfile() {
                 setMessageValue("Gotta be logged in to edit your account");
                 break;
 
+        }
+    }
+
+    function checkEnter(e) {
+        if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
+            handleSubmit();
+            return;
         }
     }
 
@@ -87,7 +90,7 @@ function UserProfile() {
     }
 
     function handleSubmit() {
-        return true;
+
     }
 
     if (loggedIn) {
