@@ -4,16 +4,29 @@
     padding: 50px;
     padding-bottom: 25px;
     margin-top: 9%;
-    margin-bottom: 5%;
     margin-left: auto;
     margin-right: auto;
     display: flex;
     flex-direction: column;
 }
 
+.centerContainer.userProfile {
+    margin-top: 3%;
+}
+
 .inputName {
     border-bottom: 2px solid white;
     padding-left: 10px;
+}
+
+.singleInputName {
+    padding-left: 10px;
+    margin-left: 10px;
+}
+
+.customInputContainer {
+    /* flex-direction defaults to row, so it doesnt need to be set */
+    display: flex;
 }
 
 .customInput {
@@ -24,6 +37,7 @@
     border: 0px;
     border-bottom: 2px solid white;
     color: white;
+    flex: auto;
 }
 
 .customInput:focus {
