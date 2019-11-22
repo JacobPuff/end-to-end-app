@@ -19,10 +19,10 @@ function UserProfile() {
     const [messageValue, setMessageValue] = React.useState("just a sec");
     const [sendingRequest, setSendingRequest] = React.useState(false);
 
-    const [displayError, setDisplayError] = React.useState(true);
+    const [displayError, setDisplayError] = React.useState(false);
     const [errorValue, setErrorValue] = React.useState("error: this is shown before being set")
 
-    const [displaySuccess, setDisplaySuccess] = React.useState(true);
+    const [displaySuccess, setDisplaySuccess] = React.useState(false);
     const [successValue, setSuccessValue] = React.useState("success: or is it? because this is shown before being set")
 
     React.useEffect(()=>{
@@ -64,8 +64,26 @@ function UserProfile() {
         }
     }
 
-    function handleInputs() {
-        return true;
+    function handleInputs(e) {
+        e.preventDefault();
+
+        switch (e.target.placeholder) {
+            case "username":
+                setUser_name(e.target.value);
+                break;
+            case "email":
+                setUser_email(e.target.value);
+                break;
+            case "current password":
+                setOld_pass(e.target.value);
+                break;
+            case "new password":
+                setNew_pass(e.target.value);
+                break;
+            case "new password again":
+                setNew_passAgain(e.target.value);
+                break;
+        }
     }
 
     function handleSubmit() {
