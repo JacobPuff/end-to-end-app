@@ -8,6 +8,22 @@
     padding-right: 15px;
 }
 
+.customButton.backButton {
+    top: 0;
+    left: 0;
+    position: fixed;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.customButton.listButton {
+    position: relative;
+    right: 30px;
+    bottom: 11px;
+}
+
 .task {
     margin: 5px;
     padding: 3px;
@@ -73,6 +89,60 @@
 
 .customButton.taskRetryButton {
     font-size: 12px;
+}
+
+.listOfLists {
+    padding: 10px;
+    margin: auto;
+    width: 55%;
+    background-color: rgb(76, 101, 218);
+    border-radius: 5px;
+    border: 2px solid #000;
+}
+
+.listOfListsName {
+        width: 95%;
+        margin: Auto;
+        margin-bottom: 10px;
+        padding: 2px;
+        font-size: 20pt;
+        border: 2px solid #000;
+        border-radius: 5px;
+        background-color: rgb(140, 156, 243);
+        word-wrap: break-word;
+}
+
+.miniListContainer {
+    width: 90%;
+    margin: auto;
+    display: flex;
+}
+
+.miniList {
+    width: 90%;
+    margin: 5px;
+    padding: 2px;
+    font-size: 20pt;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background-color: rgb(200, 205, 255);
+    word-wrap: break-word;
+}
+
+.editMiniList {
+    width: 90%;
+    font-size: 20pt;
+    margin: 5px;
+    font-family: Helvetica, sans-serif;
+    resize: none;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background-color: rgb(200, 205, 255);
+}
+
+.editMiniList:focus{
+    outline: 0px;
+    border: 2px solid rgb(37, 65, 226);
 }
 
 .tasklist {

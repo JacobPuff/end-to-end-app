@@ -1,8 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TextareaAutosize from 'react-autosize-textarea';
 import {postRequest, getRequest, putRequest, deleteRequest} from '../utilities.js';
 import {CustomAlert} from './customAlert.js';
+
+export {TaskList}
 
 const ENTER_KEYCODE = 13;
 const RETRY_UNICODE = "\u21BB"; //↻ 
@@ -112,6 +113,10 @@ function Task(props) {
 }
 
 function TaskList(props) {
+        //For when someone doesn't want to make an account. Might not get around to this immediately
+        //Going to keep this here until I do the demo mode, but this should totes be a prop.
+        const [demoMode, setDemoMode] = React.useState(false);
+
         //List
         const [listName, setListName] = React.useState(props.list_name)
         const [prevListName, setPrevListName] = React.useState(props.list_name);
@@ -206,10 +211,9 @@ function TaskList(props) {
 
     function addTask() {
         // Dont add more tasks if not logged in.
-        // if (displayAlert) {
-        //     return;
-        // }
-        //
+        if (displayAlert) {
+            return;
+        }
         if (taskToBeAdded) {
             var localTempId = currentTempId;
             tempTasks.push({task_id: "temp" + localTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
@@ -377,7 +381,9 @@ function TaskList(props) {
     }
 
     function changedAddTask(e) {
-        setTaskToBeAdded(e.target.value);
+        if(!displayAlert){
+            setTaskToBeAdded(e.target.value);
+        }
     }
 
     function toggleEditListName() {
@@ -476,8 +482,3 @@ function TaskList(props) {
         
     );
 }
-
-ReactDOM.render(
-    React.createElement(TaskList, {list_id: 22, list_name: "This will eventually be set by another component."}),
-    document.getElementById('root')
-);

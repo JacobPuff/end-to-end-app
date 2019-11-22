@@ -9,7 +9,7 @@ module.exports = {
         passwordreset: './src/passwordreset.js',
         yourprofile: './src/yourprofile.js',
         homePage: './src/homePage.js',
-        tasklists: './src/tasklists/tasklists.js'
+        tasklists: './src/tasklists/listOfLists.js'
     },
     devtool: 'eval',
     output: {
