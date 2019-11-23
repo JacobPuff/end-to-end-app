@@ -139,8 +139,8 @@ function TaskList(props) {
 
         //temp vars for said task stuff
         var tempTasks = [];
-        var getting = false;
         var tempDeleteList = [];
+        var getting = false;
 
     //Get tasks
     React.useEffect(() => {
@@ -183,8 +183,7 @@ function TaskList(props) {
     }
 
     //For asynchronous stuff.
-    React.useEffect(()=>{
-        console.log("useEffect")
+    React.useEffect(() => {
         tempTasks = tasks;
         tempDeleteList = deleteList;
         if (updateHappened == true) {
@@ -472,7 +471,11 @@ function TaskList(props) {
     return (
         React.createElement('div',
             {className: "tasklist"},
-            returnListName(),
+            React.createElement('div', {className: "listNameContainer"},
+                React.createElement('button', {className: "customButton backButton", onClick: props.handleBackButton},
+                    "back"),
+                returnListName(),
+            ),
             returnTasks(),
             switchDisplay(),
             (displayAlert && React.createElement(CustomAlert,

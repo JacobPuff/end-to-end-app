@@ -8,7 +8,7 @@
     padding-right: 15px;
 }
 
-.customButton.backButton {
+.customButton.homeButton {
     top: 0;
     left: 0;
     position: fixed;
@@ -129,6 +129,10 @@
     word-wrap: break-word;
 }
 
+.miniList.adding {
+    background-color: rgb(126, 129, 158);
+}
+
 .editMiniList {
     width: 90%;
     font-size: 20pt;
@@ -150,7 +154,7 @@
 }
 
 .addList {
-    width: 85%;
+    width: 80%;
     padding: 5px;
     margin-right: 2px;
     vertical-align: middle;
@@ -178,9 +182,16 @@
     border: 2px solid #000;
 }
 
+.listNameContainer {
+    display: flex;
+}
+
+.customButton.backButton {
+    padding: 5px;
+}
+
 .listName {
     width: 90%;
-    margin: Auto;
     padding: 2px;
     font-size: 20pt;
     border: 2px solid #000;
