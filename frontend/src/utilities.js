@@ -1,7 +1,7 @@
 export {getRequest, postRequest, putRequest, deleteRequest, validateEmail}
 
 function getRequest(name) {
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject) {
         setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
@@ -9,7 +9,7 @@ function getRequest(name) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
-                else if (request.readyState == 4 && request.status !== 200){
+                else if (request.readyState == 4 && request.status !== 200) {
                     reject(JSON.parse(request.responseText));
                 }
                 return;
@@ -17,7 +17,7 @@ function getRequest(name) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        request.timeout = 10000;
+        5000;
         request.open("GET", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send();
@@ -27,7 +27,7 @@ function getRequest(name) {
 }
 
 function postRequest(name, data) {
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject) {
         setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
@@ -35,7 +35,7 @@ function postRequest(name, data) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
-                else if (request.readyState == 4 && request.status !== 200){
+                else if (request.readyState == 4 && request.status !== 200) {
                     reject(JSON.parse(request.responseText));
                 }
                 return;
@@ -43,7 +43,7 @@ function postRequest(name, data) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        request.timeout = 10000;
+        5000;
         request.open("POST", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
@@ -53,7 +53,7 @@ function postRequest(name, data) {
 }
 
 function putRequest(name, data) {
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject) {
         setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
@@ -61,7 +61,7 @@ function putRequest(name, data) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
-                else if (request.readyState == 4 && request.status !== 200){
+                else if (request.readyState == 4 && request.status !== 200) {
                     reject(JSON.parse(request.responseText));
                 }
                 return;
@@ -69,7 +69,7 @@ function putRequest(name, data) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        request.timeout = 10000;
+        5000;
         request.open("PUT", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
@@ -79,7 +79,7 @@ function putRequest(name, data) {
 }
 
 function deleteRequest(name, data) {
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject) {
         setTimeout(function(){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
@@ -87,7 +87,7 @@ function deleteRequest(name, data) {
                 if((request.status == 504 || request.status == 0) && request.readyState == 4) {
                     reject({"d": {error_type: "connection_errors", errors:["a connection error occured"]}})
                 }
-                else if (request.readyState == 4 && request.status !== 200){
+                else if (request.readyState == 4 && request.status !== 200) {
                     reject(JSON.parse(request.responseText));
                 }
                 return;
@@ -95,7 +95,7 @@ function deleteRequest(name, data) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        request.timeout = 10000;
+        5000;
         request.open("DELETE", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
