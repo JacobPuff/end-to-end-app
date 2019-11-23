@@ -143,7 +143,16 @@ function TaskList(props) {
     }, []);
 
     function initialGetTasks(){
-        if(!getting) {
+        if (props.demoMode) {
+            tempTasks = JSON.parse(localStorage.getItem("tasksForList" + props.list_id));
+            setTasks(tempTasks);
+            if (tempTasks.length > 0) {
+                var newCurrentTempid = tempTasks[tempTasks.length - 1].task_id + 1;
+                setCurrentTempId(newCurrentTempid);
+            }
+            return;
+        }
+        if (!getting) {
             getting = true;
             //Not using prevListName because this one is needed almost immediately and Im not trusting react.
             var tempListName = listName;
@@ -205,8 +214,10 @@ function TaskList(props) {
                 setDisplayAlert(true);
                 break;
             case "not authenticated for this request":
-                setCurrentAlert("You are not logged in, please log in and try again");
-                setDisplayAlert(true);
+                if(!props.demoMode) {
+                    setCurrentAlert("You are not logged in, please log in and try again");
+                    setDisplayAlert(true);
+                }
                 break;
         }
     }
@@ -218,6 +229,16 @@ function TaskList(props) {
         }
         if (taskToBeAdded) {
             var localTempId = currentTempId;
+            if (props.demoMode) {
+                tempTasks.push({task_id: localTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
+                setTasks(tempTasks);
+
+                localStorage.setItem("tasksForList" + props.list_id, JSON.stringify(tempTasks));
+
+                setCurrentTempId(currentTempId + 1);
+                setTaskToBeAdded("");
+                return;
+            }
             tempTasks.push({task_id: "temp" + localTempId, list_id: props.list_id, task_name: taskToBeAdded, task_done: addedChecked});
             setTasks(tempTasks);
 
@@ -240,7 +261,7 @@ function TaskList(props) {
                     setUpdateHappened(true);
                 }
             }
-            
+
             const addingTask = postRequest("tasks", {list_id: props.list_id, task_name: taskToBeAdded,
                 task_done: addedChecked, token: localStorage.getItem("token")});
 
@@ -319,6 +340,10 @@ function TaskList(props) {
         if (updated) {
             setTasks(tempTasks);
             setUpdateHappened(true);
+            if (props.demoMode) {
+                localStorage.setItem("tasksForList" + props.list_id, JSON.stringify(tempTasks));
+                return;
+            }
             dataToUpdate["token"] = localStorage.getItem("token")
             var updatingTask = putRequest("tasks/" + task_id, dataToUpdate)
             updatingTask.catch(function(errorData){rejectFunction(errorData)});
@@ -328,13 +353,18 @@ function TaskList(props) {
     function deleteTask(task_id) {
         var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id);
 
-        if(task_id[0] != "t" || tempTasks[tempTasksIndex]["canRetry"]){
+        if(task_id[0] != "t" || tempTasks[tempTasksIndex]["canRetry"]) {
             var deletedTask = tempTasks.splice(tempTasksIndex, 1)[0];
             setTasks(tempTasks);
             setUpdateHappened(true);
         }
 
-        if (task_id[0] != "t"){
+        if (task_id[0] != "t") {
+            if (props.demoMode) {
+                localStorage.setItem("tasksForList" + props.list_id, JSON.stringify(tempTasks));
+                return;
+            }
+
             tempDeleteList.push(deletedTask);
             setDeleteList(tempDeleteList);
 
