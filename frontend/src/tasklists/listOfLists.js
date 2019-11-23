@@ -317,7 +317,11 @@ function ListOfLists() {
 
             const deleteListRequest = deleteRequest("tasklists/" + list_id, {"token": localStorage.getItem("token")});
 
-            deleteListRequest.catch(function(errorData) {
+            deleteListRequest.then(function() {
+                var deletedIndex = tempDeletedList.findIndex(i => i.list_id == list_id);
+                tempDeletedList.splice(deletedIndex, 1);
+                setAsyncDeletedList(tempDeletedList);
+            }).catch(function(errorData) {
                 listOfListsErrorHandler(errorData);
                 var deletedIndex = tempDeletedList.findIndex(i => i.list_id == list_id);
                 tempDeletedList.splice(deletedIndex, 1);
