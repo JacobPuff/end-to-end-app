@@ -85,7 +85,7 @@ function ListOfLists() {
 
     //Asynchronous states
     const [allLists, setAllLists] = React.useState([]);
-    const [deleteList, setDeleteList] = React.useState([]);
+    const [asyncDeleteList, setAsyncDeleteList] = React.useState([]);
     const [currentTempId, setCurrentTempId] = React.useState(0);
     const [updateHappened, setUpdateHappened] = React.useState(false);
 
@@ -108,7 +108,7 @@ function ListOfLists() {
 
     React.useEffect(() => {
         tempAllLists = allLists;
-        tempDeleteList = deleteList;
+        tempDeleteList = asyncDeleteList;
         if (updateHappened == true) {
             setUpdateHappened(false);
         }
@@ -186,7 +186,13 @@ function ListOfLists() {
             if(buttonValue) {
                 setDemoMode(true);
                 if (localStorage.getItem("allLists")) {
-                    setAllLists(JSON.parse(localStorage.getItem("allLists")));
+                    tempAllLists = JSON.parse(localStorage.getItem("allLists"))
+                    setAllLists(tempAllLists);
+                    if (tempAllLists.length > 0) {
+                        var newCurrentTempId = tempAllLists[tempAllLists.length - 1].list_id + 1;
+                        setCurrentTempId(newCurrentTempId);
+                    }
+
                 }
                 setAllListsName("Demo mode");
 
@@ -284,6 +290,10 @@ function ListOfLists() {
         });
     }
     
+    function deleteList(list_id) {
+        var index = tempAllLists.findIndex(i => i.list_id == list_id);
+    }
+
     function renderAllLists() {
         var lists = allLists.map((list) => {
             return (React.createElement(MiniList, {key: list["list_id"],
