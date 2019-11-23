@@ -453,7 +453,7 @@ function ListOfLists() {
     } else if (!displayAllLists) {
         return (
             React.createElement(TaskList, {list_id: currentTasklistId, list_name: currentTasklistName,
-                toAllView: toggleSingleOrAllListView})
+                toAllView: toggleSingleOrAllListView, demoMode: demoMode})
         );
     }
 }

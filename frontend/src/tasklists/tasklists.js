@@ -111,15 +111,12 @@ function Task(props) {
 }
 
 function TaskList(props) {
-        //For when someone doesn't want to make an account. Might not get around to this immediately
-        //Going to keep this here until I do the demo mode, but this should totes be a prop.
-        const [demoMode, setDemoMode] = React.useState(false);
-
         //List
         const [listName, setListName] = React.useState(props.list_name)
         const [prevListName, setPrevListName] = React.useState(props.list_name);
         const [editingListName, setEditingListName] = React.useState(false);
         const [canRetryList, setCanRetryList] = React.useState(false);
+        const [gotten, setGotten] = React.useState(false);
 
         const [currentAlert, setCurrentAlert] = React.useState("alert");
         const [displayAlert, setDisplayAlert] = React.useState(false);
@@ -148,8 +145,15 @@ function TaskList(props) {
     function initialGetTasks(){
         if(!getting) {
             getting = true;
+            //Not using prevListName because this one is needed almost immediately and Im not trusting react.
+            var tempListName = listName;
+            setListName(tempListName + " (loading)");
+
             const gettingTasks = getRequest("tasks?list_id=" + props.list_id + "&token=" + localStorage.getItem("token"));
             var successFunction = function(tasksGotten){
+                setGotten(true);
+                setListName(tempListName);
+
                 setTasks(tasksGotten["d"]);
                 getting = false;
                 if (canRetryList) {
@@ -161,6 +165,7 @@ function TaskList(props) {
                 tasklistErrorHandler(errorData)
                 if (errorData["d"]["error_type"] == "connection_errors"){
                     getting = false;
+                    setListName(tempListName);
                     setCanRetryList(true);
                 }
             }
@@ -439,12 +444,12 @@ function TaskList(props) {
                 React.createElement('div', {className: "wideButton", onClick: initialGetTasks}, "Retry")
             )
         }
-        else if (adding == false){
+        else if (adding == false && (gotten || props.demoMode)){
             return (
                 React.createElement('div', {className: "wideButton", onClick: toggleAddTaskField}, "Add Tasks")
             )
         }
-        else if (adding == true){
+        else if (adding == true && (gotten || props.demoMode)){
             return (
                 React.createElement('div', {className: "addTaskContainer"},
                     React.createElement(TextareaAutosize,
