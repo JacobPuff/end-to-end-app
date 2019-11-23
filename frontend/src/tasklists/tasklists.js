@@ -254,6 +254,31 @@ function TaskList(props) {
         }
     }
 
+    function retryAddTask(tempId){
+        var index = tempTasks.findIndex(i => i.task_id == tempId);
+        var retryTask = tempTasks[index]
+        const retryAddingTask = postRequest("tasks", {list_id: props.list_id, task_name: retryTask["task_name"],
+                                        task_done: retryTask["task_done"], token: localStorage.getItem("token")})
+
+        retryAddingTask.then(function(newTask){
+            successFunction(newTask)
+        }).catch(function(errorData){
+            rejectFunction(errorData);
+        })
+
+        var successFunction = function(newTask) {
+            //retryTask is a reference to the task in tempTasks
+            retryTask["task_id"] = newTask.d.task_id
+            retryTask["canRetry"] = false;
+            setTasks(tempTasks);
+            setUpdateHappened(true);
+        }
+
+        var rejectFunction = function(errorData) {
+            tasklistErrorHandler(errorData)
+        }
+    }
+
     function updateTask(task_id, data) {
         var tempTasksIndex = tempTasks.findIndex(i => i.task_id == task_id)
 
@@ -338,31 +363,6 @@ function TaskList(props) {
         }
     }
 
-    function retryAddTask(tempId){
-        var index = tempTasks.findIndex(i => i.task_id == tempId);
-        var retryTask = tempTasks[index]
-        const retryAddingTask = postRequest("tasks", {list_id: props.list_id, task_name: retryTask["task_name"],
-                                        task_done: retryTask["task_done"], token: localStorage.getItem("token")})
-
-        retryAddingTask.then(function(newTask){
-            successFunction(newTask)
-        }).catch(function(errorData){
-            rejectFunction(errorData);
-        })
-
-        var successFunction = function(newTask) {
-            //retryTask is a reference to the task in tempTasks
-            retryTask["task_id"] = newTask.d.task_id
-            retryTask["canRetry"] = false;
-            setTasks(tempTasks);
-            setUpdateHappened(true);
-        }
-
-        var rejectFunction = function(errorData) {
-            tasklistErrorHandler(errorData)
-        }
-    }
-
     function sortTasks(a, b) {
         if(typeof(a.task_id) == "number" && typeof(b.task_id) == "number"){
             return a.task_id - b.task_id
@@ -415,7 +415,6 @@ function TaskList(props) {
         if(value){
             setDisplayAlert(false)
         }
-        console.log("button value: ", value)
     }
 
     function returnListName() {

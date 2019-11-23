@@ -186,7 +186,7 @@ function ListOfLists() {
             if(buttonValue) {
                 setDemoMode(true);
                 if (localStorage.getItem("allLists")) {
-                    setAllLists(localStorage.getItem("allLists"));
+                    setAllLists(JSON.parse(localStorage.getItem("allLists")));
                 }
                 setAllListsName("Demo mode");
 
@@ -209,7 +209,9 @@ function ListOfLists() {
 
     function changeListToAdd(e) {
         e.preventDefault();
-        setListToAdd(e.target.value);
+        if(!displayAlert){
+            setListToAdd(e.target.value);
+        }
     }
 
     function toggleAdding() {
@@ -218,6 +220,10 @@ function ListOfLists() {
     }
 
     function addList() {
+        if (displayAlert) {
+            return;
+        }
+
         if (!listToAdd) {
             setAlertType("ok");
             setAlertValue("You cant add an empty list");
@@ -226,7 +232,9 @@ function ListOfLists() {
         }
         
         if (demoMode) {
-            setAllLists(allLists.push({list_id: currentTempId, list_name: listToAdd}));
+            tempAllLists.push({list_id: currentTempId, list_name: listToAdd});
+            localStorage.setItem("allLists", JSON.stringify(tempAllLists));
+            setAllLists(tempAllLists);
             setListToAdd("");
             setCurrentTempId(currentTempId + 1);
         } else {
