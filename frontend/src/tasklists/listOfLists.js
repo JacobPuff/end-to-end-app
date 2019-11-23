@@ -5,6 +5,9 @@ import {TaskList} from './tasklists.js';
 import { getRequest, postRequest } from '../utilities.js';
 import { CustomAlert } from './customAlert.js';
 
+const ENTER_KEYCODE = 13;
+const RETRY_UNICODE = "\u21BB"; //↻ 
+
 function MiniList(props) {
     const [editing, setEditing] = React.useState(false);
     const [listName, setListName] = React.useState(props.list_name)
@@ -20,6 +23,10 @@ function MiniList(props) {
 
     function changEditing() {
         setEditing(!editing)
+    }
+
+    function retryAddingList() {
+        props.retryAddList(props.list_id);
     }
 
     function handleSave() {
@@ -39,7 +46,10 @@ function MiniList(props) {
             React.createElement('div', {className: "miniListContainer"},
                 (isAdded && React.createElement('div', {className: "miniList"}, listName)),
                 (!isAdded && React.createElement('div', {className: "miniList adding"}, listName)),
-                React.createElement('button', {className: "customButton", onClick: changEditing}, "Edit"),
+                (!props.canRetry && React.createElement('button', {className: "customButton",
+                    onClick: changEditing}, "Edit")),
+                (props.canRetry && React.createElement('button', {className: "customButton",
+                    onClick: retryAddingList}, RETRY_UNICODE)),
                 React.createElement('button', {className: "customButton"}, "x")
             )
         );
@@ -123,13 +133,17 @@ function ListOfLists() {
         var lists = allLists.map((list) => {
             return (React.createElement(MiniList, {key: list["list_id"],
                                                     list_id: list["list_id"],
-                                                    list_name: list["list_name"]}));
+                                                    list_name: list["list_name"],
+                                                    canRetry: list["canRetry"],
+                                                    retryAddList: retryAddList}));
         });
         return lists;
     }
 
     function listOfListsErrorHandler(errorData) {
-        console.log(errorData);
+        var error_type = errorData.d.error_type;
+        var error = errorData.d.errors[0];
+        console.log("error_type: " + error_type, "\nerror: " +  error);
     }
 
     function handleAlertButtons(buttonValue) {
@@ -175,14 +189,14 @@ function ListOfLists() {
             setListToAdd("");
             setCurrentTempId(currentTempId + 1);
         } else {
-            var localTempId = currentTempId;
-            tempAllLists.push({list_id: "temp" + localTempId, list_name: listToAdd});
+            var localTempId = "temp" + currentTempId;
+            tempAllLists.push({list_id: localTempId, list_name: listToAdd});
             setAllLists(tempAllLists);
 
             const addListRequest = postRequest("tasklists", {"list_name": listToAdd,
                                                 "token": localStorage.getItem("token")});
             addListRequest.then(function(result) {
-                var index = tempAllLists.findIndex(i => i.list_id == "temp" + localTempId);
+                var index = tempAllLists.findIndex(i => i.list_id == localTempId);
                 tempAllLists[index]["list_id"] = result.d.list_id;
                 
                 if(tempAllLists[index]["canRetry"]) {
@@ -193,7 +207,7 @@ function ListOfLists() {
                 setUpdateHappened(true);
             }).catch(function(errorData) {
                 listOfListsErrorHandler(errorData);
-                var index = tempAllLists.findIndex(i => i.list_id == "temp" + localTempId);
+                var index = tempAllLists.findIndex(i => i.list_id == localTempId);
                 tempAllLists[index]["canRetry"] = true;
 
                 setAllLists(tempAllLists);
@@ -203,6 +217,22 @@ function ListOfLists() {
             setCurrentTempId(currentTempId + 1);
             setListToAdd("");
         }
+    }
+
+    function retryAddList(temp_id) {
+        var index = tempAllLists.findIndex(i => i.list_id == temp_id);
+        var listToRetry = tempAllLists[index]
+        var retryAddListRequest = postRequest("tasklists", {"list_name": listToRetry.list_name,
+                                                            "token": localStorage.getItem("token")});
+        retryAddListRequest.then(function(result) {
+            listToRetry.list_id = result.d.list_id;
+            listToRetry.canRetry = false;
+            
+            setAllLists(tempAllLists);
+            setUpdateHappened(true);
+        }).catch(function(errorData) {
+            listOfListsErrorHandler(errorData)
+        });
     }
 
     return (
