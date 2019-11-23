@@ -202,6 +202,7 @@ function ListOfLists() {
 
     function checkEnterListOfLists(e) {
         if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
+            e.preventDefault();
             addList();
         }
     }
