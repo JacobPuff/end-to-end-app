@@ -17,7 +17,7 @@ function getRequest(name) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        5000;
+        request.timeout = 10000;
         request.open("GET", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send();
@@ -43,7 +43,7 @@ function postRequest(name, data) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        5000;
+        request.timeout = 10000;
         request.open("POST", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
@@ -69,7 +69,7 @@ function putRequest(name, data) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        5000;
+        request.timeout = 10000;
         request.open("PUT", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
@@ -95,7 +95,7 @@ function deleteRequest(name, data) {
             var responseBody = JSON.parse(request.responseText);
             resolve(responseBody)
         };
-        5000;
+        request.timeout = 10000;
         request.open("DELETE", '/api/' + name, true);
         request.setRequestHeader("Content-type", "application/json");
         request.send(JSON.stringify(data));
