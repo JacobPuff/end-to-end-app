@@ -301,15 +301,17 @@ function ListOfLists() {
             var deletedList = tempAllLists.splice(tempAllListsIndex, 1)[0];
             setAllLists(tempAllLists);
             setUpdateHappened(true);
+        }
+
+        if (list_id[0] != "t") {
             if (demoMode) {
                 localStorage.setItem("allLists", JSON.stringify(tempAllLists));
                 if (localStorage.getItem("tasksForList" + deletedList.list_id)) {
                     localStorage.removeItem("tasksForList" + deletedList.list_id);
                 }
+                return;
             }
-        }
-
-        if (list_id[0] != "t") {
+            
             tempDeletedList.push(deleteList);
             setAsyncDeletedList(tempDeletedList);
 
