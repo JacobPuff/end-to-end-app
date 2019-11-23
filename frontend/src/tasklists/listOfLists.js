@@ -23,11 +23,13 @@ function MiniList(props) {
 
     function checkEnterMiniList(e) {
         if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
+            e.preventDefault();
             handleSave();
         }
     }
 
     function changeListName(e) {
+        e.preventDefault();
         setListName(e.target.value);
     }
 
@@ -76,8 +78,8 @@ function ListOfLists() {
     const [listToAdd, setListToAdd] = React.useState("");
 
     //This could be split up, but it shouldnt change, so its fine if its in a dictionary.
-    //We only really need the user_id anyways.
-    //I just might want to have a "{username}'s lists" title or something later.
+    //We use this for the user_id, and to have user_name in allListsName.
+    //Needs to be a state because its set with a request.
     const [userData, setUserData] = React.useState({});
     const [adding, setAdding] = React.useState(false);
 
@@ -112,7 +114,6 @@ function ListOfLists() {
         }
     });
 
-    //Gets the lists if the user was gotten
     function initialGetLists() {
         if (!getting) {
             getting = true;
@@ -156,7 +157,7 @@ function ListOfLists() {
             setAlertValue("There appears to be a connection problem, please try again in a bit");
             setDisplayAlert(true);
 
-            setAllListsName("A connection error occured. Please press the retry button");
+            setAllListsName("Couldn't get your lists. Please press the retry button in a bit");
 
             setCanRetryGetlists(true);
         } else {
@@ -199,13 +200,20 @@ function ListOfLists() {
         }
     }
 
-    function toggleAdding() {
-        setAdding(!adding);
+    function checkEnterListOfLists(e) {
+        if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
+            addList();
+        }
     }
 
     function changeListToAdd(e) {
         e.preventDefault();
         setListToAdd(e.target.value);
+    }
+
+    function toggleAdding() {
+        setListToAdd("");
+        setAdding(!adding);
     }
 
     function addList() {
@@ -289,7 +297,7 @@ function ListOfLists() {
             return (
                 React.createElement('div', {className: "addListContainer"},
                     React.createElement(TextareaAutosize, {className: "addList", rows: 1, type: "text",
-                        onChange: changeListToAdd, value: listToAdd}),
+                        onChange: changeListToAdd, onKeyDown: checkEnterListOfLists, value: listToAdd}),
                     React.createElement('input',
                         {className: "customButton", type: "button", onClick: addList, value: "Add list"}
                     ),
