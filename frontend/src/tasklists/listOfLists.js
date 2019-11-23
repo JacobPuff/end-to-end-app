@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TextareaAutosize from 'react-autosize-textarea';
 import {TaskList} from './tasklists.js';
-import { getRequest, postRequest, deleteRequest } from '../utilities.js';
+import { getRequest, postRequest, deleteRequest, putRequest } from '../utilities.js';
 import { CustomAlert } from './customAlert.js';
 
 const ENTER_KEYCODE = 13;
@@ -10,7 +10,7 @@ const RETRY_UNICODE = "\u21BB"; //↻
 
 function MiniList(props) {
     const [editing, setEditing] = React.useState(false);
-    const [listName, setListName] = React.useState(props.list_name)
+    const [listName, setListName] = React.useState(props.list_name);
     const [isAdded, setIsAdded] = React.useState(false);
 
     React.useState(() => {
@@ -34,7 +34,8 @@ function MiniList(props) {
     }
 
     function toggleEditing() {
-        setEditing(!editing)
+        setListName(props.list_name);
+        setEditing(!editing);
     }
 
     function retryAddingList() {
@@ -46,14 +47,14 @@ function MiniList(props) {
     }
 
     function handleSave() {
-        toggleEditing()
-
+        toggleEditing();
+        props.updateList(props.list_id, listName);
     }
 
     if (editing) {
         return (
             React.createElement('div', {className: "miniListContainer"},
-                React.createElement(TextareaAutosize, {className: "editMiniList", defaultValue: listName,
+                React.createElement(TextareaAutosize, {className: "editMiniList", defaultValue: props.list_name,
                     onChange: changeListName, onKeyDown: checkEnterMiniList}),
                 React.createElement('button', {className: "customButton", onClick: handleSave}, "Save"),
                 React.createElement('button', {className: "customButton", onClick: handleDelete}, "x")
@@ -62,8 +63,8 @@ function MiniList(props) {
     } else {
         return (
             React.createElement('div', {className: "miniListContainer"},
-                (isAdded && React.createElement('div', {className: "miniList"}, listName)),
-                (!isAdded && React.createElement('div', {className: "miniList adding"}, listName)),
+                (isAdded && React.createElement('div', {className: "miniList"}, props.list_name)),
+                (!isAdded && React.createElement('div', {className: "miniList adding"}, props.list_name)),
                 (!props.canRetry && React.createElement('button', {className: "customButton",
                     onClick: toggleEditing}, "Edit")),
                 (props.canRetry && React.createElement('button', {className: "customButton",
@@ -77,6 +78,7 @@ function MiniList(props) {
 function ListOfLists() {
     const [demoMode, setDemoMode] = React.useState(false);
     const [canRetryGetLists, setCanRetryGetlists] = React.useState(false);
+    const [gotten, setGotten] = React.useState(false);
 
     const [allListsName, setAllListsName] = React.useState("Loading");
     const [listToAdd, setListToAdd] = React.useState("");
@@ -139,6 +141,7 @@ function ListOfLists() {
 
                     tempAllLists = result.d
                     setAllLists(tempAllLists);
+                    setGotten(true);
                 }).catch(function(errorData) {
                     getting = false;
                     initialErrorHandler(errorData)
@@ -294,6 +297,35 @@ function ListOfLists() {
         });
     }
     
+    function updateList(list_id, list_name) {
+        var index = tempAllLists.findIndex(i => i.list_id == list_id);
+        var prevListName = tempAllLists[index].list_name;
+
+        if(list_name == prevListName) {
+            return;
+        }
+
+        tempAllLists[index].list_name = list_name;
+        setAllLists(tempAllLists);
+        setUpdateHappened(true);
+
+        if (demoMode) {
+            localStorage.setItem("allLists", JSON.stringify(tempAllLists));
+            return;
+        }
+        const updateListNameRequest = putRequest("tasklists/" + list_id, {"list_name": list_name, "token": localStorage.getItem("token")});
+        updateListNameRequest.catch(function(errorData) {
+            console.log(prevListName)
+            console.log(index)
+            console.log(tempAllLists[index])
+            tempAllLists[index].list_name = prevListName;
+            console.log(tempAllLists[index])
+            setAllLists(tempAllLists);
+            setUpdateHappened(true);
+            listOfListsErrorHandler(errorData);
+        });
+    }
+
     function deleteList(list_id) {
         var tempAllListsIndex = tempAllLists.findIndex(i => i.list_id == list_id);
         if (list_id[0] != "t" || tempAllLists[tempAllListsIndex]["canRetry"]) {
@@ -311,7 +343,7 @@ function ListOfLists() {
                 }
                 return;
             }
-            
+
             tempDeletedList.push(deleteList);
             setAsyncDeletedList(tempDeletedList);
 
@@ -353,6 +385,7 @@ function ListOfLists() {
                                                     list_name: list["list_name"],
                                                     canRetry: list["canRetry"],
                                                     retryAddList: retryAddList,
+                                                    updateList: updateList,
                                                     deleteList: deleteList}));
         });
         return lists;
@@ -365,7 +398,7 @@ function ListOfLists() {
             )
         }
 
-        if (adding) {
+        if (adding && (gotten || demoMode)) {
             return (
                 React.createElement('div', {className: "addListContainer"},
                     React.createElement(TextareaAutosize, {className: "addList", rows: 1, type: "text",
@@ -378,7 +411,7 @@ function ListOfLists() {
             )
         }
 
-        if (!adding) {
+        if (!adding && (gotten || demoMode)) {
             return (
                 React.createElement('div', {className: "wideButton", onClick: toggleAdding}, "Add list")
             );

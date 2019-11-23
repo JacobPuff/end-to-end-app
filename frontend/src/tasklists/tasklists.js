@@ -23,13 +23,11 @@ function Task(props) {
     }, [props.data["task_id"]]);
 
     function deleteTask() {
-        var shouldDelete = true;
-        if (shouldDelete) {
-            props.deleteTask(props.data["task_id"]);
-        }
+        props.deleteTask(props.data["task_id"]);
     }
 
     function changeEditState() {
+        setEditing(props.data.task_name);
         setEditing(!editing);
     }
 
