@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TextareaAutosize from 'react-autosize-textarea';
 import {TaskList} from './tasklists.js';
-import { getRequest, postRequest } from '../utilities.js';
+import { getRequest, postRequest, deleteRequest } from '../utilities.js';
 import { CustomAlert } from './customAlert.js';
 
 const ENTER_KEYCODE = 13;
@@ -41,6 +41,11 @@ function MiniList(props) {
         props.retryAddList(props.list_id);
     }
 
+    function handleDelete() {
+        console.log("gonna yeet it")
+        props.deleteList(props.list_id);
+    }
+
     function handleSave() {
         toggleEditing()
 
@@ -52,7 +57,7 @@ function MiniList(props) {
                 React.createElement(TextareaAutosize, {className: "editMiniList", defaultValue: listName,
                     onChange: changeListName, onKeyDown: checkEnterMiniList}),
                 React.createElement('button', {className: "customButton", onClick: handleSave}, "Save"),
-                React.createElement('button', {className: "customButton"}, "x")
+                React.createElement('button', {className: "customButton", onClick: handleDelete}, "x")
             )
         )
     } else {
@@ -64,7 +69,7 @@ function MiniList(props) {
                     onClick: toggleEditing}, "Edit")),
                 (props.canRetry && React.createElement('button', {className: "customButton",
                     onClick: retryAddingList}, RETRY_UNICODE)),
-                React.createElement('button', {className: "customButton"}, "x")
+                React.createElement('button', {className: "customButton", onClick: handleDelete}, "x")
             )
         );
     }
@@ -85,13 +90,13 @@ function ListOfLists() {
 
     //Asynchronous states
     const [allLists, setAllLists] = React.useState([]);
-    const [asyncDeleteList, setAsyncDeleteList] = React.useState([]);
+    const [asyncDeletedList, setAsyncDeletedList] = React.useState([]);
     const [currentTempId, setCurrentTempId] = React.useState(0);
     const [updateHappened, setUpdateHappened] = React.useState(false);
 
     //Asynchronous variables
     var tempAllLists = [];
-    var tempDeleteList = [];
+    var tempDeletedList = [];
     var getting = false;
     //This one is here because state doesn't update immediately and I want to use it in initialGetLists.
     var tempUserData = {};
@@ -108,7 +113,7 @@ function ListOfLists() {
 
     React.useEffect(() => {
         tempAllLists = allLists;
-        tempDeleteList = asyncDeleteList;
+        tempDeletedList = asyncDeletedList;
         if (updateHappened == true) {
             setUpdateHappened(false);
         }
@@ -291,7 +296,50 @@ function ListOfLists() {
     }
     
     function deleteList(list_id) {
-        var index = tempAllLists.findIndex(i => i.list_id == list_id);
+        var tempAllListsIndex = tempAllLists.findIndex(i => i.list_id == list_id);
+        console.log("yeeted to deleted")
+        if (list_id[0] != "t" || tempAllLists[tempAllListsIndex]["canRetry"]) {
+            // Needs [0] so deletedList isnt an array
+            var deletedList = tempAllLists.splice(tempAllListsIndex, 1)[0];
+            setAllLists(tempAllLists);
+            setUpdateHappened(true);
+            if (demoMode) {
+                localStorage.setItem("allLists", JSON.stringify(tempAllLists));
+                if (localStorage.getItem("tasksForList" + deletedList.list_id)) {
+                    localStorage.removeItem("tasksForList" + deletedList.list_id);
+                }
+            }
+        }
+
+        if (list_id[0] != "t") {
+            tempDeletedList.push(deleteList);
+            setAsyncDeletedList(tempDeletedList);
+
+            const deleteListRequest = deleteRequest("tasklists/" + list_id, {"token": localStorage.getItem("token")});
+
+            deleteListRequest.catch(function(errorData) {
+                listOfListsErrorHandler(errorData);
+                var deletedIndex = tempDeletedList.findIndex(i => i.list_id == list_id);
+                tempDeletedList.splice(deletedIndex, 1);
+                setAsyncDeletedList(tempDeletedList);
+                tempAllLists.push(deletedList);
+                tempAllLists.sort(sortLists);
+                setAllLists(tempAllLists);
+                setUpdateHappened(true);
+            });
+        }
+    }
+
+    function sortLists(a, b) {
+        if(typeof(a.list_id) == "number" && typeof(b.list_id) == "number"){
+            return a.list_id - b.list_id
+        } else if (typeof(a.list_id) == "string" && typeof(b.list_id) == "number") {
+            return 1
+        } else if (typeof(a.list_id) == "number" && typeof(b.list_id) == "string"){
+            return -1
+        } else if (typeof(a.list_id) == "string" && typeof(b.list_id) == "string"){
+            return a.list_id.substring(4) - b.list_id.substring(4)
+        }
     }
 
     function renderAllLists() {
@@ -300,7 +348,8 @@ function ListOfLists() {
                                                     list_id: list["list_id"],
                                                     list_name: list["list_name"],
                                                     canRetry: list["canRetry"],
-                                                    retryAddList: retryAddList}));
+                                                    retryAddList: retryAddList,
+                                                    deleteList: deleteList}));
         });
         return lists;
     }
