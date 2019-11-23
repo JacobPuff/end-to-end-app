@@ -21,7 +21,17 @@ function MiniList(props) {
         }
     }, [])
 
-    function changEditing() {
+    function checkEnterMiniList(e) {
+        if (e.keyCode == ENTER_KEYCODE || e.charCode == ENTER_KEYCODE) {
+            handleSave();
+        }
+    }
+
+    function changeListName(e) {
+        setListName(e.target.value);
+    }
+
+    function toggleEditing() {
         setEditing(!editing)
     }
 
@@ -30,13 +40,15 @@ function MiniList(props) {
     }
 
     function handleSave() {
+        toggleEditing()
 
     }
 
     if (editing) {
         return (
             React.createElement('div', {className: "miniListContainer"},
-                React.createElement(TextareaAutosize, {className: "editMiniList", defaultValue: listName}),
+                React.createElement(TextareaAutosize, {className: "editMiniList", defaultValue: listName,
+                    onChange: changeListName, onKeyDown: checkEnterMiniList}),
                 React.createElement('button', {className: "customButton", onClick: handleSave}, "Save"),
                 React.createElement('button', {className: "customButton"}, "x")
             )
@@ -47,7 +59,7 @@ function MiniList(props) {
                 (isAdded && React.createElement('div', {className: "miniList"}, listName)),
                 (!isAdded && React.createElement('div', {className: "miniList adding"}, listName)),
                 (!props.canRetry && React.createElement('button', {className: "customButton",
-                    onClick: changEditing}, "Edit")),
+                    onClick: toggleEditing}, "Edit")),
                 (props.canRetry && React.createElement('button', {className: "customButton",
                     onClick: retryAddingList}, RETRY_UNICODE)),
                 React.createElement('button', {className: "customButton"}, "x")
