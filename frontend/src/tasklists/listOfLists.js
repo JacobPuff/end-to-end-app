@@ -258,6 +258,7 @@ function ListOfLists() {
         if (demoMode) {
             tempAllLists.push({list_id: currentTempId, list_name: listToAdd});
             localStorage.setItem("allLists", JSON.stringify(tempAllLists));
+            localStorage.setItem("tasksForList" + currentTempId, JSON.stringify([]));
             setAllLists(tempAllLists);
             setListToAdd("");
             setCurrentTempId(currentTempId + 1);
@@ -349,9 +350,7 @@ function ListOfLists() {
         if (list_id[0] != "t") {
             if (demoMode) {
                 localStorage.setItem("allLists", JSON.stringify(tempAllLists));
-                if (localStorage.getItem("tasksForList" + deletedList.list_id)) {
-                    localStorage.removeItem("tasksForList" + deletedList.list_id);
-                }
+                localStorage.removeItem("tasksForList" + deletedList.list_id);
                 return;
             }
 
