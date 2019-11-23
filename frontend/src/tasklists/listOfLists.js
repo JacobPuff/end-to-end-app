@@ -58,6 +58,7 @@ function MiniList(props) {
 
 function ListOfLists() {
     const [demoMode, setDemoMode] = React.useState(false);
+    const [canRetryGetLists, setCanRetryGetlists] = React.useState(false);
 
     const [allListsName, setAllListsName] = React.useState("Loading");
     const [listToAdd, setListToAdd] = React.useState("");
@@ -78,7 +79,7 @@ function ListOfLists() {
     var tempAllLists = [];
     var tempDeleteList = [];
     var getting = false;
-    //This one is here because state doesn't update immedietly and I want to use it in initialGetLists.
+    //This one is here because state doesn't update immediately and I want to use it in initialGetLists.
     var tempUserData = {};
 
     //Alert
@@ -88,20 +89,7 @@ function ListOfLists() {
 
     //Get user data
     React.useEffect(() => {
-        const getUserDataRequest = getRequest("users?token=" + localStorage.getItem("token"));
-        getUserDataRequest.then(function(result) {
-            tempUserData = result.d
-            setUserData(tempUserData);
-            
-            initialGetLists();
-        }).catch(function(errorData) {
-            console.log(errorData)
-            if (errorData.d.errors[0] == "not authenticated for this request") {
-                setAlertType("yes/no");
-                setAlertValue("You arent logged in. Continue in demo mode?");
-                setDisplayAlert(true);
-            }
-        });
+        initialGetLists()
     }, []);
 
     React.useEffect(() => {
@@ -116,34 +104,66 @@ function ListOfLists() {
     function initialGetLists() {
         if (!getting) {
             getting = true;
-            const getAllListsForUser = getRequest("tasklists?token=" + localStorage.getItem("token"));
-            getAllListsForUser.then(function(result) {
-                var username = tempUserData["user_name"];
-                username = username[0].toUpperCase() + username.substring(1);
-                setAllListsName(username + "'s lists");
-                tempAllLists = result.d
-                setAllLists(tempAllLists);
+            const getUserDataRequest = getRequest("users?token=" + localStorage.getItem("token"));
+            getUserDataRequest.then(function(result) {
+                getting = false;
+
+                tempUserData = result.d
+                setUserData(tempUserData);
+
+                //Second request
+                const getAllListsForUser = getRequest("tasklists?token=" + localStorage.getItem("token"));
+                getAllListsForUser.then(function(result) {
+                    getting = false;
+                    var username = tempUserData["user_name"];
+
+                    username = username[0].toUpperCase() + username.substring(1);
+                    setAllListsName(username + "'s lists");
+
+                    tempAllLists = result.d
+                    setAllLists(tempAllLists);
+                }).catch(function(errorData) {
+                    getting = false;
+                    initialErrorHandler(errorData)
+                });
+
             }).catch(function(errorData) {
-                listOfListsErrorHandler(errorData);
+                getting = false;
+                initialErrorHandler(errorData)
             });
         }
     }
 
-    function renderAllLists() {
-        var lists = allLists.map((list) => {
-            return (React.createElement(MiniList, {key: list["list_id"],
-                                                    list_id: list["list_id"],
-                                                    list_name: list["list_name"],
-                                                    canRetry: list["canRetry"],
-                                                    retryAddList: retryAddList}));
-        });
-        return lists;
+    function initialErrorHandler(errorData) {
+        if (errorData.d.errors[0] == "not authenticated for this request") {
+            setAlertType("yes/no");
+            setAlertValue("You arent logged in. Continue in demo mode?");
+            setDisplayAlert(true);
+        } else if (errorData.d.errors[0] == "a connection error occured") {
+            setAlertType("ok");
+            setAlertValue("There appears to be a connection problem, please try again in a bit");
+            setDisplayAlert(true);
+
+            setAllListsName("A connection error occured. Please press the retry button");
+
+            setCanRetryGetlists(true);
+        } else {
+            listOfListsErrorHandler(errorData);
+        }
     }
 
     function listOfListsErrorHandler(errorData) {
         var error_type = errorData.d.error_type;
         var error = errorData.d.errors[0];
         console.log("error_type: " + error_type, "\nerror: " +  error);
+
+        switch (error) {
+            case "a connection error occured":
+                setAlertType("ok");
+                setAlertValue("There appears to be a connection problem, please try again in a bit");
+                setDisplayAlert(true);
+                break;
+        }
     }
 
     function handleAlertButtons(buttonValue) {
@@ -234,20 +254,50 @@ function ListOfLists() {
             listOfListsErrorHandler(errorData)
         });
     }
+    
+    function renderAllLists() {
+        var lists = allLists.map((list) => {
+            return (React.createElement(MiniList, {key: list["list_id"],
+                                                    list_id: list["list_id"],
+                                                    list_name: list["list_name"],
+                                                    canRetry: list["canRetry"],
+                                                    retryAddList: retryAddList}));
+        });
+        return lists;
+    }
+
+    function renderButton() {
+        if (canRetryGetLists) {
+            return (
+                React.createElement('div', {className: "wideButton", onClick: initialGetLists}, "Retry")
+            )
+        }
+
+        if (adding) {
+            return (
+                React.createElement('div', {className: "addListContainer"},
+                    React.createElement(TextareaAutosize, {className: "addList", rows: 1, type: "text",
+                        onChange: changeListToAdd, value: listToAdd}),
+                    React.createElement('input',
+                        {className: "customButton", type: "button", onClick: addList, value: "Add list"}
+                    ),
+                    React.createElement('button', {className: "customButton", onClick: toggleAdding}, "Done")
+                )
+            )
+        }
+
+        if (!adding) {
+            return (
+                React.createElement('div', {className: "wideButton", onClick: toggleAdding}, "Add list")
+            );
+        }
+    }
 
     return (
         React.createElement('div', {className: "listOfLists"},
             React.createElement('div', {className: "listOfListsName"}, allListsName),
             renderAllLists(),
-            (!adding && React.createElement('div', {className: "wideButton", onClick: toggleAdding}, "Add list")),
-            (adding && React.createElement('div', {className: "addListContainer"},
-                React.createElement(TextareaAutosize, {className: "addList", rows: 1, type: "text",
-                    onChange: changeListToAdd, value: listToAdd}),
-                React.createElement('input',
-                    {className: "customButton", type: "button", onClick: addList, value: "Add list"}
-                ),
-                React.createElement('button', {className: "customButton", onClick: toggleAdding}, "Done")
-            )),
+            renderButton(),
             (displayAlert && React.createElement(CustomAlert, {type: alertType, alert: alertValue, handleButtons: handleAlertButtons}))
         )
     );
