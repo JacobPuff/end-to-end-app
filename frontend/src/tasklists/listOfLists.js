@@ -42,7 +42,6 @@ function MiniList(props) {
     }
 
     function handleDelete() {
-        console.log("gonna yeet it")
         props.deleteList(props.list_id);
     }
 
@@ -297,7 +296,6 @@ function ListOfLists() {
     
     function deleteList(list_id) {
         var tempAllListsIndex = tempAllLists.findIndex(i => i.list_id == list_id);
-        console.log("yeeted to deleted")
         if (list_id[0] != "t" || tempAllLists[tempAllListsIndex]["canRetry"]) {
             // Needs [0] so deletedList isnt an array
             var deletedList = tempAllLists.splice(tempAllListsIndex, 1)[0];
