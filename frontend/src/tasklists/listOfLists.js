@@ -51,6 +51,10 @@ function MiniList(props) {
         props.updateList(props.list_id, listName);
     }
 
+    function toSingleView() {
+        props.toSingleView(props.list_id);
+    }
+
     if (editing) {
         return (
             React.createElement('div', {className: "miniListContainer"},
@@ -63,7 +67,8 @@ function MiniList(props) {
     } else {
         return (
             React.createElement('div', {className: "miniListContainer"},
-                (isAdded && React.createElement('div', {className: "miniList"}, props.list_name)),
+                (isAdded && React.createElement('div', {className: "miniList", onClick: toSingleView},
+                    props.list_name)),
                 (!isAdded && React.createElement('div', {className: "miniList adding"}, props.list_name)),
                 (!props.canRetry && React.createElement('button', {className: "customButton",
                     onClick: toggleEditing}, "Edit")),
@@ -83,11 +88,17 @@ function ListOfLists() {
     const [allListsName, setAllListsName] = React.useState("Loading");
     const [listToAdd, setListToAdd] = React.useState("");
 
-    //This could be split up, but it shouldnt change, so its fine if its in a dictionary.
+    //This could be split up, but it doesnt change, so its fine if its in a dictionary.
     //We use this for the user_id, and to have user_name in allListsName.
     //Needs to be a state because its set with a request.
     const [userData, setUserData] = React.useState({});
     const [adding, setAdding] = React.useState(false);
+
+    //For switching between single and all list views
+    const [displayAllLists, setDisplayAllLists] = React.useState(true);
+    //For single list view
+    const [currentTasklistId, setCurrentTasklistId] = React.useState(null);
+    const [currentTasklistName, setCurrentTasklistName] = React.useState("");
 
     //Asynchronous states
     const [allLists, setAllLists] = React.useState([]);
@@ -378,16 +389,28 @@ function ListOfLists() {
         }
     }
 
+    function toggleSingleOrAllListView(list_id) {
+        if(displayAllLists) {
+            setDisplayAllLists(false);
+            setCurrentTasklistId(list_id);
+            var listNameIndex = tempAllLists.findIndex(i => i.list_id == list_id)
+            setCurrentTasklistName(tempAllLists[listNameIndex].list_name);
+        } else {
+            setDisplayAllLists(true);
+        }
+    }
+
     function renderAllLists() {
         var lists = allLists.map((list) => {
             return (React.createElement(MiniList, {key: list["list_id"],
-                                                    list_id: list["list_id"],
-                                                    list_name: list["list_name"],
-                                                    canRetry: list["canRetry"],
-                                                    retryAddList: retryAddList,
-                                                    updateList: updateList,
-                                                    deleteList: deleteList}));
-        });
+                                                list_id: list["list_id"],
+                                                list_name: list["list_name"],
+                                                canRetry: list["canRetry"],
+                                                retryAddList: retryAddList,
+                                                updateList: updateList,
+                                                deleteList: deleteList,
+                                                toSingleView: toggleSingleOrAllListView}));
+    });
         return lists;
     }
 
@@ -418,14 +441,21 @@ function ListOfLists() {
         }
     }
 
-    return (
-        React.createElement('div', {className: "listOfLists"},
-            React.createElement('div', {className: "listOfListsName"}, allListsName),
-            renderAllLists(),
-            renderButton(),
-            (displayAlert && React.createElement(CustomAlert, {type: alertType, alert: alertValue, handleButtons: handleAlertButtons}))
-        )
-    );
+    if (displayAllLists) {
+        return (
+            React.createElement('div', {className: "listOfLists"},
+                React.createElement('div', {className: "listOfListsName"}, allListsName),
+                renderAllLists(),
+                renderButton(),
+                (displayAlert && React.createElement(CustomAlert, {type: alertType, alert: alertValue, handleButtons: handleAlertButtons}))
+            )
+        );
+    } else if (!displayAllLists) {
+        return (
+            React.createElement(TaskList, {list_id: currentTasklistId, list_name: currentTasklistName,
+                toAllView: toggleSingleOrAllListView})
+        );
+    }
 }
 
 ReactDOM.render(
