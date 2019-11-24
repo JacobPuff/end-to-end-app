@@ -109,14 +109,14 @@ function ListOfLists() {
     //Asynchronous variables
     var tempAllLists = [];
     var tempDeletedList = [];
+    var tempAlertList = [];
     var getting = false;
-    //This one is here because state doesn't update immediately and I want to use it in initialGetLists.
-    var tempUserData = {};
 
     //Alert
     const [alertValue, setAlertValue] = React.useState("");
     const [displayAlert, setDisplayAlert] = React.useState(false);
     const [alertType, setAlertType] = React.useState("ok");
+    const [alertList, setAlertList] = React.useState([]);
 
     //Get user data
     React.useEffect(() => {
@@ -126,9 +126,11 @@ function ListOfLists() {
     React.useEffect(() => {
         tempAllLists = allLists;
         tempDeletedList = asyncDeletedList;
+        tempAlertList = alertList;
         if (updateHappened == true) {
             setUpdateHappened(false);
         }
+        console.log(displayAlert, " effect")
     });
 
     function initialGetLists() {
@@ -138,7 +140,7 @@ function ListOfLists() {
             getUserDataRequest.then(function(result) {
                 getting = false;
 
-                tempUserData = result.d
+                var tempUserData = result.d
                 setUserData(tempUserData);
 
                 //Second request
@@ -153,6 +155,7 @@ function ListOfLists() {
                     tempAllLists = result.d
                     setAllLists(tempAllLists);
                     setGotten(true);
+                    setCanRetryGetlists(false);
                 }).catch(function(errorData) {
                     getting = false;
                     initialErrorHandler(errorData)
@@ -167,12 +170,12 @@ function ListOfLists() {
 
     function initialErrorHandler(errorData) {
         if (errorData.d.errors[0] == "not authenticated for this request") {
-            setAlertType("yes/no");
-            setAlertValue("You arent logged in. Continue in demo mode?");
+            tempAlertList.push({type: "yes/no", value: "You arent logged in. Continue in demo mode?"})
+            setAlertList(tempAlertList);
             setDisplayAlert(true);
         } else if (errorData.d.errors[0] == "a connection error occured") {
-            setAlertType("ok");
-            setAlertValue("There appears to be a connection problem, please try again in a bit");
+            tempAlertList.push({type: "ok", value: "There appears to be a connection problem, please try again in a bit"})
+            setAlertList(tempAlertList);
             setDisplayAlert(true);
 
             setAllListsName("Couldn't get your lists. Please press the retry button in a bit");
@@ -190,15 +193,28 @@ function ListOfLists() {
 
         switch (error) {
             case "a connection error occured":
-                setAlertType("ok");
-                setAlertValue("There appears to be a connection problem, please try again in a bit");
+                tempAlertList.push({type: "ok", value: "There appears to be a connection problem, please try again in a bit"})
+                setAlertList(tempAlertList);
+                console.log(displayAlert);
                 setDisplayAlert(true);
                 break;
         }
     }
 
+    React.useEffect(() => {
+        if (tempAlertList.length > 0) {
+            var currentAlert = tempAlertList.shift();
+            console.log(currentAlert);
+            setAlertType(currentAlert.type);
+            setAlertValue(currentAlert.value);
+            if (displayAlert == false) {
+                setDisplayAlert(true);
+            }
+
+        }
+    }, [displayAlert])
+
     function handleAlertButtons(buttonValue) {
-        setDisplayAlert(false);
         if (alertType == "yes/no") {
             //Demo mode is currently the only yes/no type alert
             if(buttonValue) {
@@ -214,14 +230,15 @@ function ListOfLists() {
                 }
                 setAllListsName("Demo mode");
 
-                setAlertType("ok");
-                setAlertValue("Now in demo mode. Do not use sensitive information in this mode. " + 
-                                "Data is stored in your browser, so its not secure.");
-                setDisplayAlert(true);
+                tempAlertList.push({type: "ok",
+                    value: "Now in demo mode. Do not use sensitive information in this mode. " + 
+                    "Data is stored in your browser, so its not secure."})
+                setAlertList(tempAlertList);
             } else {
                 window.location.href = '/';
             }
         }
+        setDisplayAlert(false);
     }
 
     function checkEnterListOfLists(e) {
@@ -249,8 +266,8 @@ function ListOfLists() {
         }
 
         if (!listToAdd) {
-            setAlertType("ok");
-            setAlertValue("You cant add an empty list");
+            tempAlertList.push({type: "ok", value: "You cant add an empty list"})
+            setAlertList(tempAlertList);
             setDisplayAlert(true);
             return;
         }

@@ -7,7 +7,7 @@ function CustomAlert(props) {
         return(
             React.createElement("div", 
                 {className: returnValue ? "customButton" : "customRedButton",
-                onClick: () =>{props.handleButtons(returnValue)}},
+                onClick: () => {props.handleButtons(returnValue)}},
                 name
             )
         )
