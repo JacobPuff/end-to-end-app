@@ -234,6 +234,7 @@ function TaskList(props) {
     function addTask() {
         // Dont add more tasks if not logged in.
         if (displayAlert) {
+            setDisplayAlert(false);
             return;
         }
         if (taskToBeAdded) {

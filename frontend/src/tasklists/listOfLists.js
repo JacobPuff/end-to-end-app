@@ -262,6 +262,7 @@ function ListOfLists() {
 
     function addList() {
         if (displayAlert) {
+            setDisplayAlert(false);
             return;
         }
 
