@@ -118,8 +118,11 @@ function TaskList(props) {
         const [canRetryList, setCanRetryList] = React.useState(false);
         const [gotten, setGotten] = React.useState(false);
 
-        const [currentAlert, setCurrentAlert] = React.useState("alert");
+        //Alert
+        const [alertValue, setAlertValue] = React.useState("");
         const [displayAlert, setDisplayAlert] = React.useState(false);
+        const [alertType, setAlertType] = React.useState("ok");
+        const [alertList, setAlertList] = React.useState([]);
 
         //Adding stuff
         const [adding, setAdding] = React.useState(false);
@@ -135,6 +138,7 @@ function TaskList(props) {
         //temp vars for said task stuff
         var tempTasks = [];
         var tempDeleteList = [];
+        var tempAlertList = [];
         var getting = false;
 
     //Get tasks
@@ -198,6 +202,7 @@ function TaskList(props) {
     React.useEffect(() => {
         tempTasks = tasks;
         tempDeleteList = deleteList;
+        tempAlertList = alertList;
         if (updateHappened == true) {
             setUpdateHappened(false);
         }
@@ -210,12 +215,16 @@ function TaskList(props) {
         
         switch(error) {
             case "a connection error occured":
-                setCurrentAlert("There appears to be a connection problem, please try again in a bit");
+                tempAlertList.push({type: "ok",
+                                value: "There appears to be a connection problem, please try again in a bit"});
+                setAlertList(tempAlertList);
                 setDisplayAlert(true);
                 break;
             case "not authenticated for this request":
                 if(!props.demoMode) {
-                    setCurrentAlert("You are not logged in, please log in and try again");
+                    tempAlertList.push({type: "ok",
+                                    value: "You are not logged in, please log in and try again"});
+                    setAlertList(tempAlertList);
                     setDisplayAlert(true);
                 }
                 break;
@@ -273,7 +282,9 @@ function TaskList(props) {
             setTaskToBeAdded("");
         }
         else {
-            setCurrentAlert("You can't add an empty task")
+            tempAlertList.push({type: "ok",
+                            value: "You can't add an empty task"});
+            setAlertList(tempAlertList);
             setDisplayAlert(true);
         }
     }
@@ -444,6 +455,19 @@ function TaskList(props) {
         }
     }
 
+    //Handles alertList so that new alerts dont overwrite old ones.
+    React.useEffect(() => {
+        if (tempAlertList.length > 0) {
+            var alertValue = tempAlertList.shift();
+            setAlertType(alertValue.type);
+            setAlertValue(alertValue.value);
+            if (displayAlert == false) {
+                setDisplayAlert(true);
+            }
+
+        }
+    }, [displayAlert]);
+
     function handleAlertButtons(value) {
         if(value){
             setDisplayAlert(false)
@@ -511,7 +535,7 @@ function TaskList(props) {
             returnTasks(),
             switchDisplay(),
             (displayAlert && React.createElement(CustomAlert,
-                {type: "ok", alert: currentAlert, handleButtons: handleAlertButtons}
+                {type: "ok", alert: alertValue, handleButtons: handleAlertButtons}
             ))
         )
         

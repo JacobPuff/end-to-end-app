@@ -130,7 +130,6 @@ function ListOfLists() {
         if (updateHappened == true) {
             setUpdateHappened(false);
         }
-        console.log(displayAlert, " effect")
     });
 
     function initialGetLists() {
@@ -201,6 +200,7 @@ function ListOfLists() {
         }
     }
 
+    //Handles alertList so that new alerts dont overwrite old ones.
     React.useEffect(() => {
         if (tempAlertList.length > 0) {
             var currentAlert = tempAlertList.shift();
