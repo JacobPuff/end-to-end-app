@@ -94,7 +94,7 @@ function deleteRequest(name, data) {
 }
 
 function validateEmail(mail) {
-    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/.test(mail)) {
+    if (/^\w+([\.\-+]?\w+)*@\w+([\.-]?\w+)*$/.test(mail)) {
         return (true)
     }
     return (false)
