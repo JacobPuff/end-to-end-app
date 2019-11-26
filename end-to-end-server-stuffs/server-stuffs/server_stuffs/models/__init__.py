@@ -11,6 +11,7 @@ from .usermodel import UserModel
 from .sessionmodel import SessionModel
 from .resettokenmodel import ResetTokenModel
 from .verifytokenmodel import VerifyTokenModel
+from .emailblacklistmodel import EmailBlacklistModel
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup
