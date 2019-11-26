@@ -90,3 +90,37 @@ def send_verification_email(request, user_email, verifytoken, subject = "Please 
                 """
     error = send_email(user_email, subject, body_text, body_html)
     return error
+
+def get_SQS_messages(url):
+    client = boto3.client('sqs')
+    response = client.receive_message(QueueUrl=url,
+                                    AttributeNames=["all"],
+                                    MaxNumberOfMessages=10)
+    if "Messages" in response:
+        return response["Messages"]
+    else:
+        return None
+    
+def delete_SQS_messages(url, listOfMessages):
+    client = boto3.client('sqs')
+    response = client.delete_message_batch(QueueUrl=url,
+                                        Entries=listOfMessages)
+    if response.get("Failed") is None:
+        return "all messages successfully deleted"
+    else:
+        return "Successfull: " + str(len(response.get("Success"))) + "\n" +\
+                "Failed: " +  str(len(response.get("Failed")))
+
+def removeEmailLabelIfAny(email):
+    beginningIndex = None
+    endingIndex = None
+    for charIndex in range(len(email) - 1):
+        if email[charIndex] == "+":
+            beginningIndex = charIndex
+        if beginningIndex is not None and email[charIndex] == "@":
+            endingIndex = charIndex
+            
+    if beginningIndex is not None:
+        email = email[0:beginningIndex] + email[endingIndex:]
+    
+    return email
