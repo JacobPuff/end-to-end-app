@@ -52,6 +52,10 @@ function Verify() {
                     "email within a week of sending, you've already verified your email. If you didnt you " +
                     "need to create a new user.");
                 break;
+            case "email is blacklisted":
+                setInputNameState("Verify email")
+                setMessageValue("This email has been blacklisted. This is to protect the owner of the email " +
+                    "from bots and such. Use the contact section on the home page if you need anything.");
             default:
                 setErrorValue("error: " + error);
                 setDisplayError(true);

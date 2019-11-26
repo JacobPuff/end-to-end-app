@@ -32,6 +32,17 @@ header {
 .secondaryContainer {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 50px;
+    width: 75%;
+    background-color: rgb(20, 47, 82);
+    border-radius: 5px;
+    padding: 30px;
+    word-wrap: break-word;
+}
+
+.bottomContainer {
+    margin-left: auto;
+    margin-right: auto;
     width: 75%;
     background-color: rgb(20, 47, 82);
     border-radius: 5px;
@@ -41,7 +52,7 @@ header {
 
 .projects {
     width: 75%;
-    margin-top: 50px;
+    margin-bottom: 50px;
     margin-left: auto;
     margin-right: auto;
     padding: 30px;

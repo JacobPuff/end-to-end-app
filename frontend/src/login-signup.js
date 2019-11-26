@@ -32,6 +32,10 @@ function LoginSignup() {
                 setErrorValue("error: username/email or password are incorrect");
                 setDisplayError(true);
                 break;
+            case "email is blacklisted":            
+                setErrorValue("Email has been blacklisted. Use contact section on the home page if you need anything.");
+                setDisplayError(true);
+                break;
             default:
                 setErrorValue("error: " + error);
                 setDisplayError(true);

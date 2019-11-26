@@ -34,13 +34,19 @@ function ForgotPassword() {
                 const resetEmailRequest = postRequest("resettokens", {"user_email": Email});
                 resetEmailRequest.then(function() {
                     setSendingRequest(false);
-                    setSuccessValue("If there is a user with that email, you'lll receive a password reset link!");
+                    setSuccessValue("If there is a user with that email, you'll receive a password reset link!");
                     setDisplaySuccess(true);
                 }).catch(function(errorData) {
                     setSendingRequest(false);
+                    error_type = errorData.d.error_type
+                    error = errorData.d.errors[0]
                     console.log(errorData)
-                    console.log("error_type: ", errorData.d.error_type,
-                                "\nerror: ", errorData.d.errors[0]);
+                    console.log("error_type: ", error_type,
+                                "\nerror: ", error);
+                    if (error == "email is blacklisted") {
+                        setErrorValue("Email has been blacklisted. Use contact section on the home page if you need anything.");
+                        setDisplayError(true);
+                    }
                 });
 
             } else {
