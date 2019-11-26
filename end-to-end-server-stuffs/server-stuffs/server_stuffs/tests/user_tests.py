@@ -3,6 +3,7 @@ from server_stuffs.models import UserModel
 from server_stuffs.scripts.converters import array_of_dicts_from_array_of_models
 from server_stuffs.views import users
 from server_stuffs import user
+from datetime import datetime, timedelta
 
 
 class UserTests(PyramidTestBase):
@@ -107,6 +108,29 @@ class UserTests(PyramidTestBase):
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["password must be at least 8 characters"]}})
+    
+    def test_post_delete_invalid_users(self):
+        # Make invalid user
+        invalid_user = self.make_user(username="invalid_user", verified=False)
+
+        # Change started
+        self.request.dbsession.query(UserModel).filter(UserModel.user_id == invalid_user["user_id"])\
+            .update({UserModel.started: (datetime.utcnow() - timedelta(weeks=1, days=1))})
+
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com", "user_pass": "TestPass"}
+        self.request.user = user(self.request)
+        response = users.users(self.request)
+        user_id = response.json_body["d"]["user_id"]
+        session = response.json_body["d"]["session"]
+        started = response.json_body["d"]["started"]
+        self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
+                                                    "user_email": "success@simulator.amazonses.com", "session": session,
+                                                    "started": started, "verified": False}})
+                                                    
+        invalid_users = self.request.dbsession.query(UserModel)\
+            .filter(UserModel.started <= (datetime.utcnow() - timedelta(weeks=1))).all()
+        self.assertEqual(invalid_users, [])
 
     def test_get_user_by_id(self):
         # Make user
