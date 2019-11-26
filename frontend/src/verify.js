@@ -48,7 +48,9 @@ function Verify() {
                 break;
             case "verify token doesnt exist":
                 setInputNameState("Verify email")
-                setMessageValue("The token used doesnt exist. If you used the link in your verification email, you've already verified your email");
+                setMessageValue("The token used doesnt exist. If you used the link in your verification " +
+                    "email within two weeks of sending, you've already verified your email. If you didnt you may " +
+                    "need to create a new user.");
                 break;
             default:
                 setErrorValue("error: " + error);
