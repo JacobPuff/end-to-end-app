@@ -104,7 +104,7 @@ class EmailTests(PyramidTestBase):
 
         # Make the first token invalid
         self.dbsession.query(VerifyTokenModel).filter(VerifyTokenModel.token == verify_token_data["token"]) \
-            .update({VerifyTokenModel.started: datetime.utcnow() - timedelta(weeks=2)})
+            .update({VerifyTokenModel.started: datetime.utcnow() - timedelta(weeks=1)})
 
         verify_token_data = self.make_verifytoken(user_id)
 
