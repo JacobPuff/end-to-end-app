@@ -257,7 +257,7 @@ def verifytokens(request):
                     result = error
                 else:
                     request.dbsession.query(VerifyTokenModel) \
-                        .filter(VerifyTokenModel.started < (datetime.utcnow() - timedelta(weeks=1))).delete()
+                        .filter(VerifyTokenModel.started < (datetime.utcnow() - timedelta(weeks=2))).delete()
 
                     user.verified = True
                     request.dbsession.delete(verifytoken)

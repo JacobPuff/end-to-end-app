@@ -117,7 +117,7 @@ def users(request):
                 result["session"] = dict_from_row(s)
 
                 request.dbsession.query(UserModel)\
-                    .filter(UserModel.started < (datetime.utcnow() - timedelta(weeks=4))).delete()
+                    .filter(UserModel.started < (datetime.utcnow() - timedelta(weeks=2))).delete()
 
         return Response(
             content_type='application/json',
