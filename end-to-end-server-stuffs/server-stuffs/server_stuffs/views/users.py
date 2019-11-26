@@ -79,6 +79,7 @@ def users(request):
             user.user_name = body["user_name"].lower()
             user.user_email = body["user_email"].lower()
             user.user_pass = pwd_context.hash(body["user_pass"])
+            user.started = datetime.utcnow()
 
             if existingUser is None:
                 request.dbsession.add(user)
@@ -114,6 +115,9 @@ def users(request):
                 status_code = httpexceptions.HTTPOk.code
                 result = dict_from_row(user, remove_fields=removals)
                 result["session"] = dict_from_row(s)
+
+                request.dbsession.query(UserModel)\
+                    .filter(UserModel.started < (datetime.utcnow() - timedelta(weeks=4))).delete()
 
         return Response(
             content_type='application/json',

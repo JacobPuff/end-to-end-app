@@ -3,7 +3,9 @@ from sqlalchemy import (
     Integer,
     Text,
     String,
-    Boolean
+    Boolean,
+    TIMESTAMP,
+    func
 )
 
 from .meta import Base
@@ -15,4 +17,5 @@ class UserModel(Base):
     user_name = Column(Text, nullable=False, unique=True)
     user_email = Column(String(254), nullable=False, unique=True)
     user_pass = Column(Text, nullable=False)
+    started = Column(TIMESTAMP, nullable=False, server_default=func.current_timestamp())
     verified = Column(Boolean, default=False, server_default="f", nullable=False)

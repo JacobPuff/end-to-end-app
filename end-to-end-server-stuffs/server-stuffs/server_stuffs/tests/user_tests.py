@@ -18,13 +18,14 @@ class UserTests(PyramidTestBase):
         user_data = self.make_user()
         user_id = user_data["user_id"]
         token = user_data["session"]["token"]
+        started = user_data["started"].isoformat()
 
         self.request.GET = {"token": token}
         self.request.user = user(self.request)
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
                                                     "user_email": "test@jacob.squizzlezig.com",
-                                                    "verified": True}})
+                                                    "started": started, "verified": True}})
 
     def test_get_user_by_token_invalid_token(self):
         self.request.GET = {"token": "invalidToken"}
@@ -40,9 +41,10 @@ class UserTests(PyramidTestBase):
         response = users.users(self.request)
         user_id = response.json_body["d"]["user_id"]
         session = response.json_body["d"]["session"]
+        started = response.json_body["d"]["started"]
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
                                                     "user_email": "success@simulator.amazonses.com", "session": session,
-                                                    "verified": False}})
+                                                    "started": started, "verified": False}})
 
     def test_post_user_no_password(self):
         self.request.method = 'POST'
@@ -88,14 +90,16 @@ class UserTests(PyramidTestBase):
     def test_post_user_with_duplicate_email_not_verified(self):
         user_data = self.make_user(email="success@simulator.amazonses.com", verified=False)
         user_id = user_data["user_id"]
+
         self.request.method = 'POST'
         self.request.json_body = {"user_name": "Differentusername", "user_email": "success@simulator.amazonses.com",
                                   "user_pass": "passwordForTest"}
         response = users.users(self.request)
         session = response.json_body["d"]["session"]
+        started = response.json_body["d"]["started"]
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "differentusername",
                                                     "user_email": "success@simulator.amazonses.com", "session": session,
-                                                    "verified": False}})
+                                                    "started": started, "verified": False}})
 
     def test_post_user_with_short_pass(self):
         self.request.method = 'POST'
@@ -109,6 +113,7 @@ class UserTests(PyramidTestBase):
         user_data = self.make_user()
         user_id = user_data["user_id"]
         token = user_data["session"]["token"]
+        started = user_data["started"].isoformat()
 
         # Get user
         self.request.method = 'GET'
@@ -117,7 +122,8 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
-                                                    "user_email": "test@jacob.squizzlezig.com", "verified": True}})
+                                                    "user_email": "test@jacob.squizzlezig.com",
+                                                    "started": started, "verified": True}})
 
     def test_get_user_by_id_no_token(self):
         # Make user
@@ -168,6 +174,7 @@ class UserTests(PyramidTestBase):
         user_data = self.make_user()
         token = user_data["session"]["token"]
         user_id = user_data["user_id"]
+        started = user_data["started"].isoformat()
 
         # Update user
         self.request.method = 'PUT'
@@ -177,7 +184,8 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "userfortesting",
-                                                    "user_email": "test@jacob.squizzlezig.com", "verified": True}})
+                                                    "user_email": "test@jacob.squizzlezig.com",
+                                                    "started": started, "verified": True}})
 
     def test_put_user_by_id_no_old_pass(self):
         # Make user
