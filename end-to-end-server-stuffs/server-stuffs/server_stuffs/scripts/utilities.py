@@ -1,7 +1,7 @@
 """
 This file contains utility functions for use in the Pyramid view handling
 """
-
+from server_stuffs.models import EmailBlacklistModel
 import datetime
 import boto3
 from botocore.exceptions import ClientError
@@ -90,6 +90,14 @@ def send_verification_email(request, user_email, verifytoken, subject = "Please 
                 """
     error = send_email(user_email, subject, body_text, body_html)
     return error
+
+def isEmailBlacklisted(email, dbsession):
+    blacklistedEmail = dbsession.query(EmailBlacklistModel)\
+        .filter(EmailBlacklistModel.email == email).one_or_none()
+    if blacklistedEmail is None:
+        return False
+    else:
+        return True
 
 def get_SQS_messages(url):
     client = boto3.client('sqs')

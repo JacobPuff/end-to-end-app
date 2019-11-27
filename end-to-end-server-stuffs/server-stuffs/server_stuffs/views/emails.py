@@ -7,7 +7,7 @@ import json
 
 from ..models import UserModel, ResetTokenModel, VerifyTokenModel
 from ..scripts.password_hashing import pwd_context
-from ..scripts.utilities import error_dict, datetime_serializer, send_email, send_verification_email
+from ..scripts.utilities import error_dict, datetime_serializer, send_email, send_verification_email, isEmailBlacklisted
 
 removals = ['user_pass']
 
@@ -39,6 +39,9 @@ def resettokens(request):
             elif user is None:
                 status_code = httpexceptions.HTTPOk.code
                 result = "Received an email"
+            elif isEmailBlacklisted(user.user_email, request.dbsession):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "email is blacklisted")
             elif user.verified is False:
                 # People may try to reset their password when not verified, so let them know with this email
                 
@@ -184,6 +187,9 @@ def verifytokens(request):
                 if user is None:
                     status_code = httpexceptions.HTTPNotFound.code
                     result = error_dict("api_error", "user doesnt exist")
+                elif isEmailBlacklisted(user.user_email, request.dbsession):
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error_dict("api_error", "email is blacklisted")
                 elif user.verified is True and oldVerifytoken.temp_email is None:
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "user already verified")

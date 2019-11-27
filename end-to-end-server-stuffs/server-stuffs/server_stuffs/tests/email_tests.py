@@ -67,7 +67,7 @@ class EmailTests(PyramidTestBase):
         self.request.json_body = {"verifytoken": verify_token["token"]}
         self.request.user = user(self.request)
         response = emails.verifytokens(self.request)
-        self.assertEqual(response.json_body, {"d": {"error_type": "api_errors",
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["email is blacklisted"]}})
     
     def test_post_old_verify_token_temp_email(self):
@@ -216,9 +216,23 @@ class EmailTests(PyramidTestBase):
             .update({ResetTokenModel.started: reset_token["started"]})
 
         self.request.method = 'POST'
-        self.request.json_body = {"resettoken": reset_token["token"], "user_pass": "different pass"}
+        self.request.json_body = {"resettoken": reset_token["token"]}
         response = emails.resettokens(self.request)
         self.assertEqual(response.json_body, {"d": "Received an email"})
+
+    def test_post_reset_email_blacklisted(self):
+        # Make user
+        user_data = self.make_user()
+        user_email = user_data["user_email"]
+
+        # blacklist email
+        self.make_blacklisted_email()
+
+        self.request.method = 'POST'
+        self.request.json_body = {"user_email": user_email}
+        response = emails.resettokens(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["email is blacklisted"]}})
 
     def test_put_reset_successful(self):
         # Make user
