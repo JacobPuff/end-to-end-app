@@ -14,6 +14,7 @@ from server_stuffs.models import (
     TaskModel,
     ResetTokenModel,
     VerifyTokenModel,
+    EmailBlacklistModel,
     get_session_factory,
     get_tm_session
 )
@@ -139,6 +140,19 @@ class TestBase(TestCase):
         self.dbsession.refresh(new_verifytoken)
 
         returndict = dict_from_row(new_verifytoken)
+        return returndict
+
+    def make_blacklisted_email(self, email="test@jacob.squizzlezig.com"):
+        # Blacklist email
+        new_blacklistedEmail = EmailBlacklistModel()
+        new_blacklistedEmail.email = email
+
+        # Add blacklisted email
+        self.dbsession.add(new_blacklistedEmail)
+        self.dbsession.flush()
+        self.dbsession.refresh(new_blacklistedEmail)
+
+        returndict = dict_from_row(new_blacklistedEmail)
         return returndict
 
 
