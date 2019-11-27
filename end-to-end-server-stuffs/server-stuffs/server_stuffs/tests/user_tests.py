@@ -222,16 +222,35 @@ class UserTests(PyramidTestBase):
                                                     "user_email": "test@jacob.squizzlezig.com",
                                                     "started": started, "verified": True}})
 
+    def test_put_user_by_id_email_blacklisted(self):
+        # Make user
+        user_data = self.make_user(email="test@jacob.squizzlezig.com")
+        token = user_data["session"]["token"]
+        user_id = user_data["user_id"]
+
+        # Blacklist email
+        self.make_blacklisted_email()
+
+        # Update user
+        self.request.method = 'PUT'
+        self.request.matchdict = {"user_id": user_id}
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "bounce@simulator.amazonses.com",
+                                  "old_pass": "TestPass", "user_pass": "passwordForTest", "token": token}
+        self.request.user = user(self.request)
+        response = users.users_by_id(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["email is blacklisted"]}})
+
     def test_put_user_by_id_no_old_pass(self):
         # Make user
-        user_data = self.make_user()
+        user_data = self.make_user(email="test@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
         user_id = user_data["user_id"]
 
         # Update user
         self.request.method = 'PUT'
         self.request.matchdict = {"user_id": user_id}
-        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "success@simulator.amazonses.com",
                                   "user_pass": "passwordForTest", "token": token}
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
@@ -240,14 +259,14 @@ class UserTests(PyramidTestBase):
 
     def test_put_user_by_id_no_new_pass(self):
         # Make user
-        user_data = self.make_user()
+        user_data = self.make_user(email="test@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
         user_id = user_data["user_id"]
 
         # Update user
         self.request.method = 'PUT'
         self.request.matchdict = {"user_id": user_id}
-        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "success@simulator.amazonses.com",
                                   "old_pass": "TestPass", "token": token}
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
@@ -256,14 +275,14 @@ class UserTests(PyramidTestBase):
     
     def test_put_user_by_id_different_old_pass(self):
         # Make user
-        user_data = self.make_user()
+        user_data = self.make_user(email="test@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
         user_id = user_data["user_id"]
 
         # Update user
         self.request.method = 'PUT'
         self.request.matchdict = {"user_id": user_id}
-        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "success@simulator.amazonses.com",
                                   "old_pass": "WrongOldPass", "user_pass": "passwordForTest", "token": token}
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
@@ -272,13 +291,13 @@ class UserTests(PyramidTestBase):
 
     def test_put_user_by_id_no_token(self):
         # Make user
-        user_data = self.make_user()
+        user_data = self.make_user(email="test@jacob.squizzlezig.com")
         user_id = user_data["user_id"]
 
         # Update user
         self.request.method = 'PUT'
         self.request.matchdict = {"user_id": user_id}
-        self.request.json_body = {"user_name": "UserForTesting", "user_email": "testerino@squizzlezig.com",
+        self.request.json_body = {"user_name": "UserForTesting", "user_email": "success@simulator.amazonses.com",
                                   "user_pass": "passwordForTest"}
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)

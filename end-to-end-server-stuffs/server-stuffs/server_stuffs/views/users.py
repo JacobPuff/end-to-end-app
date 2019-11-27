@@ -172,6 +172,9 @@ def users_by_id(request):
                 elif body.get("user_email") and email_in_use(body.get("user_email"), request.dbsession):
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "email already in use")
+                elif body.get("user_email") and isEmailBlacklisted(body.get("user_email"), request.dbsession):
+                    status_code = httpexceptions.HTTPBadRequest.code
+                    result = error_dict("api_error", "email is blacklisted")
                 elif body.get("user_pass") and body.get("old_pass") is None:
                     status_code = httpexceptions.HTTPBadRequest.code
                     result = error_dict("api_error", "old_pass required when updating password")
