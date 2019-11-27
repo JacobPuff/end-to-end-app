@@ -8,7 +8,7 @@ import json
 from ..models import UserModel, SessionModel, ResetTokenModel, VerifyTokenModel
 from ..scripts.password_hashing import pwd_context
 from ..scripts.converters import dict_from_row
-from ..scripts.utilities import error_dict, datetime_serializer, send_verification_email, send_email, isEmailBlacklisted
+from ..scripts.utilities import error_dict, datetime_serializer, send_verification_email, send_email, isEmailBlacklisted, removeEmailLabelIfAny
 
 removals = ['user_pass']
 

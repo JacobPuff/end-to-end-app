@@ -92,8 +92,10 @@ def send_verification_email(request, user_email, verifytoken, subject = "Please 
     return error
 
 def isEmailBlacklisted(email, dbsession):
+    newEmail = removeEmailLabelIfAny(email).lower()
+    print("----------------------------------------------------------------------------------")
     blacklistedEmail = dbsession.query(EmailBlacklistModel)\
-        .filter(EmailBlacklistModel.email == email).one_or_none()
+        .filter(EmailBlacklistModel.email == newEmail).one_or_none()
     if blacklistedEmail is None:
         return False
     else:

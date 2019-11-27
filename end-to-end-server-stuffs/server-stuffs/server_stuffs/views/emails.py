@@ -7,7 +7,7 @@ import json
 
 from ..models import UserModel, ResetTokenModel, VerifyTokenModel
 from ..scripts.password_hashing import pwd_context
-from ..scripts.utilities import error_dict, datetime_serializer, send_email, send_verification_email, isEmailBlacklisted
+from ..scripts.utilities import error_dict, datetime_serializer, send_email, send_verification_email, isEmailBlacklisted, removeEmailLabelIfAny
 
 removals = ['user_pass']
 
@@ -22,7 +22,7 @@ def resettokens(request):
         else:
             if body.get("user_email"):
                 user = request.dbsession.query(UserModel)\
-                    .filter(UserModel.user_email == body.get("user_email").lower())\
+                    .filter(UserModel.user_email == removeEmailLabelIfAny(body.get("user_email")).lower())\
                     .one_or_none()
             if body.get("resettoken"):
                 resettoken = request.dbsession.query(ResetTokenModel)\
@@ -32,8 +32,7 @@ def resettokens(request):
                     user = request.dbsession.query(UserModel)\
                         .filter(UserModel.user_id == resettoken.user_id)\
                         .one_or_none()
-
-            if body.get("resettoken") and resettoken is None:
+            elif body.get("resettoken") and resettoken is None:
                 status_code = httpexceptions.HTTPNotFound.code
                 result = error_dict("api_error", "reset token doesnt exist")
             elif user is None:

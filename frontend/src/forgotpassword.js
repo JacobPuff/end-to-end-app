@@ -38,8 +38,8 @@ function ForgotPassword() {
                     setDisplaySuccess(true);
                 }).catch(function(errorData) {
                     setSendingRequest(false);
-                    error_type = errorData.d.error_type
-                    error = errorData.d.errors[0]
+                    var error_type = errorData.d.error_type
+                    var error = errorData.d.errors[0]
                     console.log(errorData)
                     console.log("error_type: ", error_type,
                                 "\nerror: ", error);
