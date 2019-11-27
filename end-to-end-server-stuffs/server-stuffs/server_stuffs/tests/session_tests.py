@@ -40,7 +40,7 @@ class SessionTests(PyramidTestBase):
 
         # Login without token or username
         self.request.method = 'POST'
-        self.request.json_body = {"user_email": "test@jacob.squizzlezig.com", "user_pass": "TestPass"}
+        self.request.json_body = {"user_email": "success@simulator.amazonses.com", "user_pass": "TestPass"}
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         session = response.json_body["d"]
@@ -58,7 +58,7 @@ class SessionTests(PyramidTestBase):
 
         # Login without token or password
         self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com"}
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com"}
         self.request.user = user(self.request)
         response = sessions.sessions(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",

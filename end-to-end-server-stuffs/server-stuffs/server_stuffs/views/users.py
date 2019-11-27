@@ -8,7 +8,7 @@ import json
 from ..models import UserModel, SessionModel, ResetTokenModel, VerifyTokenModel
 from ..scripts.password_hashing import pwd_context
 from ..scripts.converters import dict_from_row
-from ..scripts.utilities import error_dict, datetime_serializer, send_verification_email, send_email
+from ..scripts.utilities import error_dict, datetime_serializer, send_verification_email, send_email, isEmailBlacklisted
 
 removals = ['user_pass']
 
@@ -67,6 +67,9 @@ def users(request):
         elif len(body.get("user_pass")) < 8:
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "password must be at least 8 characters")
+        elif isEmailBlacklisted(body.get('user_email'), request.dbsession):
+            status_code = httpexceptions.HTTPBadRequest.code
+            result = error_dict("api_error", "email is blacklisted")
         else:
             existingUser = request.dbsession.query(UserModel)\
                 .filter(UserModel.user_email == body.get("user_email").lower())\

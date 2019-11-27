@@ -51,7 +51,7 @@ class TestBase(TestCase):
     def tearDown(self):
         self.dbsession.rollback()
 
-    def make_user(self, username="TestUser", email="test@jacob.squizzlezig.com", password="TestPass", verified=True):
+    def make_user(self, username="TestUser", email="success@simulator.amazonses.com", password="TestPass", verified=True):
         # Make user
         new_user = UserModel()
         new_user.user_name = username.lower()
@@ -142,7 +142,7 @@ class TestBase(TestCase):
         returndict = dict_from_row(new_verifytoken)
         return returndict
 
-    def make_blacklisted_email(self, email="test@jacob.squizzlezig.com"):
+    def make_blacklisted_email(self, email="bounce@simulator.amazonses.com"):
         # Blacklist email
         new_blacklistedEmail = EmailBlacklistModel()
         new_blacklistedEmail.email = email

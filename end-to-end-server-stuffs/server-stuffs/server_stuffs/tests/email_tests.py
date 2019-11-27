@@ -48,7 +48,7 @@ class EmailTests(PyramidTestBase):
     
     def test_post_old_verify_token_email_blacklisted(self):
         # Make user
-        user_data = self.make_user(verified=False)
+        user_data = self.make_user(email="bounce@simulator.amazonses.com", verified=False)
         user_id = user_data["user_id"]
 
         # Add email to blacklist
@@ -222,7 +222,7 @@ class EmailTests(PyramidTestBase):
 
     def test_post_reset_email_blacklisted(self):
         # Make user
-        user_data = self.make_user()
+        user_data = self.make_user(email="bounce@simulator.amazonses.com")
         user_email = user_data["user_email"]
 
         # blacklist email

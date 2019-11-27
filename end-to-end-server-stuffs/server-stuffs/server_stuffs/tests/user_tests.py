@@ -25,7 +25,7 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
-                                                    "user_email": "test@jacob.squizzlezig.com",
+                                                    "user_email": "success@simulator.amazonses.com",
                                                     "started": started, "verified": True}})
 
     def test_get_user_by_token_invalid_token(self):
@@ -49,7 +49,7 @@ class UserTests(PyramidTestBase):
 
     def test_post_user_no_password(self):
         self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com"}
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com"}
         self.request.user = user(self.request)
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
@@ -82,7 +82,7 @@ class UserTests(PyramidTestBase):
     def test_post_user_with_duplicate_email_verified(self):
         self.make_user()
         self.request.method = 'POST'
-        self.request.json_body = {"user_name": "DifferentUsername", "user_email": "test@jacob.squizzlezig.com",
+        self.request.json_body = {"user_name": "DifferentUsername", "user_email": "success@simulator.amazonses.com",
                                   "user_pass": "TestPass"}
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
@@ -102,9 +102,20 @@ class UserTests(PyramidTestBase):
                                                     "user_email": "success@simulator.amazonses.com", "session": session,
                                                     "started": started, "verified": False}})
 
+    def test_post_user_email_blacklisted(self):
+        # Blacklist email
+        self.make_blacklisted_email()
+
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "Differentusername", "user_email": "bounce@simulator.amazonses.com",
+                                  "user_pass": "passwordForTest"}
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["email is blacklisted"]}})
+
     def test_post_user_with_short_pass(self):
         self.request.method = 'POST'
-        self.request.json_body = {"user_name": "TestUser", "user_email": "test@jacob.squizzlezig.com", "user_pass": "pass"}
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com", "user_pass": "pass"}
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["password must be at least 8 characters"]}})
@@ -146,7 +157,7 @@ class UserTests(PyramidTestBase):
         self.request.user = user(self.request)
         response = users.users_by_id(self.request)
         self.assertEqual(response.json_body, {"d": {"user_id": user_id, "user_name": "testuser",
-                                                    "user_email": "test@jacob.squizzlezig.com",
+                                                    "user_email": "success@simulator.amazonses.com",
                                                     "started": started, "verified": True}})
 
     def test_get_user_by_id_no_token(self):
@@ -195,7 +206,7 @@ class UserTests(PyramidTestBase):
 
     def test_put_user_by_id(self):
         # Make user
-        user_data = self.make_user()
+        user_data = self.make_user(email="test@jacob.squizzlezig.com")
         token = user_data["session"]["token"]
         user_id = user_data["user_id"]
         started = user_data["started"].isoformat()
