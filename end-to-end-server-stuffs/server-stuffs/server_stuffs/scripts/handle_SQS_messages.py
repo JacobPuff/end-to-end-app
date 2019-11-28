@@ -23,12 +23,15 @@ def handleBoucesAndComplaints():
     Session = sessionmaker(bind=engine)
     dbsession = Session()
 
-    sys.stdout.write("READY\n")
-    sys.stdout.flush()
     #event listener runs things past this point
     while 1:
+        sys.stdout.write("READY\n")
+        sys.stdout.flush()
         headers = sys.stdin.readline()
-        print(headers)
+        sys.stderr.write(headers)
+        sys.stderr.flush()
+        sys.stdout.write("RESULT 2\nOK")
+        sys.stdout.flush()
         messagesToDelete = []
 
         response = get_SQS_messages(SQSurl)
