@@ -10,7 +10,7 @@ import json
 
 def handleBoucesAndComplaints():
     config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(__file__), '../../development.ini'))
+    config.read('/etc/production.ini')
 
     SQSurl = config["app:main"]["sqs.url"]
 
