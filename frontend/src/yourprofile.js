@@ -194,7 +194,7 @@ function UserProfile() {
         }
 
         if (dataToUpdate["user_name"] ||
-            dataToUpdate["user_name"] || 
+            dataToUpdate["user_email"] || 
             dataToUpdate["user_pass"]) {
             if(!sendingRequest) {
                 setSendingRequest(true);
