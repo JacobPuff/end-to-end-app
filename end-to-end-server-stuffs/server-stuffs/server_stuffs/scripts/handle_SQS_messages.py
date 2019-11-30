@@ -30,8 +30,6 @@ def handleBoucesAndComplaints():
         headers = sys.stdin.readline()
         sys.stderr.write(headers)
         sys.stderr.flush()
-        sys.stdout.write("RESULT 2\nOK")
-        sys.stdout.flush()
         messagesToDelete = []
 
         response = get_SQS_messages(SQSurl)
@@ -73,6 +71,8 @@ def handleBoucesAndComplaints():
 
             deleteResponse = delete_SQS_messages(SQSurl, messagesToDelete)
             print(deleteResponse)
+        sys.stdout.write("RESULT 2\nOK")
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":
