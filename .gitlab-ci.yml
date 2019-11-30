@@ -14,6 +14,11 @@ update-server:
   except:
     changes:
       - frontend/src/**/*
+  retry:
+    max: 10
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
   script:
     - mkdir .ssh
     - chmod 700 .ssh
@@ -28,6 +33,11 @@ build-js-update-server:
       - master
     changes:
       - frontend/src/**/*
+  retry:
+    max: 10
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
   script:
     - mkdir .ssh
     - chmod 700 .ssh
