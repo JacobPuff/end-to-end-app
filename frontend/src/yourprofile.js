@@ -193,6 +193,7 @@ function UserProfile() {
             dataToUpdate["user_pass"] = new_pass;
         }
 
+// comments for using new yml file
         if (dataToUpdate["user_name"] ||
             dataToUpdate["user_email"] || 
             dataToUpdate["user_pass"]) {
