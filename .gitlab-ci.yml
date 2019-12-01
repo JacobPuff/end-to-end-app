@@ -5,7 +5,7 @@ before_script:
   - apk add bash
   - apk add openssh-client
   - apk add rsync
-  - apk add npm
+  - apk add --update npm
 
 update-server:
   stage: deploy
