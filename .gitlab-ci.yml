@@ -45,7 +45,7 @@ build-js-update-server:
     - chmod 600 .ssh/id_rsa
     - cd frontend/
     - npm --version
-    - npm install
+    - npm install --verbose
     - npm install -g webpack
     - npm install -g webpack-cli
     - npx webpack --mode="production"
