@@ -1,12 +1,13 @@
 before_script:
+  - whoami
   - apt-get update
   - apt-get upgrade
   - apt-get install -y bash
   - apt-get install -y curl
   - apt-get install -y openssh-client
   - apt-get install -y rsync
-  - curl -sL https://dev.nodesource.com/setup_12.x | bash -
-  - apt-get install -y nodejs
+  - sudo curl -sL https://dev.nodesource.com/setup_12.x | bash -
+  - sudo apt-get install -y nodejs
 
 update-server:
   stage: deploy
