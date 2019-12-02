@@ -1,11 +1,11 @@
 image: alpine:latest
 before_script:
+  - apk update
+  - apk upgrade
   - apk add bash
   - apk add openssh-client
   - apk add rsync
-  - apk add npm
-  - apk update
-  - apk upgrade
+  - apk add npm=6.13.0
 
 update-server:
   stage: deploy
