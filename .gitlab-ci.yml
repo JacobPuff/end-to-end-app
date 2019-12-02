@@ -2,6 +2,7 @@ before_script:
   - apt-get update
   - apt-get upgrade
   - apt-get install -y bash
+  - apt-get install -y curl
   - apt-get install -y openssh-client
   - apt-get install -y rsync
   - curl -sL https://dev.nodesource.com/setup_12.x | bash -
