@@ -1,10 +1,10 @@
 before_script:
   - apt-get update
   - apt-get upgrade
-  - apt-get bash
-  - apt-get openssh-client
-  - apt-get rsync
-  - apt-get npm
+  - apt-get install bash
+  - apt-get install openssh-client
+  - apt-get install rsync
+  - apt-get install npm
 
 update-server:
   stage: deploy
