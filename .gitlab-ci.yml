@@ -38,6 +38,7 @@ build-js-update-server:
       - runner_system_failure
       - stuck_or_timeout_failure
   script:
+    - cat /etc/issue
     - mkdir .ssh
     - chmod 700 .ssh
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
