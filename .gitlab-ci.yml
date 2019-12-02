@@ -5,7 +5,7 @@ before_script:
   - apt-get install -y curl
   - apt-get install -y openssh-client
   - apt-get install -y rsync
-  - curl -sL https://dev.nodesource.com/setup_12.x | bash -
+  - curl - L https://dev.nodesource.com/setup_12.x | bash -
   - apt-get install -y nodejs
 
 update-server:
