@@ -192,7 +192,7 @@ function UserProfile() {
             dataToUpdate["old_pass"] = old_pass;
             dataToUpdate["user_pass"] = new_pass;
         }
-// change comment again + 2 to have gitlab run build-js job
+// change comment again + 3 to have gitlab run build-js job
         if (dataToUpdate["user_name"] ||
             dataToUpdate["user_email"] || 
             dataToUpdate["user_pass"]) {
