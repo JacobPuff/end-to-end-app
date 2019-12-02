@@ -1,10 +1,10 @@
 before_script:
-  - apk update
-  - apk upgrade
-  - apk add bash
-  - apk add openssh-client
-  - apk add rsync
-  - apk add npm
+  - apt-get update
+  - apt-get upgrade
+  - apt-get add bash
+  - apt-get add openssh-client
+  - apt-get add rsync
+  - apt-get add npm
 
 update-server:
   stage: deploy
