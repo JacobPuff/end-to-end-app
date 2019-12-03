@@ -35,7 +35,8 @@ def handleBoucesAndComplaints():
         response = get_SQS_messages(SQSurl)
 
         if response is not None:
-            print("messages gotten: " + str(len(response)))
+            sys.stderr.write("messages gotten: " + str(len(response)))
+            sys.stderr.flush()
             for item in response:
                 body = item.get("Body")
                 body = json.loads(body)
@@ -70,7 +71,7 @@ def handleBoucesAndComplaints():
                             dbsession.commit()
 
             deleteResponse = delete_SQS_messages(SQSurl, messagesToDelete)
-            print(deleteResponse)
+            # print(deleteResponse)
         sys.stdout.write("RESULT 2\nOK")
         sys.stdout.flush()
 
