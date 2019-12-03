@@ -46,7 +46,6 @@ build-js-update-server:
     - echo "$PRIV_KEY" | tr -d '\r' > .ssh/id_rsa
     - chmod 600 .ssh/id_rsa
     - cd frontend/
-    - npm config set registry http://registry.npmjs.org
     - npm --version
     - npm install --verbose
     - npm install -g webpack
