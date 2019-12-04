@@ -38,6 +38,7 @@ def handleBoucesAndComplaints():
         else:
             secondTick = True
             messagesToDelete = []
+            sys.stderr.write("SECOND TICK ---------------")
 
             response = get_SQS_messages(SQSurl)
 
