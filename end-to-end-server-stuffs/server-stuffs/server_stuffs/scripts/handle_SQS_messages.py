@@ -35,16 +35,13 @@ def handleBoucesAndComplaints():
 
         if secondTick:
             secondTick = False
-            sys.stderr.write("SECOND TICK ---------------")
         else:
             secondTick = True
             messagesToDelete = []
-            sys.stderr.write("FIRST TICK ---------------")
-
             response = get_SQS_messages(SQSurl)
 
             if response is not None:
-                sys.stderr.write("messages gotten: " + str(len(response)))
+                # sys.stderr.write("messages gotten: " + str(len(response)))
                 sys.stderr.flush()
                 for item in response:
                     body = item.get("Body")
@@ -80,7 +77,7 @@ def handleBoucesAndComplaints():
                                 dbsession.commit()
 
                 deleteResponse = delete_SQS_messages(SQSurl, messagesToDelete)
-                # print(deleteResponse)
+                # sys.stderr.write("messages gotten: " + str(len(response)))
         sys.stdout.write("RESULT 2\nOK")
         sys.stdout.flush()
 
