@@ -23,6 +23,8 @@ def handleBoucesAndComplaints():
     Session = sessionmaker(bind=engine)
     dbsession = Session()
 
+    secondTick = False
+
     #event listener runs things past this point
     while 1:
         sys.stdout.write("READY\n")
@@ -30,48 +32,53 @@ def handleBoucesAndComplaints():
         headers = sys.stdin.readline()
         sys.stderr.write(headers)
         sys.stderr.flush()
-        messagesToDelete = []
 
-        response = get_SQS_messages(SQSurl)
+        if secondTick:
+            secondTick = False
+        else:
+            secondTick = True
+            messagesToDelete = []
 
-        if response is not None:
-            sys.stderr.write("messages gotten: " + str(len(response)))
-            sys.stderr.flush()
-            for item in response:
-                body = item.get("Body")
-                body = json.loads(body)
-                messagesToDelete.append({"Id": item.get("MessageId"), "ReceiptHandle": item.get("ReceiptHandle")})
-                message = json.loads(body.get("Message"))
+            response = get_SQS_messages(SQSurl)
 
-                if message.get("notificationType") == "Bounce":
-                    if (message.get("bounce")["bounceType"] == "Permanent"):
-                        email = message.get("bounce")["bouncedRecipients"][0]["emailAddress"]
+            if response is not None:
+                sys.stderr.write("messages gotten: " + str(len(response)))
+                sys.stderr.flush()
+                for item in response:
+                    body = item.get("Body")
+                    body = json.loads(body)
+                    messagesToDelete.append({"Id": item.get("MessageId"), "ReceiptHandle": item.get("ReceiptHandle")})
+                    message = json.loads(body.get("Message"))
+
+                    if message.get("notificationType") == "Bounce":
+                        if (message.get("bounce")["bounceType"] == "Permanent"):
+                            email = message.get("bounce")["bouncedRecipients"][0]["emailAddress"]
+                            email = removeEmailLabelIfAny(email)
+                            existingEmail = dbsession.query(EmailBlacklistModel)\
+                                .filter(EmailBlacklistModel.email == email).one_or_none()
+                            if existingEmail is None:
+                                newBlacklistedEmail = EmailBlacklistModel()
+                                newBlacklistedEmail.email = email
+                                dbsession.add(newBlacklistedEmail)
+                                dbsession.flush()
+                                dbsession.refresh(newBlacklistedEmail)
+                                dbsession.commit()
+
+                    if message.get("notificationType") == "Complaint":
+                        email = message.get("complaint")["complainedRecipients"][0]["emailAddress"]
                         email = removeEmailLabelIfAny(email)
                         existingEmail = dbsession.query(EmailBlacklistModel)\
                             .filter(EmailBlacklistModel.email == email).one_or_none()
                         if existingEmail is None:
-                            newBlacklistedEmail = EmailBlacklistModel()
-                            newBlacklistedEmail.email = email
-                            dbsession.add(newBlacklistedEmail)
-                            dbsession.flush()
-                            dbsession.refresh(newBlacklistedEmail)
-                            dbsession.commit()
+                                newBlacklistedEmail = EmailBlacklistModel()
+                                newBlacklistedEmail.email = email
+                                dbsession.add(newBlacklistedEmail)
+                                dbsession.flush()
+                                dbsession.refresh(newBlacklistedEmail)
+                                dbsession.commit()
 
-                if message.get("notificationType") == "Complaint":
-                    email = message.get("complaint")["complainedRecipients"][0]["emailAddress"]
-                    email = removeEmailLabelIfAny(email)
-                    existingEmail = dbsession.query(EmailBlacklistModel)\
-                        .filter(EmailBlacklistModel.email == email).one_or_none()
-                    if existingEmail is None:
-                            newBlacklistedEmail = EmailBlacklistModel()
-                            newBlacklistedEmail.email = email
-                            dbsession.add(newBlacklistedEmail)
-                            dbsession.flush()
-                            dbsession.refresh(newBlacklistedEmail)
-                            dbsession.commit()
-
-            deleteResponse = delete_SQS_messages(SQSurl, messagesToDelete)
-            # print(deleteResponse)
+                deleteResponse = delete_SQS_messages(SQSurl, messagesToDelete)
+                # print(deleteResponse)
         sys.stdout.write("RESULT 2\nOK")
         sys.stdout.flush()
 
