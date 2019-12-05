@@ -7,7 +7,8 @@ import json
 
 from ..models import UserModel, ResetTokenModel, VerifyTokenModel
 from ..scripts.password_hashing import pwd_context
-from ..scripts.utilities import error_dict, datetime_serializer, send_email, send_verification_email, isEmailBlacklisted, removeEmailLabelIfAny
+from ..scripts.utilities import (error_dict, datetime_serializer, send_email, send_verification_email,
+                            isEmailBlacklisted, removeEmailLabelIfAny, verifyRecaptchaToken)
 
 removals = ['user_pass']
 
@@ -16,7 +17,14 @@ removals = ['user_pass']
 def resettokens(request):
     if request.method == 'POST':
         body = request.json_body
-        if body.get("user_email") is None and body.get("resettoken") is None:
+
+        if body.get("recaptchaToken") is None and request.recaptchaTestToken is None:
+            status_code = httpexceptions.HTTPBadRequest.code
+            result = error_dict("api_error", "recaptchaToken is required")
+        elif not verifyRecaptchaToken(request):
+            status_code = httpexceptions.HTTPBadRequest.code
+            result = error_dict("api_error", "need valid recaptcha token")
+        elif body.get("user_email") is None and body.get("resettoken") is None:
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "user_email or resettoken is required")
         else:
@@ -32,7 +40,8 @@ def resettokens(request):
                     user = request.dbsession.query(UserModel)\
                         .filter(UserModel.user_id == resettoken.user_id)\
                         .one_or_none()
-            elif body.get("resettoken") and resettoken is None:
+            
+            if body.get("resettoken") and resettoken is None:
                 status_code = httpexceptions.HTTPNotFound.code
                 result = error_dict("api_error", "reset token doesnt exist")
             elif user is None:
@@ -163,6 +172,9 @@ def resettokens(request):
             status_code=status_code,
             body=json.dumps({"d": result}, default=datetime_serializer)
         )
+        
+    if request.method not in ('POST', 'PUT'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)
 
 @view_config(route_name="verifytokens")
 def verifytokens(request):
@@ -278,3 +290,6 @@ def verifytokens(request):
             status_code=status_code,
             body=json.dumps({"d": result})
         )
+        
+    if request.method not in ('POST', 'PUT'):
+        return Response(status_code=httpexceptions.HTTPMethodNotAllowed.code)

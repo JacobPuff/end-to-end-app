@@ -163,6 +163,15 @@ class PyramidTestBase(TestBase):
         self.config = testing.setUp()
         self.request = testing.DummyRequest()
         self.request.dbsession = self.dbsession
+        # Google only allows for success tests. Most tests wont care about reCaptcha
+        # and setting it in the json_body would just take up space.
+
+        # I cant add it to json_body because it will be overwritten when I set json_body in tests, so its here.
+        # This also allows me to write better tests, because I can write my own stuff based on this.
+        self.request.recaptchaTestToken = "successTestToken"
+        
+        # Tests dont get the config data, so Im setting to googles test secret here
+        self.request.registry.settings["recaptcha_secret"] = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 
     def tearDown(self):
         testing.tearDown()

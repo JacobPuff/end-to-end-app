@@ -140,9 +140,16 @@ def removeEmailLabelIfAny(email):
     return email
 
 def verifyRecaptchaToken(request):
-    secret = request.registry.settings["recaptcha_secret"]
-    verify_recaptcha_url = "https://www.google.com/recaptcha/api/siteverify"
-    response = requests.post(url=verify_recaptcha_url, data={"secret": secret,
-                                                "response": request.json_body["recaptchaToken"]})
-    jsonResponse = json.loads(response.text)
-    return jsonResponse["success"]
+    if request.recaptchaTestToken is not None:
+        # For testing
+        if request.recaptchaTestToken == "successTestToken":
+            return True
+        if request.recaptchaTestToken == "badTestToken":
+            return False
+    else:
+        secret = request.registry.settings["recaptcha_secret"]
+        verify_recaptcha_url = "https://www.google.com/recaptcha/api/siteverify"
+        response = requests.post(url=verify_recaptcha_url, data={"secret": secret,
+                                                    "response": request.json_body["recaptchaToken"]})
+        jsonResponse = json.loads(response.text)
+        return jsonResponse["success"]
