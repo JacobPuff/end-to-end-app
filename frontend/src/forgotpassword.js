@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Reaptcha from 'reaptcha';
 import { validateEmail, postRequest } from './utilities';
 
 const ENTER_KEYCODE = 13;
@@ -7,6 +8,8 @@ const ENTER_KEYCODE = 13;
 function ForgotPassword() {
     const [Email, setEmail] = React.useState("");
     const [sendingRequest, setSendingRequest] = React.useState(false);
+    const [canSubmit, setCanSubmit] = React.useState(false);
+    var recaptchaRef = React.useRef()
 
     const [displayError, setDisplayError] = React.useState(false);
     const [displaySuccess, setDisplaySuccess] = React.useState(false);
@@ -25,7 +28,25 @@ function ForgotPassword() {
         setEmail(e.target.value);
     }
 
+    function handleVerifyReCaptcha(e) {
+        console.log("yeet", e)
+        setCanSubmit(true)
+        console.log("RESET")
+        console.log(recaptchaRef)
+        recaptchaRef.current.reset()
+    }
+
+    function handleExpireReCaptcha() {
+        console.log("haw", e)
+        setCanSubmit(false)
+    }
+
     function handleSubmit() {
+        if (!canSubmit) {
+            setErrorValue("Please verify you are not a bot")
+            setDisplayError(true);
+            return
+        }
         setDisplayError(false);
         setDisplaySuccess(false);
         if (!sendingRequest) {
@@ -65,6 +86,11 @@ function ForgotPassword() {
             (displayError && React.createElement('p', {className:"error"}, errorValue)),
             (displaySuccess && React.createElement('p', {className:"success"}, successValue)),
             React.createElement('div', {className: "inputButtonContainer"},
+                React.createElement(Reaptcha, {sitekey: "6LerI8YUAAAAAL4tpU_V5_PyEXjRsnsfE_jRrozx",
+                    theme: "dark",
+                    ref: recaptchaRef,
+                    onVerify: (e) => {handleVerifyReCaptcha(e)},
+                    onExpire: (e) => {handleExpireReCaptcha(e)}}),
                 React.createElement('div', {className: "inputButton miniButton", onClick: handleSubmit}, "Submit")
             )
         )
