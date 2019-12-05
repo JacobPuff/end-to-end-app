@@ -150,6 +150,6 @@ def verifyRecaptchaToken(request):
         secret = request.registry.settings["recaptcha_secret"]
         verify_recaptcha_url = "https://www.google.com/recaptcha/api/siteverify"
         response = requests.post(url=verify_recaptcha_url, data={"secret": secret,
-                                                    "response": request.json_body["recaptchaToken"]})
+                                                    "response": request.json_body["recaptcha_token"]})
         jsonResponse = json.loads(response.text)
         return jsonResponse["success"]

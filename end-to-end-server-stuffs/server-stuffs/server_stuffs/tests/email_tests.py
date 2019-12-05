@@ -234,6 +234,20 @@ class EmailTests(PyramidTestBase):
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["email is blacklisted"]}})
 
+    def test_post_reset_email_no_recaptcha_token(self):
+        # Make user
+        user_data = self.make_user()
+        user_email = user_data["user_email"]
+
+        # Remove recaptcha token
+        self.request.recaptchaTestToken = None
+
+        self.request.method = 'POST'
+        self.request.json_body = {"user_email": user_email}
+        response = emails.resettokens(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["recaptcha_token is required"]}})
+
     def test_put_reset_successful(self):
         # Make user
         user_data = self.make_user()
