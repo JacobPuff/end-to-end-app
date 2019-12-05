@@ -240,7 +240,7 @@ class EmailTests(PyramidTestBase):
         user_email = user_data["user_email"]
 
         # Remove recaptcha token
-        self.request.recaptchaTestToken = None
+        delattr(self.request, "recaptchaTestToken")
 
         self.request.method = 'POST'
         self.request.json_body = {"user_email": user_email}
