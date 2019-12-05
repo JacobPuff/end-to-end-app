@@ -23,7 +23,7 @@ def resettokens(request):
             result = error_dict("api_error", "recaptcha_token is required")
         elif not verifyRecaptchaToken(request):
             status_code = httpexceptions.HTTPBadRequest.code
-            result = error_dict("api_error", "need valid recaptcha token")
+            result = error_dict("api_error", "recaptcha token is invalid")
         elif body.get("user_email") is None and body.get("resettoken") is None:
             status_code = httpexceptions.HTTPBadRequest.code
             result = error_dict("api_error", "user_email or resettoken is required")
