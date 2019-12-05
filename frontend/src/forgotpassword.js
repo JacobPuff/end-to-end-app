@@ -9,6 +9,7 @@ function ForgotPassword() {
     const [Email, setEmail] = React.useState("");
     const [sendingRequest, setSendingRequest] = React.useState(false);
     const [canSubmit, setCanSubmit] = React.useState(false);
+    const [recaptchaToken, setRecaptchaToken] = React.useState("");
     var recaptchaRef = React.useRef()
 
     const [displayError, setDisplayError] = React.useState(false);
@@ -29,30 +30,29 @@ function ForgotPassword() {
     }
 
     function handleVerifyReCaptcha(e) {
-        console.log("yeet", e)
+        setRecaptchaToken(e)
         setCanSubmit(true)
-        console.log("RESET")
-        console.log(recaptchaRef)
-        recaptchaRef.current.reset()
     }
 
     function handleExpireReCaptcha() {
-        console.log("haw", e)
         setCanSubmit(false)
+        setRecaptchaToken("")
+        recaptchaRef.current.reset()
     }
 
     function handleSubmit() {
+        setDisplayError(false);
+        setDisplaySuccess(false);
         if (!canSubmit) {
             setErrorValue("Please verify you are not a bot")
             setDisplayError(true);
             return
         }
-        setDisplayError(false);
-        setDisplaySuccess(false);
         if (!sendingRequest) {
             if (validateEmail(Email)) {
                 setSendingRequest(true);
-                const resetEmailRequest = postRequest("resettokens", {"user_email": Email});
+                const resetEmailRequest = postRequest("resettokens", {"user_email": Email,
+                                                                    "recaptcha_token": recaptchaToken});
                 resetEmailRequest.then(function() {
                     setSendingRequest(false);
                     setSuccessValue("If there is a user with that email, you'll receive a password reset link!");
@@ -64,9 +64,17 @@ function ForgotPassword() {
                     console.log(errorData)
                     console.log("error_type: ", error_type,
                                 "\nerror: ", error);
-                    if (error == "email is blacklisted") {
-                        setErrorValue("Email has been blacklisted. Use contact section on the home page if you need anything.");
-                        setDisplayError(true);
+                    switch (error) {
+                        case "email is blacklisted":
+                            setErrorValue("Email has been blacklisted. Use contact section on the home page" +
+                                "if you need anything.");
+                            setDisplayError(true);
+                        case "recaptcha_token is required":
+                            setErrorValue("Need a recaptcha token")
+                            setDisplayError(true)
+                        case "recaptcha token is invalid":
+                            setErrorValue("Nupe. Yous got a bad recaptcha token. Yous a bot")
+                            setDisplayError(true)
                     }
                 });
 

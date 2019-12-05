@@ -140,7 +140,7 @@ def removeEmailLabelIfAny(email):
     return email
 
 def verifyRecaptchaToken(request):
-    if request.recaptchaTestToken is not None:
+    if hasattr(request, "recaptchaTestToken"):
         # For testing
         if request.recaptchaTestToken == "successTestToken":
             return True
