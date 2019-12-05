@@ -53,7 +53,8 @@ function PasswordReset() {
 
         switch (error) {
             case "reset token doesnt exist":
-                setMessageValue("The token used doesnt exist. If you used the link in your password reset email, you've already reset your password");
+                setMessageValue("The token used doesnt exist. If you used the link in your password reset email within "+
+                    "a day of sending, you've already reset your password. If you didnt, you'll have to send another one");
                 break;
             default:
                 setErrorValue("error: " + error);
