@@ -69,9 +69,6 @@ function ForgotPassword() {
                             setErrorValue("Email has been blacklisted. Use contact section on the home page" +
                                 "if you need anything.");
                             setDisplayError(true);
-                        case "recaptcha_token is required":
-                            setErrorValue("Need a recaptcha token")
-                            setDisplayError(true)
                         case "recaptcha token is invalid":
                             setErrorValue("Nupe. Yous got a bad recaptcha token. Yous a bot")
                             setDisplayError(true)
