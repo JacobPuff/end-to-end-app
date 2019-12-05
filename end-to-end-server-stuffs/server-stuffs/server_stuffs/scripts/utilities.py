@@ -4,7 +4,11 @@ This file contains utility functions for use in the Pyramid view handling
 from server_stuffs.models import EmailBlacklistModel
 import datetime
 import boto3
+import configparser
 from botocore.exceptions import ClientError
+import requests
+import json
+from pprint import pprint
 
 
 def datetime_serializer(obj):
@@ -134,3 +138,11 @@ def removeEmailLabelIfAny(email):
         email = email[0:beginningIndex] + email[endingIndex:]
     
     return email
+
+def verifyRecaptchaToken(request):
+    secret = request.registry.settings["recaptcha_secret"]
+    verify_recaptcha_url = "https://www.google.com/recaptcha/api/siteverify"
+    response = requests.post(url=verify_recaptcha_url, data={"secret": secret,
+                                                "response": request.json_body["recaptchaToken"]})
+    jsonResponse = json.loads(response.text)
+    return jsonResponse["success"]
