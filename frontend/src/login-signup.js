@@ -14,11 +14,11 @@ function LoginSignup() {
     const [Email, setEmail] = React.useState("");
     const [PasswordAgain, setPasswordAgain] = React.useState("");
     const [recaptchaToken, setRecaptchaToken] = React.useState("");
-    var recaptchaRef = React.useRef()
+    var recaptchaRef = React.useRef();
 
     //Shared
     const [Password, setPassword] = React.useState("");
-    const [sendingRequest, setSendingRequest] = React.useState(false)
+    const [sendingRequest, setSendingRequest] = React.useState(false);
 
     const [displayError, setDisplayError] = React.useState(false);
     const [errorValue, setErrorValue] = React.useState("error: this is shown before being set")
@@ -36,12 +36,14 @@ function LoginSignup() {
                 setDisplayError(true);
                 break;
             case "email is blacklisted":            
-                setErrorValue("Email has been blacklisted. Use contact section on the home page if you need anything.");
+                setErrorValue("Email has been blacklisted. Use contact section on the home page " + 
+                    "if you need anything.");
                 setDisplayError(true);
                 break;
             case "recaptcha token is invalid":
-                setErrorValue("Nupe. Yous got a bad recaptcha token. Yous a bot")
-                setDisplayError(true)
+                setErrorValue("Nupe. Yous got a bad recaptcha token. Yous a bot.");
+                setDisplayError(true);
+                break;
             default:
                 setErrorValue("error: " + error);
                 setDisplayError(true);
@@ -128,12 +130,12 @@ function LoginSignup() {
     }
 
     function handleVerifyReCaptcha(e) {
-        setRecaptchaToken(e)
+        setRecaptchaToken(e);
     }
 
     function handleExpireReCaptcha() {
-        setRecaptchaToken("")
-        recaptchaRef.current.reset()
+        setRecaptchaToken("");
+        recaptchaRef.current.reset();
     }
 
     function handleSignupSubmit() {
@@ -169,9 +171,9 @@ function LoginSignup() {
             return;
         }
         else if (!recaptchaToken) {
-            setErrorValue("Please verify you are not a bot")
+            setErrorValue("Please verify you are not a bot");
             setDisplayError(true);
-            return
+            return;
         }
         else {
             setDisplayError(false);

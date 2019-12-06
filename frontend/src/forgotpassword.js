@@ -8,9 +8,8 @@ const ENTER_KEYCODE = 13;
 function ForgotPassword() {
     const [Email, setEmail] = React.useState("");
     const [sendingRequest, setSendingRequest] = React.useState(false);
-    const [canSubmit, setCanSubmit] = React.useState(false);
     const [recaptchaToken, setRecaptchaToken] = React.useState("");
-    var recaptchaRef = React.useRef()
+    var recaptchaRef = React.useRef();
 
     const [displayError, setDisplayError] = React.useState(false);
     const [displaySuccess, setDisplaySuccess] = React.useState(false);
@@ -30,21 +29,21 @@ function ForgotPassword() {
     }
 
     function handleVerifyReCaptcha(e) {
-        setRecaptchaToken(e)
+        setRecaptchaToken(e);
     }
 
     function handleExpireReCaptcha() {
-        setRecaptchaToken("")
-        recaptchaRef.current.reset()
+        setRecaptchaToken("");
+        recaptchaRef.current.reset();
     }
 
     function handleSubmit() {
         setDisplayError(false);
         setDisplaySuccess(false);
         if (!recaptchaToken) {
-            setErrorValue("Please verify you are not a bot")
+            setErrorValue("Please verify you are not a bot");
             setDisplayError(true);
-            return
+            return;
         }
         if (!sendingRequest) {
             if (validateEmail(Email)) {
@@ -67,9 +66,11 @@ function ForgotPassword() {
                             setErrorValue("Email has been blacklisted. Use contact section on the home page" +
                                 "if you need anything.");
                             setDisplayError(true);
+                            break;
                         case "recaptcha token is invalid":
-                            setErrorValue("Nupe. Yous got a bad recaptcha token. Yous a bot")
+                            setErrorValue("Nupe. Yous got a bad recaptcha token. Yous a bot.")
                             setDisplayError(true)
+                            break;
                     }
                 });
 
