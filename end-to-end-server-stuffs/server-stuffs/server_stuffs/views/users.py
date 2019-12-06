@@ -170,73 +170,79 @@ def users_by_id(request):
             status_code = httpexceptions.HTTPUnauthorized.code
             result = error_dict("api_error", "not authenticated for this request")
         else:
-                if user_id is None or int(user_id) != request.user.user_id:
-                    status_code = httpexceptions.HTTPUnauthorized.code
-                    result = error_dict("api_error", "not authenticated for this request")
-                elif body.get("user_name") is None and body.get("user_email") is None and body.get("user_pass") is None:
-                    status_code = httpexceptions.HTTPBadRequest.code
-                    result = error_dict("api_error", "no values provided to update")
-                elif body.get("user_email") and email_in_use(body.get("user_email"), request.dbsession):
-                    status_code = httpexceptions.HTTPBadRequest.code
-                    result = error_dict("api_error", "email already in use")
-                elif body.get("user_email") and isEmailBlacklisted(body.get("user_email"), request.dbsession):
-                    status_code = httpexceptions.HTTPBadRequest.code
-                    result = error_dict("api_error", "email is blacklisted")
-                elif body.get("user_pass") and body.get("old_pass") is None:
-                    status_code = httpexceptions.HTTPBadRequest.code
-                    result = error_dict("api_error", "old_pass required when updating password")
-                elif body.get("old_pass") and body.get("user_pass") is None:
-                    status_code = httpexceptions.HTTPBadRequest.code
-                    result = error_dict("api_error", "user_pass required when using old_pass")
-                elif body.get("old_pass") and not pwd_context.verify(body.get("old_pass"), request.user.user_pass):
-                    status_code = httpexceptions.HTTPBadRequest.code
-                    result = error_dict("api_error", "old_pass didnt match")
-                else:
-                    if body.get("user_name"):
-                        request.user.user_name = body.get("user_name").lower()
-                    if body.get("user_email"):
+            if user_id is None or int(user_id) != request.user.user_id:
+                status_code = httpexceptions.HTTPUnauthorized.code
+                result = error_dict("api_error", "not authenticated for this request")
+            elif body.get("user_name") is None and body.get("user_email") is None and body.get("user_pass") is None:
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "no values provided to update")
+            elif body.get("user_email") and body.get("recaptcha_token") is None and not hasattr(request, "recaptchaTestToken"):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "recaptcha_token required when using user_email")
+            elif body.get("user_email") and not verifyRecaptchaToken(request):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "recaptcha token is invalid")
+            elif body.get("user_email") and email_in_use(body.get("user_email"), request.dbsession):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "email already in use")
+            elif body.get("user_email") and isEmailBlacklisted(body.get("user_email"), request.dbsession):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "email is blacklisted")
+            elif body.get("user_pass") and body.get("old_pass") is None:
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "old_pass required when updating password")
+            elif body.get("old_pass") and body.get("user_pass") is None:
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "user_pass required when using old_pass")
+            elif body.get("old_pass") and not pwd_context.verify(body.get("old_pass"), request.user.user_pass):
+                status_code = httpexceptions.HTTPBadRequest.code
+                result = error_dict("api_error", "old_pass didnt match")
+            else:
+                if body.get("user_name"):
+                    request.user.user_name = body.get("user_name").lower()
+                if body.get("user_email"):
 
-                        # Make verification token
-                        new_token = str(uuid4())
-                        verifytoken = VerifyTokenModel()
-                        verifytoken.user_id = request.user.user_id
-                        verifytoken.temp_email = body.get("user_email").lower()
-                        verifytoken.token = new_token
-                        request.dbsession.add(verifytoken)
-                        request.dbsession.flush()
-                        request.dbsession.refresh(verifytoken)
+                    # Make verification token
+                    new_token = str(uuid4())
+                    verifytoken = VerifyTokenModel()
+                    verifytoken.user_id = request.user.user_id
+                    verifytoken.temp_email = body.get("user_email").lower()
+                    verifytoken.token = new_token
+                    request.dbsession.add(verifytoken)
+                    request.dbsession.flush()
+                    request.dbsession.refresh(verifytoken)
 
-                        # Set how the email will look
-                        verifylink = request.application_url + "/verify?verifytoken=" + verifytoken.token
-                        subject = "Please verify to change your email"
-                        body_text = ("A change of email was requested for user " + request.user.user_name + "\r\n"
-                                    "To verify that you own this account and email, go to " + verifylink + "\r\n"
-                                    "If you did not change your email or you dont own this account, please ignore this email"
-                                    )
-                        body_html = """
-                        <html>
-                        <head></head>
-                        <body>
-                            <p>A change of email was requested for user """ + request.user.user_name + """</p>
-                            <p>To verify that you own this account and email, go to 
-                                <a href='""" + verifylink + """'>""" + verifylink + """</a></p>
-                            <p>If you did not change your email or you dont own this account, please ignore this email</p>
-                        </body>
-                        </html>
-                                    """
-                        error = send_email(body.get("user_email").lower(), subject, body_text, body_html)
-                        
-                        if error:
-                            status_code = httpexceptions.HTTPBadRequest.code
-                            result = error
-                    if body.get("user_pass"):
-                        request.user.user_pass = pwd_context.hash(body.get("user_pass"))
+                    # Set how the email will look
+                    verifylink = request.application_url + "/verify?verifytoken=" + verifytoken.token
+                    subject = "Please verify to change your email"
+                    body_text = ("A change of email was requested for user " + request.user.user_name + "\r\n"
+                                "To verify that you own this account and email, go to " + verifylink + "\r\n"
+                                "If you did not change your email or you dont own this account, please ignore this email"
+                                )
+                    body_html = """
+                    <html>
+                    <head></head>
+                    <body>
+                        <p>A change of email was requested for user """ + request.user.user_name + """</p>
+                        <p>To verify that you own this account and email, go to 
+                            <a href='""" + verifylink + """'>""" + verifylink + """</a></p>
+                        <p>If you did not change your email or you dont own this account, please ignore this email</p>
+                    </body>
+                    </html>
+                                """
+                    error = send_email(body.get("user_email").lower(), subject, body_text, body_html)
+                    
+                    if error:
+                        status_code = httpexceptions.HTTPBadRequest.code
+                        result = error
+                if body.get("user_pass"):
+                    request.user.user_pass = pwd_context.hash(body.get("user_pass"))
 
-                    if body.get("user_email") is None or not error:
-                        request.dbsession.flush()
-                        request.dbsession.refresh(request.user)
-                        status_code = httpexceptions.HTTPOk.code
-                        result = dict_from_row(request.user, remove_fields=removals)
+                if body.get("user_email") is None or not error:
+                    request.dbsession.flush()
+                    request.dbsession.refresh(request.user)
+                    status_code = httpexceptions.HTTPOk.code
+                    result = dict_from_row(request.user, remove_fields=removals)
 
         return Response(
             content_type='application/json',
