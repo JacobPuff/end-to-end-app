@@ -119,6 +119,28 @@ class UserTests(PyramidTestBase):
         response = users.users(self.request)
         self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
                                                     "errors": ["password must be at least 8 characters"]}})
+
+    def test_post_user_no_recaptcha_token(self):
+        # Remove recaptchaTestToken
+        delattr(self.request, "recaptchaTestToken")
+
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com",
+                                  "user_pass": "passwordForTest"}
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["recaptcha_token is required"]}})
+
+    def test_post_user_bad_recaptcha_token(self):
+        # Use bad test token
+        self.request.recaptchaTestToken = "badTestToken"
+
+        self.request.method = 'POST'
+        self.request.json_body = {"user_name": "TestUser", "user_email": "success@simulator.amazonses.com",
+                                  "user_pass": "passwordForTest"}
+        response = users.users(self.request)
+        self.assertEqual(response.json_body, {"d": {"error_type": "api_error",
+                                                    "errors": ["recaptcha token is invalid"]}})
     
     def test_post_delete_invalid_users(self):
         # Make invalid user

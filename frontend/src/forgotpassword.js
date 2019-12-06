@@ -31,11 +31,9 @@ function ForgotPassword() {
 
     function handleVerifyReCaptcha(e) {
         setRecaptchaToken(e)
-        setCanSubmit(true)
     }
 
     function handleExpireReCaptcha() {
-        setCanSubmit(false)
         setRecaptchaToken("")
         recaptchaRef.current.reset()
     }
@@ -43,7 +41,7 @@ function ForgotPassword() {
     function handleSubmit() {
         setDisplayError(false);
         setDisplaySuccess(false);
-        if (!canSubmit) {
+        if (!recaptchaToken) {
             setErrorValue("Please verify you are not a bot")
             setDisplayError(true);
             return

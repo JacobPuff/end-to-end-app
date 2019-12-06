@@ -253,7 +253,7 @@ class EmailTests(PyramidTestBase):
         user_data = self.make_user()
         user_email = user_data["user_email"]
 
-        # Remove recaptcha token
+        # Use bad test token
         self.request.recaptchaTestToken = "badTestToken"
 
         self.request.method = 'POST'
