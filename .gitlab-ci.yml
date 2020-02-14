@@ -1,6 +1,6 @@
 before_script:
   - apt-get update
-  - apt-get upgrade
+  - apt-get upgrade -y
   - apt-get install -y bash
   - apt-get install -y curl
   - apt-get install -y openssh-client
