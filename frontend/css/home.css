@@ -30,34 +30,34 @@ header {
 }
 
 .secondaryContainer {
+    width: 75%;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 50px;
-    width: 75%;
-    background-color: rgb(20, 47, 82);
-    border-radius: 5px;
     padding: 30px;
     word-wrap: break-word;
+    border-radius: 5px;
+    background-color: rgb(16, 38, 66);
 }
 
 .bottomContainer {
+    width: 75%;
     margin-left: auto;
     margin-right: auto;
-    width: 75%;
-    background-color: rgb(20, 47, 82);
-    border-radius: 5px;
     padding: 30px;
     word-wrap: break-word;
+    border-radius: 5px;
+    background-color: rgb(16, 38, 66);
 }
 
 .projects {
     width: 75%;
-    margin-bottom: 50px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 50px;
     padding: 30px;
-    background-color: rgb(20, 47, 82);
     border-radius: 5px;
+    background-color: rgb(16, 38, 66);
 }
 
 .projectContainer {
