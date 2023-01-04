@@ -1,5 +1,5 @@
 default:
-  image: debian:11.6
+  image: debian:10.13-slim
 
 before_script:
   - apt-get update
